@@ -8,3 +8,8 @@ config :livevox, LivevoxWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# Use DummyFeed with no events in testing environment
+config :livevox,
+  call_feed: Livevox.DummyFeed,
+  agent_feed: Livevox.DummyFeed

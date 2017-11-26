@@ -1,4 +1,4 @@
-defmodule Livevox.State.Agents do
+defmodule Livevox.AgentState do
   use Agent
   import ShortMaps
 
@@ -7,7 +7,7 @@ defmodule Livevox.State.Agents do
   end
 
   def handle_agent_event(agent_event) do
-    ~m(agentId timestamp agentServiceId eventType sessionId callServiceId) = agent_event
+    ~m(agentId timestamp agentServiceId eventType) = agent_event
 
     agent_exists =
       Agent.get(__MODULE__, fn state ->
@@ -37,7 +37,7 @@ defmodule Livevox.State.Agents do
   #   - number of calls made
   #   - what session they were in
   defp add_agent(agent_event) do
-    ~m(agentId timestamp agentServiceId eventType sessionId callServiceId) = agent_event
+    ~m(agentId timestamp agentServiceId eventType) = agent_event
 
     Agent.update(__MODULE__, fn state ->
       Map.put(state, agentId, %{
@@ -76,5 +76,20 @@ defmodule Livevox.State.Agents do
   #   -
   defp mark_not_ready(agent_event) do
     IO.inspect(agent_event)
+  end
+
+  # –––––––––––––––––––––––– Getters –––––––––––––––––––––––
+  def ready_count(filter_func \\ fn _ -> true end) do
+    Agent.get(__MODULE__, fn agents ->
+      Enum.map(agents, fn {key, agent} -> agent end)
+      |> Enum.filter(fn %{state: s} -> s == "READY" end)
+      |> Enum.filter(&(filter_func.(&1)))
+      |> length()
+    end)
+  end
+
+  # –––––––––––––––––––––––– For testing –––––––––––––––––––––––– 
+  def reset do
+    Agent.update(__MODULE__, fn _ -> %{} end)
   end
 end

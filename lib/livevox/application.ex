@@ -10,8 +10,11 @@ defmodule Livevox.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(LivevoxWeb.Endpoint, []),
-      # Start your own worker by calling: Livevox.Worker.start_link(arg1, arg2, arg3)
-      # worker(Livevox.Worker, [arg1, arg2, arg3]),
+      worker(Livevox.Session, []),
+      worker(Livevox.AgentState, []),
+      worker(Livevox.CallState, [])
+      # worker(Livevox.Recorder.Agent, []),
+      # worker(Livevox.Recorder.Call, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

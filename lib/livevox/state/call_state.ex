@@ -1,4 +1,4 @@
-defmodule Livevox.State.Calls do
+defmodule Livevox.CallState do
   use Agent
   import ShortMaps
 
