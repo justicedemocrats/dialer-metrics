@@ -4,22 +4,24 @@ defmodule LivevoxWeb.Endpoint do
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
-    plug Phoenix.CodeReloader
+    plug(Phoenix.CodeReloader)
   end
 
-  plug Plug.RequestId
-  plug Plug.Logger
+  plug(Plug.RequestId)
+  plug(Plug.Logger)
 
-  plug Plug.Parsers,
-    # parsers: [:urlencoded, :multipart, :json],
+  # parsers: [:urlencoded, :multipart, :json],
+  plug(
+    Plug.Parsers,
     parsers: [:json],
     pass: ["*/*"],
     json_decoder: Poison
+  )
 
-  plug Plug.MethodOverride
-  plug Plug.Head
+  plug(Plug.MethodOverride)
+  plug(Plug.Head)
 
-  plug LivevoxWeb.Router
+  plug(LivevoxWeb.Router)
 
   @doc """
   Callback invoked for dynamically configuring the endpoint.
