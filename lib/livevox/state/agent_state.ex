@@ -83,7 +83,7 @@ defmodule Livevox.AgentState do
     Agent.get(__MODULE__, fn agents ->
       Enum.map(agents, fn {key, agent} -> agent end)
       |> Enum.filter(fn %{state: s} -> s == "READY" end)
-      |> Enum.filter(&(filter_func.(&1)))
+      |> Enum.filter(&filter_func.(&1))
       |> length()
     end)
   end

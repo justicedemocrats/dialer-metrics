@@ -3,7 +3,7 @@ defmodule ReadyText do
   alias Livevox.{AgentHandler}
 
   test "increments ready count" do
-Enum.each(
+    Enum.each(
       [
         %{
           "agentId" => 1_035_672,
