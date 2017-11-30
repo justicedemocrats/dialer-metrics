@@ -39,7 +39,10 @@ defmodule Livevox.Mixfile do
       {:httpotion, "~> 3.0.3"},
       {:poison, "~> 3.1"},
       {:timex, "~> 3.1"},
-      {:short_maps, "~> 0.1.2"}
+      {:short_maps, "~> 0.1.2"},
+      {:ecto, "~> 2.0"},
+      {:postgrex, "~> 0.11"},
+      {:dogstatsd, "0.0.3"}
     ]
   end
 end

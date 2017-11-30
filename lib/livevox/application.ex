@@ -10,9 +10,18 @@ defmodule Livevox.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(LivevoxWeb.Endpoint, []),
+      supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
+      # supervisor(Livevox.Repo, []),
+
       worker(Livevox.Session, []),
-      worker(Livevox.AgentState, []),
-      worker(Livevox.CallState, [])
+
+      # worker(Livevox.ServiceFeed, []),
+      # worker(Livevox.AgentEventFeed, []),
+      # worker(Livevox.CallEventFeed, []),
+      
+      # worker(Livevox.Metrics.Cip, [])
+      # worker(Livevox.Metrics.WaitTime, []),
+      # worker(Livevox.CallState, [])
       # worker(Livevox.Recorder.Agent, []),
       # worker(Livevox.Recorder.Call, [])
     ]
