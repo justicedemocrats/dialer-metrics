@@ -1,2 +1,46 @@
 defmodule Livevox.Metrics.CallLength do
+  alias Phoenix.{PubSub}
+  use GenServer
+  import ShortMaps
+
+  def start_link do
+    GenServer.start_link(__MODULE__, fn ->
+      %{}
+    end)
+  end
+
+  def init(opts) do
+    PubSub.subscribe(:livevox, "call_event")
+    {:ok, %{}}
+  end
+
+  def handle_info(
+        message = %{"lvResult" => "Operator Transfer" <> _rest, "duration" => duration},
+        state
+      ) do
+    underscored =
+      Enum.map(message, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
+      |> Enum.into(%{})
+
+    ~m(duration agent_login_id service_id) = underscored
+
+    service_name = Livevox.ServiceInfo.name_of(service_id)
+    agent_name = agent_login_id
+    tags = ["agent:#{agent_name}", "service:#{service_name}"]
+
+    {:ok, timestamp} = DateTime.from_unix(underscored["end"], :millisecond)
+
+    if duration > 0 do
+      Dog.post_metric("call_length", [timestamp, duration], tags) |> IO.inspect()
+    else
+      IO.puts("Duration 0")
+    end
+  end
+
+  def handle_info(_, _) do
+    {:noreply, %{}}
+  end
+
+  defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
+  defp typey_downcase(val), do: val
 end

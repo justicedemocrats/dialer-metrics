@@ -20,7 +20,7 @@ defmodule Livevox.Metrics.SessionLength do
   end
 
   def handle_info(message = %{"eventType" => "LOGOFF"}, state) do
-    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => agentServiceId} =
+    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => agent_service_id} =
       message
 
     service_name = Livevox.ServiceInfo.name_of(agent_service_id)

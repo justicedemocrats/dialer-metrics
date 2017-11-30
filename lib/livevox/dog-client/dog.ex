@@ -2,8 +2,8 @@ defmodule Dog do
   import ShortMaps
 
   def post_metric(metric, point, tags) do
-    ~m(timestamp value)a = Map.get_and_update!(point, :timestamp, &timeify/1)
-    points = [[timestamp, value]]
+    [timestamp, value] = point
+    points = [[timeify(timestamp), value]]
     Dog.Api.post("series", body: %{series: [~m(metric points tags)]})
   end
 
@@ -13,8 +13,8 @@ defmodule Dog do
 
   def post_event(event) do
     event = Map.update!(event, :date_happened, &timeify/1)
-    IO.inspect event
-    Dog.Api.post("events", body: event) |> IO.inspect
+    IO.inspect(event)
+    Dog.Api.post("events", body: event) |> IO.inspect()
   end
 
   def delete_all_events do

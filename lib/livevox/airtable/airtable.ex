@@ -46,12 +46,7 @@ defmodule Livevox.AirtableCache do
 
     decoded = Poison.decode!(body)
 
-    records =
-      decoded["records"]
-      |> Enum.filter(fn %{"fields" => fields} -> Map.has_key?(fields, "LV Result") end)
-      |> Enum.reduce(%{}, fn %{"fields" => fields = %{"LV Result" => lv_result}}, acc ->
-           Map.put(acc, lv_result, Map.drop(fields, ["LV Result"]))
-         end)
+    records = process_records(decoded["records"])
 
     if Map.has_key?(decoded, "offset") do
       fetch_all(records, decoded["offset"])
@@ -72,19 +67,31 @@ defmodule Livevox.AirtableCache do
 
     decoded = Poison.decode!(body)
 
-    new_records =
-      decoded["records"]
-      |> Enum.filter(fn %{"fields" => fields} -> Map.has_key?(fields, "Destination") end)
-      |> Enum.map(fn %{"fields" => %{"Pattern" => from, "Destination" => to}} ->
-           {from, to}
-         end)
-
-    all_records = Enum.concat(records, new_records)
+    new_records = process_records(decoded["records"])
+    all_records = Enum.into(records, new_records)
 
     if Map.has_key?(decoded, "offset") do
       fetch_all(all_records, decoded["offset"])
     else
       all_records
     end
+  end
+
+  defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
+  defp typey_downcase(val), do: val
+
+  defp process_records(records) do
+    records
+    |> Enum.filter(fn %{"fields" => fields} -> Map.has_key?(fields, "LV System Result") end)
+    |> Enum.reduce(%{}, fn %{"fields" => fields}, acc ->
+         underscored =
+           Enum.map(fields, fn {key, val} ->
+             {key |> String.replace(" ", "") |> Macro.underscore(), typey_downcase(val)}
+           end)
+           |> Enum.into(%{})
+
+         key = underscored["lv_result"] || underscored["lv_system_result"]
+         Map.put(acc, key, Map.drop(underscored, ["lv_result"]))
+       end)
   end
 end
