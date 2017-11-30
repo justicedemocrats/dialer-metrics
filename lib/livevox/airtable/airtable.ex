@@ -1,9 +1,9 @@
-defmodule Shorten.AirtableCache do
+defmodule Livevox.AirtableCache do
   use Agent
 
-  @key Application.get_env(:shorten, :airtable_key)
-  @base Application.get_env(:shorten, :airtable_base)
-  @table Application.get_env(:shorten, :airtable_table_name)
+  @key Application.get_env(:livevox, :airtable_key)
+  @base Application.get_env(:livevox, :airtable_base)
+  @table Application.get_env(:livevox, :airtable_table_name)
 
   @interval 60_000
 
@@ -12,7 +12,7 @@ defmodule Shorten.AirtableCache do
 
     Agent.start_link(
       fn ->
-        fetch_all() |> Enum.map(&regexify/1)
+        fetch_all()
       end,
       name: __MODULE__
     )
@@ -27,10 +27,10 @@ defmodule Shorten.AirtableCache do
 
   def update() do
     Agent.update(__MODULE__, fn _current ->
-      fetch_all() |> Enum.map(&regexify/1)
+      fetch_all()
     end)
 
-    IO.puts("Updated at #{inspect(DateTime.utc_now())}")
+    IO.puts("[term codes]: updated at #{inspect(DateTime.utc_now())}")
     queue_update()
   end
 
@@ -50,7 +50,7 @@ defmodule Shorten.AirtableCache do
       decoded["records"]
       |> Enum.filter(fn %{"fields" => fields} -> Map.has_key?(fields, "LV Result") end)
       |> Enum.reduce(%{}, fn %{"fields" => fields = %{"LV Result" => lv_result}}, acc ->
-           Map.put(acc, lv_result, Map.drop(fields, "LV Result"))
+           Map.put(acc, lv_result, Map.drop(fields, ["LV Result"]))
          end)
 
     if Map.has_key?(decoded, "offset") do
@@ -86,10 +86,5 @@ defmodule Shorten.AirtableCache do
     else
       all_records
     end
-  end
-
-  defp regexify({from, to}) do
-    {:ok, as_regex} = from |> String.downcase() |> Regex.compile()
-    {as_regex, to}
   end
 end

@@ -19,16 +19,16 @@ defmodule Livevox.Metrics.WaitTime do
   end
 
   def handle_info(message = %{"eventType" => "IN_CALL"}, state) do
-    %{"agentId" => agent_id, "timestamp" => timestamp} = message
+    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => agentServiceId} =
+      message
 
-    # TODO - include service
-    tags = ["agent:#{agent_id}", ""]
+    tags = ["agent:#{agent_id}", "service:#{Livevox.ServiceInfo.name_of(agentServiceId)}"]
 
     # Side effects
     case Map.get(state, agent_id) do
       %{state: "READY", changed_at: ready_at} ->
         Dog.post_metric(
-          "wait",
+          "wait_time",
           [timestamp |> DateTime.to_unix(), Timex.diff(ready_at, timestamp)],
           tags
         )

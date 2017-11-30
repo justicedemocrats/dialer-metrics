@@ -14,11 +14,13 @@ defmodule Livevox.Application do
       # supervisor(Livevox.Repo, []),
 
       worker(Livevox.Session, []),
+      worker(Livevox.ServiceInfo, [])
+      # worker(Livevox.AirtableCache, [])
 
       # worker(Livevox.ServiceFeed, []),
       # worker(Livevox.AgentEventFeed, []),
       # worker(Livevox.CallEventFeed, []),
-      
+
       # worker(Livevox.Metrics.Cip, [])
       # worker(Livevox.Metrics.WaitTime, []),
       # worker(Livevox.CallState, [])
