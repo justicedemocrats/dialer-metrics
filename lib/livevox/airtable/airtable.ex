@@ -5,7 +5,7 @@ defmodule Livevox.AirtableCache do
   @base Application.get_env(:livevox, :airtable_base)
   @table Application.get_env(:livevox, :airtable_table_name)
 
-  @interval 60_000
+  @interval 1_000_000
 
   def start_link do
     queue_update()

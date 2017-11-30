@@ -31,8 +31,7 @@ defmodule Livevox.AgentEventFeed do
 
   defp handle_events(events) do
     Enum.each(events, fn ev ->
-      IO.inspect(ev)
-      PubSub.broadcast(:livevox, :agent_event, ev)
+      PubSub.broadcast(:livevox, "agent_event", ev)
     end)
   end
 end

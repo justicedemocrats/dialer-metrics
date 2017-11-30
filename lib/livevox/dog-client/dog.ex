@@ -7,14 +7,14 @@ defmodule Dog do
     Dog.Api.post("series", body: %{series: [~m(metric points tags)]})
   end
 
-  def post_metrics(metrics) do
-    series = Enum.map(metrics, [])
-    Dog.Api.post("series", body: ~m(series)a |> IO.inspect())
+  def post_metrics(series) do
+    Dog.Api.post("series", body: ~m(series)a)
   end
 
-  def post_event(event = %Dog.Event{}) do
-    event = Map.get_and_update!(event, :date_happened, &timeify/1)
-    Dog.Api.post("events", body: event)
+  def post_event(event) do
+    event = Map.update!(event, :date_happened, &timeify/1)
+    IO.inspect event
+    Dog.Api.post("events", body: event) |> IO.inspect
   end
 
   def delete_all_events do
@@ -31,10 +31,10 @@ defmodule Dog do
 
   defp gen_timeify(key) do
     fn map ->
-      Map.get_and_update(map, key, &timeify/1)
+      Map.update!(map, key, &timeify/1)
     end
   end
 
   defp timeify(ts) when is_integer(ts), do: ts
-  defp timeify(ts) when is_map(ts), do: DateTime.to_unix(ts)
+  defp timeify(ts) when is_map(ts), do: DateTime.to_unix(ts, :second)
 end
