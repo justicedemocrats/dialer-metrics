@@ -17,15 +17,14 @@ defmodule Livevox.Application do
       worker(Livevox.ServiceInfo, [])
       # worker(Livevox.AirtableCache, [])
 
-      # worker(Livevox.ServiceFeed, []),
+      # worker(Livevox.ServiceStatFeed, []),
       # worker(Livevox.AgentEventFeed, []),
       # worker(Livevox.CallEventFeed, []),
 
-      # worker(Livevox.Metrics.Cip, [])
+      # worker(Livevox.Metrics.CallerCounts, [])
+      # worker(Livevox.Metrics.ServiceLevel, [])
       # worker(Livevox.Metrics.WaitTime, []),
-      # worker(Livevox.CallState, [])
-      # worker(Livevox.Recorder.Agent, []),
-      # worker(Livevox.Recorder.Call, [])
+      # worker(Livevox.Metrics.SessionLength, []),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

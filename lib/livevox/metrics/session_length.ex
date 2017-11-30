@@ -1,4 +1,4 @@
-defmodule Livevox.Metrics.CallerCounts do
+defmodule Livevox.Metrics.SessionLength do
   alias Phoenix.{PubSub}
   use GenServer
   import ShortMaps
