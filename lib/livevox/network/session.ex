@@ -40,7 +40,7 @@ defmodule Livevox.Session do
       Livevox.Api.post(
         "session/v5.0/login",
         headers: [no_session: true],
-        body: IO.inspect(%{userName: @username, password: @password, clientName: @clientname})
+        body: %{userName: @username, password: @password, clientName: @clientname}
       )
 
     %Livevox.Session{id: sessionId, expires_at: Timex.shift(Timex.now(), hours: 25)}

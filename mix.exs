@@ -42,7 +42,8 @@ defmodule Livevox.Mixfile do
       {:short_maps, "~> 0.1.2"},
       {:ecto, "~> 2.0"},
       {:postgrex, "~> 0.11"},
-      {:dogstatsd, "0.0.3"}
+      {:dogstatsd, "0.0.3"},
+      {:mongodb, ">= 0.4.3"}
     ]
   end
 end

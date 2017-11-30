@@ -29,6 +29,6 @@ defmodule Livevox.CallEventFeed do
 
   def handle_events(events) do
     IO.puts("Calls: #{length(events)} events")
-    Enum.each(events, fn ev -> PubSub.broadcast(:livevox, :agent_event, ev) end)
+    Enum.each(events, fn ev -> PubSub.broadcast(:livevox, "call_event", ev) end)
   end
 end

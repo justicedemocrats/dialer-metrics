@@ -22,7 +22,9 @@ defmodule Livevox.Metrics.WaitTime do
     %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => agentServiceId} =
       message
 
-    tags = ["agent:#{agent_id}", "service:#{Livevox.ServiceInfo.name_of(agentServiceId)}"]
+    service_name = Livevox.ServiceInfo.name_of(agent_service_id)
+    agent_name = Livevox.AgentInfo.name_of(agent_id)
+    tags = ["agent:#{agent_name}", "service:#{service_name}"]
 
     # Side effects
     case Map.get(state, agent_id) do
@@ -37,7 +39,7 @@ defmodule Livevox.Metrics.WaitTime do
         Dog.post_event(%{
           title: "error",
           text: "expected prev_state to be ready – was #{something_else} at #{prev_state_set_at}",
-          date_happened: DateTime.now(),
+          date_happened: Timex.now(),
           tags: tags
         })
     end
