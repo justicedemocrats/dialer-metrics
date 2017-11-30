@@ -8,23 +8,31 @@ defmodule Livevox.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Start the endpoint when the application starts
+      # Core infrastructure
       supervisor(LivevoxWeb.Endpoint, []),
       supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
-      # supervisor(Livevox.Repo, []),
+      worker(Mongo, [[name: :mongo, database: "livevox"]]),
 
+      # Caches / data sources
       worker(Livevox.Session, []),
-      worker(Livevox.ServiceInfo, [])
-      # worker(Livevox.AirtableCache, [])
+      worker(Livevox.ServiceInfo, []),
+      worker(Livevox.AgentInfo, []),
+      worker(Livevox.AirtableCache, []),
 
+      # Feeds
       # worker(Livevox.ServiceStatFeed, []),
-      # worker(Livevox.AgentEventFeed, []),
+      worker(Livevox.AgentEventFeed, []),
       # worker(Livevox.CallEventFeed, []),
 
+      # Metrics
       # worker(Livevox.Metrics.CallerCounts, [])
       # worker(Livevox.Metrics.ServiceLevel, [])
       # worker(Livevox.Metrics.WaitTime, []),
       # worker(Livevox.Metrics.SessionLength, []),
+
+      # Event loggers
+      # worker(Livevox.EventLoggers.CallEvent, []),
+      worker(Livevox.EventLoggers.AgentEvent, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

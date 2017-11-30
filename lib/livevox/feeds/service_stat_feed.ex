@@ -20,7 +20,7 @@ defmodule Livevox.ServiceStatFeed do
           calls_with_agent: callsWithAgent,
           cip: cip,
           loaded: loaded,
-          longest_call_in_queue: longest_call_in_queue,
+          longest_call_in_queue: longestCallInQueue,
           pacing_method: pacingMethod,
           percent_complete: percentComplete,
           playing_dialable: playingDialable,
@@ -35,8 +35,6 @@ defmodule Livevox.ServiceStatFeed do
         })
       end
     )
-
-    IO.inspect("Fetched and broadcast new")
 
     :timer.sleep(@resolution)
     get_all_cips()

@@ -23,7 +23,9 @@ defmodule Livevox.Metrics.SessionLength do
     %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => agentServiceId} =
       message
 
-    tags = ["agent:#{agent_id}", "service:#{Livevox.ServiceInfo.name_of(agentServiceId)}"]
+    service_name = Livevox.ServiceInfo.name_of(agent_service_id)
+    agent_name = Livevox.AgentInfo.name_of(agent_id)
+    tags = ["agent:#{agent_name}", "service:#{service_name}"]
 
     if Map.has_key?(state, agent_id) do
       logged_on_at = Map.get(state, agent_id)
@@ -37,7 +39,7 @@ defmodule Livevox.Metrics.SessionLength do
       Dog.post_event(%{
         title: "error",
         text: "got log off for #{agent_id} but never got log on",
-        date_happened: DateTime.now(),
+        date_happened: Timex.now(),
         tags: tags
       })
     end
