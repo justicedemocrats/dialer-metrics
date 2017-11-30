@@ -16,7 +16,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
 
   def handle_info(message = %{"lineNumber" => "ACD"}, state) do
     underscored =
-      Enum.map(message, fn {key, val} -> {Macro.underscore(key), String.downcase(val)} end)
+      Enum.map(message, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
       |> Enum.into(%{})
 
     ~m(agent_id agent_service_id event_type timestamp) = underscored
@@ -40,4 +40,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
   def handle_info(_, _) do
     {:noreply, %{}}
   end
+
+  defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
+  defp typey_downcase(val), do: val
 end
