@@ -31,15 +31,10 @@ defmodule Livevox.EventLoggers.CallEvent do
       get_agent_result(session_id, transaction_id, client_id)
       |> Enum.map(fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
       |> Enum.into(%{})
-      |> IO.inspect()
 
     lv_result = agent_result["lv_result"] || underscored["lv_result"]
 
     extra_attributes = Livevox.AirtableCache.get_all() |> Map.get(lv_result)
-
-    IO.inspect(underscored)
-    IO.inspect(lv_result)
-    IO.inspect(extra_attributes)
 
     actor_tags =
       case agent_name do
@@ -61,16 +56,18 @@ defmodule Livevox.EventLoggers.CallEvent do
 
     {:ok, timestamp} = DateTime.from_unix(underscored["end"], :millisecond)
 
-    Dog.post_event(%{
-      title: "call",
-      date_happened: timestamp,
-      tags: tags
-    })
+    spawn(fn ->
+      Dog.post_event(%{
+        title: "call",
+        date_happened: timestamp,
+        tags: tags
+      })
+    end)
 
     call =
       Map.merge(~m(agent_name service_name duration phone_dialed lv_result), extra_attributes)
 
-    Mongo.insert_one(:mongo, "calls", call)
+    spawn(fn -> Mongo.insert_one(:mongo, "calls", call) end)
 
     {:noreply, %{}}
   end

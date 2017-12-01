@@ -25,25 +25,34 @@ defmodule Livevox.Metrics.WaitTime do
     service_name = Livevox.ServiceInfo.name_of(agent_service_id)
     agent_name = Livevox.AgentInfo.name_of(agent_id)
     tags = ["agent:#{agent_name}", "service:#{service_name}"]
+    {:ok, timestamp} = DateTime.from_unix(timestamp, :millisecond)
 
     # Side effects
     case Map.get(state, agent_id) do
       %{state: "READY", changed_at: ready_at} ->
-        Dog.post_metric(
-          "wait_time",
-          [timestamp |> DateTime.to_unix(), Timex.diff(ready_at, timestamp)],
-          tags
-        )
+        spawn(fn ->
+          Dog.post_metric(
+            "wait_time",
+            [timestamp, Timex.diff(timestamp, ready_at) / 10_000_000],
+            tags
+          )
+        end)
 
       %{state: something_else, changed_at: prev_state_set_at} ->
-        Dog.post_event(%{
-          title: "error",
-          text: "expected prev_state to be ready – was #{something_else} at #{prev_state_set_at}",
-          date_happened: Timex.now(),
-          tags: tags
-        })
+        spawn(fn ->
+          Dog.post_event(%{
+            title: "error",
+            text: "expected prev_state to be ready – was #{something_else} at #{prev_state_set_at}",
+            date_happened: Timex.now(),
+            tags: tags
+          })
+        end)
     end
 
     {:noreply, Map.put(state, agent_id, %{state: "IN_CALL", changed_at: timestamp})}
+  end
+
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 end

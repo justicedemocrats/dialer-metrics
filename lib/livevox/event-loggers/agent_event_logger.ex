@@ -26,13 +26,17 @@ defmodule Livevox.EventLoggers.AgentEvent do
 
     {:ok, timestamp} = DateTime.from_unix(timestamp, :millisecond)
 
-    Dog.post_event(%{
-      title: "agent_event:#{event_type}",
-      date_happened: timestamp,
-      tags: ["agent:#{agent_name}", "service:#{service_name}"]
-    })
+    spawn(fn ->
+      Dog.post_event(%{
+        title: "agent_event:#{event_type}",
+        date_happened: timestamp,
+        tags: ["agent:#{agent_name}", "service:#{service_name}"]
+      })
+    end)
 
-    Mongo.insert_one(:mongo, "agent_events", ~m(agent_name service_name event_type timestamp))
+    spawn(fn ->
+      Mongo.insert_one(:mongo, "agent_events", ~m(agent_name service_name event_type timestamp))
+    end)
 
     {:noreply, %{}}
   end

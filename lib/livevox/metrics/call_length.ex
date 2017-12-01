@@ -31,9 +31,7 @@ defmodule Livevox.Metrics.CallLength do
     {:ok, timestamp} = DateTime.from_unix(underscored["end"], :millisecond)
 
     if duration > 0 do
-      Dog.post_metric("call_length", [timestamp, duration], tags) |> IO.inspect()
-    else
-      IO.puts("Duration 0")
+      spawn(fn -> Dog.post_metric("call_length", [timestamp, duration], tags) end)
     end
   end
 
