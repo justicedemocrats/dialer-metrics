@@ -43,7 +43,7 @@ defmodule Livevox.Mixfile do
       {:ecto, "~> 2.0"},
       {:postgrex, "~> 0.11"},
       {:dogstatsd, "0.0.3"},
-      {:mongodb, ">= 0.4.3"}
+      {:mongodb, "~> 0.4.3"}
     ]
   end
 end

@@ -22,4 +22,8 @@ config :livevox,
   data_dog_application_key: "b5d4c4edf1844a9cb34c9f654e9355d348d8e308",
   airtable_key: "keylEG1YySJXMRa6Z",
   airtable_base: "appYsMtTeDehJmTJb",
-  airtable_table_name: "Term%20Codes"
+  airtable_table_name: "Term%20Codes",
+  mongodb_username: "livevox-monitor",
+  mongodb_hostname: "ds111123.mlab.com",
+  mongodb_password: ",GM7NECUh)3F{Tc^",
+  mongodb_port: "11123"

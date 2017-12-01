@@ -11,7 +11,14 @@ defmodule Livevox.Application do
       # Core infrastructure
       supervisor(LivevoxWeb.Endpoint, []),
       supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
-      worker(Mongo, [[name: :mongo, database: "livevox"]]),
+      worker(Mongo, [[
+        name: :mongo,
+        database: "livevox",
+        username: Application.get_env(:livevox, :mongodb_username),
+        password: Application.get_env(:livevox, :mongodb_password),
+        hostname: Application.get_env(:livevox, :mongodb_hostname),
+        port: Application.get_env(:livevox, :mongodb_port)
+      ]],
 
       # Caches / data sources
       worker(Livevox.Session, []),
