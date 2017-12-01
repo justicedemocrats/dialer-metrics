@@ -5,17 +5,11 @@ defmodule LivevoxWeb.Router do
     plug(:accepts, ["json"])
   end
 
-  scope "/account", LivevoxWeb do
-    pipe_through(:api)
-
-    post("/claim/:service", AccountController, :claim)
-  end
-
-  scope "/live", LivevoxWeb do
+  scope "/", LivevoxWeb do
     pipe_through(:api)
 
     # Accepts ?ready=true and ?ready=false
-    get("/agent-count/:service", LiveController, :agent_count)
-    get("/calls-in-progress/:service", LiveController, :call_count)
+    get("/health", LiveController, :health)
+    get("/global-state", LiveController, :global_state)
   end
 end
