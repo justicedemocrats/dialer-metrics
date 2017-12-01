@@ -25,14 +25,14 @@ defmodule Livevox.Application do
       worker(Livevox.CallEventFeed, []),
 
       # Metrics
-      worker(Livevox.Metrics.CallerCounts, [])
-      worker(Livevox.Metrics.ServiceLevel, [])
+      worker(Livevox.Metrics.CallerCounts, []),
+      worker(Livevox.Metrics.ServiceLevel, []),
       worker(Livevox.Metrics.WaitTime, []),
       worker(Livevox.Metrics.SessionLength, []),
-      worker(Livevox.Metrics.CallLength, [])
+      worker(Livevox.Metrics.CallLength, []),
 
       # Event loggers
-      worker(Livevox.EventLoggers.CallEvent, [])
+      worker(Livevox.EventLoggers.CallEvent, []),
       worker(Livevox.EventLoggers.AgentEvent, [])
     ]
 

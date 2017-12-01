@@ -52,4 +52,10 @@ defmodule Livevox.ServiceInfo do
       Map.get(state, service_id, nil)
     end)
   end
+
+  def all_services() do
+    Agent.get(__MODULE__, fn state ->
+      Map.keys(state)
+    end)
+  end
 end

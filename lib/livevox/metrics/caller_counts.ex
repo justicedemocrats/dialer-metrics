@@ -5,155 +5,136 @@ defmodule Livevox.Metrics.CallerCounts do
 
   def start_link do
     GenServer.start_link(__MODULE__, fn ->
-      %{ready: [], not_ready: [], logged_on: [], in_call: []}
+      %{ready: %{}, not_ready: %{}, logged_on: %{}, in_call: %{}}
     end)
   end
 
   def init(opts) do
     PubSub.subscribe(:livevox, "agent_event")
-    {:ok, %{}}
+    {:ok, %{ready: %{}, not_ready: %{}, logged_on: %{}, in_call: %{}}}
   end
 
+  # -------------------------------------------------------------------------
+  # -------------------------------- LOGON ----------------------------------
+  # -------------------------------------------------------------------------
   def handle_info(message = %{"eventType" => "LOGON"}, state) do
-    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => service_id} = message
+    %{"agentId" => aid, "agentServiceId" => sid} = message
 
-    new_logged_on =
-      Map.get(state, :logged_on)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
-      |> Enum.concat([{agent_id, service_id}])
+    new_state = Map.update!(state, :logged_on, &Map.put(&1, aid, sid))
 
-    post_all(state, :logged_on)
-
-    {:noreply, Map.put(state, :logged_on, new_logged_on)}
+    spawn(fn -> post_all(new_state, sid) end)
+    {:noreply, new_state}
   end
 
-  def handle_info(message = %{"eventType" => "READY"}, state) do
-    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => service_id} = message
-
-    new_ready =
-      Map.get(state, :ready)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
-      |> Enum.concat([{agent_id, service_id}])
-
-    new_not_ready =
-      Map.get(state, :ready)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
+  # -------------------------------------------------------------------------
+  # -------------------------------- READY ----------------------------------
+  # -------------------------------------------------------------------------
+  def handle_info(message = %{"eventType" => "READY", "lineNumber" => "ACD"}, state) do
+    %{"agentId" => aid, "agentServiceId" => sid} = message
 
     new_state =
       state
-      |> Map.put(:ready, new_ready)
-      |> Map.put(:not_ready, new_not_ready)
+      |> Map.update!(:ready, &Map.put(&1, aid, sid))
+      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
+      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
+      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
 
-    post_all(new_state, :ready)
-    post_all(new_state, :not_ready)
-
-    {:noreply, Map.put(state, :ready, new_ready)}
+    spawn(fn -> post_all(new_state, sid) end)
+    {:noreply, new_state}
   end
 
-  def handle_info(message = %{"eventType" => "NOT_READY"}, state) do
-    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => service_id} = message
-
-    new_ready =
-      Map.get(state, :ready)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
-
-    new_not_ready =
-      Map.get(state, :not_ready)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
+  # -------------------------------------------------------------------------
+  # ---------------------------- NOT READY ----------------------------------
+  # -------------------------------------------------------------------------
+  def handle_info(message = %{"eventType" => "NOT_READY", "lineNumber" => "ACD"}, state) do
+    %{"agentId" => aid, "agentServiceId" => sid} = message
 
     new_state =
       state
-      |> Map.put(:ready, new_ready)
-      |> Map.put(:not_ready, new_not_ready)
+      |> Map.update!(:not_ready, &Map.put(&1, aid, sid))
+      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
+      |> Map.update!(:ready, &Map.drop(&1, [aid]))
+      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
 
-    post_all(new_state, :ready)
-    post_all(new_state, :not_ready)
-
-    {:noreply, Map.put(state, :not_ready, new_ready)}
+    spawn(fn -> post_all(new_state, sid) end)
+    {:noreply, new_state}
   end
 
-  def handle_info(message = %{"eventType" => "IN_CALL"}, state) do
-    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => service_id} = message
-
-    new_ready =
-      Map.get(state, :ready)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
-
-    new_in_call =
-      Map.get(state, :in_call)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
-      |> Enum.concat([{agent_id, service_id}])
+  # -------------------------------------------------------------------------
+  # ---------------------------- IN CALL ------------------------------------
+  # -------------------------------------------------------------------------
+  def handle_info(message = %{"eventType" => "IN_CALL", "lineNumber" => "ACD"}, state) do
+    %{"agentId" => aid, "agentServiceId" => sid} = message
 
     new_state =
       state
-      |> Map.put(:ready, new_ready)
-      |> Map.put(:in_call, new_in_call)
+      |> Map.update!(:in_call, &Map.put(&1, aid, sid))
+      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
+      |> Map.update!(:ready, &Map.drop(&1, [aid]))
+      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
 
-    post_all(new_state, :ready)
-    post_all(new_state, :in_call)
-
-    {:noreply, Map.put(state, :not_ready, new_ready)}
+    spawn(fn -> post_all(new_state, sid) end)
+    {:noreply, new_state}
   end
 
-  def handle_info(message = %{"eventType" => _unknown}, state) do
-    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => service_id} = message
-
-    new_ready =
-      Map.get(state, :ready)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
+  # -------------------------------------------------------------------------
+  # ---------------------------- OTHER ACD EVENT ----------------------------
+  # -------------------------------------------------------------------------
+  def handle_info(message = %{"eventType" => _unknown, "lineNumber" => "ACD"}, state) do
+    %{"agentId" => aid, "agentServiceId" => sid} = message
 
     new_state =
       state
-      |> Map.put(:ready, new_ready)
+      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
+      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
+      |> Map.update!(:ready, &Map.drop(&1, [aid]))
+      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
 
-    post_all(new_state, :ready)
-
-    {:noreply, Map.put(state, :not_ready, new_ready)}
+    spawn(fn -> post_all(new_state, sid) end)
+    {:noreply, new_state}
   end
 
+  # -------------------------------------------------------------------------
+  # ---------------------------- LOG OFF ------------------------------------
+  # -------------------------------------------------------------------------
   def handle_info(message = %{"eventType" => "LOGOFF"}, state) do
-    %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => service_id} = message
-
-    new_ready =
-      Map.get(state, :ready)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
-
-    new_not_ready =
-      Map.get(state, :not_ready)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
-
-    new_logged_on =
-      Map.get(state, :logged_on)
-      |> Enum.filter(fn {aid, sid} -> aid != aid end)
+    %{"agentId" => aid, "agentServiceId" => sid} = message
 
     new_state =
       state
-      |> Map.put(:ready, new_ready)
-      |> Map.put(:not_ready, new_not_ready)
-      |> Map.put(:logged_on, new_logged_on)
+      |> Map.update!(:logged_on, &Map.drop(&1, [aid]))
+      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
+      |> Map.update!(:ready, &Map.drop(&1, [aid]))
+      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
 
-    post_all(new_state, :ready)
-    post_all(new_state, :not_ready)
-    post_all(new_state, :logged_ready)
-
-    {:noreply, Map.put(state, :not_ready, new_ready)}
+    spawn(fn -> post_all(new_state, sid) end)
+    {:noreply, new_state}
   end
 
-  def post_all(state, metric) do
+  def post_all(state, sid) do
     now = DateTime.utc_now() |> DateTime.to_unix()
-    metric = "callers_#{Atom.to_string(metric)}"
-    total = %{metric: metric, points: [[now, length(state[metric])]], tags: []}
 
-    service_level =
-      state[metric]
-      |> Enum.reduce(%{}, fn {aid, sid}, acc ->
-           Map.get_and_update(acc, sid, &(&1 + 1))
-         end)
-      |> Enum.map(fn {sid, count} ->
-           %{metric: metric, points: [[now, count]], tags: [Livevox.ServiceInfo.name_of(sid)]}
-         end)
+    series =
+      Enum.map(~w(logged_on in_call ready not_ready)a, fn metric ->
+        label = "count_#{Atom.to_string(metric)}"
 
-    series = [total | service_level]
+        count =
+          Map.get(state, metric)
+          |> Enum.filter(fn {aid, other_sid} -> sid == other_sid end)
+          |> length()
+
+        %{
+          metric: label,
+          points: [[now, count]],
+          tags: ["service:#{Livevox.ServiceInfo.name_of(sid)}"]
+        }
+      end)
+      |> IO.inspect()
+
     Dog.post_metrics(series)
+  end
+
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 end

@@ -27,7 +27,7 @@ defmodule Livevox.Metrics.ServiceLevel do
            }
          end)
 
-    Dog.post_metrics(series)
+    spawn(fn -> Dog.post_metrics(series) end)
 
     {:noreply, %{}}
   end

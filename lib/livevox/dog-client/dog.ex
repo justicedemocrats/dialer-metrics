@@ -4,7 +4,8 @@ defmodule Dog do
   def post_metric(metric, point, tags) do
     [timestamp, value] = point
     points = [[timeify(timestamp), value]]
-    Dog.Api.post("series", body: %{series: [~m(metric points tags)]})
+    type = "gauge"
+    Dog.Api.post("series", body: %{series: [~m(metric points tags type)]})
   end
 
   def post_metrics(series) do
@@ -13,8 +14,7 @@ defmodule Dog do
 
   def post_event(event) do
     event = Map.update!(event, :date_happened, &timeify/1)
-    IO.inspect(event)
-    Dog.Api.post("events", body: event) |> IO.inspect()
+    Dog.Api.post("events", body: event)
   end
 
   def delete_all_events do
