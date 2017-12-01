@@ -41,8 +41,8 @@ defmodule Livevox.EventLoggers.AgentEvent do
     {:noreply, %{}}
   end
 
-  def handle_info(_, _) do
-    {:noreply, %{}}
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 
   defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
