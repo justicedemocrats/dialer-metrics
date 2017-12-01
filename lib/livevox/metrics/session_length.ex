@@ -16,7 +16,8 @@ defmodule Livevox.Metrics.SessionLength do
 
   def handle_info(message = %{"eventType" => "LOGON"}, state) do
     %{"agentId" => agent_id, "timestamp" => timestamp} = message
-    {:noreply, Map.put(state, agent_id, Timex.now())}
+    {:ok, logged_on_at} = DateTime.from_unix(timestamp, :millisecond)
+    {:noreply, Map.put(state, agent_id, logged_on_at)}
   end
 
   def handle_info(message = %{"eventType" => "LOGOFF"}, state) do
@@ -26,24 +27,33 @@ defmodule Livevox.Metrics.SessionLength do
     service_name = Livevox.ServiceInfo.name_of(agent_service_id)
     agent_name = Livevox.AgentInfo.name_of(agent_id)
     tags = ["agent:#{agent_name}", "service:#{service_name}"]
+    {:ok, timestamp} = DateTime.from_unix(timestamp, :millisecond)
 
     if Map.has_key?(state, agent_id) do
       logged_on_at = Map.get(state, agent_id)
 
-      Dog.post_metric(
-        "session_length",
-        [timestamp |> DateTime.to_unix(), Timex.diff(logged_on_at, timestamp)],
-        tags
-      )
+      spawn(fn ->
+        Dog.post_metric(
+          "session_length",
+          [timestamp, Timex.diff(timestamp, logged_on_at) / 10_000_000],
+          tags
+        )
+      end)
     else
-      Dog.post_event(%{
-        title: "error",
-        text: "got log off for #{agent_id} but never got log on",
-        date_happened: Timex.now(),
-        tags: tags
-      })
+      spawn(fn ->
+        Dog.post_event(%{
+          title: "error",
+          text: "got log off for #{agent_id} but never got log on",
+          date_happened: Timex.now(),
+          tags: tags
+        })
+      end)
     end
 
     {:noreply, Map.drop(state, [agent_id])}
+  end
+
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 end
