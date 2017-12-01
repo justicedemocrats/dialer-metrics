@@ -12,13 +12,16 @@ defmodule Livevox.Metrics.WaitTime do
     {:ok, %{}}
   end
 
-  def handle_info(message = %{"eventType" => "READY"}, state) do
+  def handle_info(message = %{"eventType" => "READY", "lineNumber" => "ACD"}, state) do
     %{"agentId" => agent_id, "timestamp" => timestamp} = message
+    {:ok, timestamp} = DateTime.from_unix(timestamp, :millisecond)
     new_state = Map.put(state, agent_id, %{state: "READY", changed_at: timestamp})
+    IO.inspect message
     {:noreply, new_state}
   end
 
   def handle_info(message = %{"eventType" => "IN_CALL"}, state) do
+    IO.inspect message
     %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => agent_service_id} =
       message
 
@@ -33,7 +36,7 @@ defmodule Livevox.Metrics.WaitTime do
         spawn(fn ->
           Dog.post_metric(
             "wait_time",
-            [timestamp, Timex.diff(timestamp, ready_at) / 10_000_000],
+            IO.inspect([timestamp, Timex.diff(timestamp, ready_at) / 1_000_000]),
             tags
           )
         end)

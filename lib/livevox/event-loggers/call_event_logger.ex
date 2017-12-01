@@ -72,8 +72,8 @@ defmodule Livevox.EventLoggers.CallEvent do
     {:noreply, %{}}
   end
 
-  def handle_info(_, _) do
-    {:noreply, %{}}
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 
   defp get_agent_result(session_id, transaction_id, client_id) do
