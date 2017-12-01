@@ -4,9 +4,13 @@ defmodule Livevox.Metrics.ServiceLevel do
   import ShortMaps
 
   def start_link do
-    GenServer.start_link(__MODULE__, fn ->
-      %{}
-    end)
+    GenServer.start_link(
+      __MODULE__,
+      fn ->
+        %{}
+      end,
+      name: __MODULE__
+    )
   end
 
   def init(opts) do

@@ -4,9 +4,13 @@ defmodule Livevox.Metrics.CallerCounts do
   import ShortMaps
 
   def start_link do
-    GenServer.start_link(__MODULE__, fn ->
-      %{ready: %{}, not_ready: %{}, logged_on: %{}, in_call: %{}}
-    end)
+    GenServer.start_link(
+      __MODULE__,
+      fn ->
+        %{ready: %{}, not_ready: %{}, logged_on: %{}, in_call: %{}}
+      end,
+      name: __MODULE__
+    )
   end
 
   def init(opts) do
