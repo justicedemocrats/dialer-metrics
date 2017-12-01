@@ -18,7 +18,7 @@ defmodule Livevox.Application do
         password: Application.get_env(:livevox, :mongodb_password),
         hostname: Application.get_env(:livevox, :mongodb_hostname),
         port: Application.get_env(:livevox, :mongodb_port)
-      ]],
+      ]]),
 
       # Caches / data sources
       worker(Livevox.Session, []),
