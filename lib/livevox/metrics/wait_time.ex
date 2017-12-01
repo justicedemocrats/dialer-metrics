@@ -4,7 +4,7 @@ defmodule Livevox.Metrics.WaitTime do
   import ShortMaps
 
   def start_link do
-    GenServer.start_link(__MODULE__, fn -> %{} end)
+    GenServer.start_link(__MODULE__, fn -> %{} end, name: __MODULE__)
   end
 
   def init(opts) do
@@ -16,12 +16,13 @@ defmodule Livevox.Metrics.WaitTime do
     %{"agentId" => agent_id, "timestamp" => timestamp} = message
     {:ok, timestamp} = DateTime.from_unix(timestamp, :millisecond)
     new_state = Map.put(state, agent_id, %{state: "READY", changed_at: timestamp})
-    IO.inspect message
+    IO.inspect(message)
     {:noreply, new_state}
   end
 
   def handle_info(message = %{"eventType" => "IN_CALL"}, state) do
-    IO.inspect message
+    IO.inspect(message)
+
     %{"agentId" => agent_id, "timestamp" => timestamp, "agentServiceId" => agent_service_id} =
       message
 
