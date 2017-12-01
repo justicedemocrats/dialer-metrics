@@ -35,7 +35,7 @@ defmodule Livevox.Metrics.SessionLength do
       spawn(fn ->
         Dog.post_metric(
           "session_length",
-          [timestamp, Timex.diff(timestamp, logged_on_at) / 10_000_000],
+          [timestamp, Timex.diff(timestamp, logged_on_at) / 1_000_000],
           tags
         )
       end)
