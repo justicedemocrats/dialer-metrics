@@ -13,18 +13,24 @@ defmodule LivevoxWeb.LiveController do
   end
 
   def pacing_method(conn, ~m(service)) do
-    case ServiceLevel.pacing_method_of(service) do
-      nil ->
-        options = Enum.join(ServiceLevel.service_name_options(), ",")
-        message = "Hm, that service was not recognized. Please try one of #{options}"
-        text(conn, message)
+    response =
+      case ServiceLevel.pacing_method_of(service) do
+        nil ->
+          options = Enum.join(ServiceLevel.service_name_options(), ",")
+          "Hm, that service was not recognized. Please try one of #{options}"
 
-      pacing -> text conn, pacing
-    end
+        pacing -> pacing
+      end
+
+    conn
+    |> delete_resp_header("x-frame-options")
+    |> text(response)
   end
 
   def pacing_method(conn, _) do
-    text conn, "Missing service – proper usage is GET /pacing-method/:service"
+    conn
+    |> delete_resp_header("x-frame-options")
+    |> text("Missing service – proper usage is GET /pacing-method/:service")
   end
 
   def get_global_state do
