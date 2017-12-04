@@ -18,7 +18,7 @@ defmodule Livevox.Metrics.ServiceLevel do
     {:ok, %{}}
   end
 
-  def handle_info(message = %{service_name: service_name, timestamp: timestamp}, _state) do
+  def handle_info(message = %{service_name: service_name, timestamp: timestamp}, state) do
     timestamp = DateTime.to_unix(timestamp)
 
     series =
@@ -33,6 +33,28 @@ defmodule Livevox.Metrics.ServiceLevel do
 
     spawn(fn -> Dog.post_metrics(series) end)
 
-    {:noreply, %{}}
+    url_service_name =
+      service_name
+      |> String.downcase()
+      |> String.replace(" ", "_")
+
+    new_state = Map.put(state, url_service_name, Map.drop(message, ~w(service_name timestamp)a))
+
+    {:noreply, new_state}
+  end
+
+  def pacing_method_of(service_name) do
+    url_service_name =
+      service_name
+      |> String.downcase()
+      |> String.replace(" ", "_")
+
+    :sys.get_state(__MODULE__)
+    |> get_in([service_name, :pacing_method])
+  end
+
+  def service_name_options do
+    :sys.get_state(__MODULE__)
+    |> Map.keys()
   end
 end
