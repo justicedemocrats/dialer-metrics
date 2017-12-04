@@ -43,6 +43,9 @@ defmodule Livevox.Application do
       # Event loggers
       worker(Livevox.EventLoggers.CallEvent, []),
       worker(Livevox.EventLoggers.AgentEvent, [])
+
+      # Aggregators
+      worker(Livevox.Aggregators.ServiceConfig, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
