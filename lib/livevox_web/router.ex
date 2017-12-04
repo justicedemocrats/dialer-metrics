@@ -11,5 +11,7 @@ defmodule LivevoxWeb.Router do
     # Accepts ?ready=true and ?ready=false
     get("/health", LiveController, :health)
     get("/global-state", LiveController, :global_state)
+    get("/pacing-method", LiveController, :pacing_method)
+    get("/pacing-method/:service", LiveController, :pacing_method)
   end
 end
