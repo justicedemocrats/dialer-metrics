@@ -67,7 +67,7 @@ defmodule Livevox.EventLoggers.CallEvent do
     call =
       Map.merge(~m(agent_name service_name duration phone_dialed lv_result), extra_attributes)
 
-    spawn(fn -> Mongo.insert_one(:mongo, "calls", call) end)
+    spawn(fn -> Mongo.insert_one(:mongo, "calls", Map.merge(call, ~m(timestamp))) end)
 
     {:noreply, %{}}
   end
