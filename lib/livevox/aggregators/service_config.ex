@@ -7,7 +7,6 @@ defmodule Livevox.Aggregators.ServiceConfig do
   @base Application.get_env(:livevox, :airtable_base)
   @table "Services"
 
-
   def start_link do
     Task.start_link(fn -> get_service_info() end)
   end
@@ -44,30 +43,40 @@ defmodule Livevox.Aggregators.ServiceConfig do
     services_without_lcid =
       Map.keys(from_stats) |> Enum.reject(fn sid -> MapSet.member?(services_with_lcid, sid) end)
 
-    service_phones = Enum.map(services_without_lcid, fn id ->
-      %{body: ~m(defaultCallerId)} = Livevox.Api.get("configuration/v6.0/services/#{id}/phone")
-      {id, defaultCallerId}
-    end) |> Enum.into(%{})
+    service_phones =
+      Enum.map(services_without_lcid, fn id ->
+        %{body: ~m(defaultCallerId)} = Livevox.Api.get("configuration/v6.0/services/#{id}/phone")
+        {id, defaultCallerId}
+      end)
+      |> Enum.into(%{})
 
-    %{body: ~m(resourceGroup)} = Livevox.Api.get("configuration/v6.0/resourceGroups", query: %{offset: 0, count: 1000})
+    %{body: ~m(resourceGroup)} =
+      Livevox.Api.get("configuration/v6.0/resourceGroups", query: %{offset: 0, count: 1000})
 
-    resource_groups = Enum.flat_map(resourceGroup, fn ~m(id) ->
-      %{body: ~m(name inboundService outboundService)} =
-        Livevox.Api.get("configuration/v6.0/resourceGroups/#{id}")
+    resource_groups =
+      Enum.flat_map(resourceGroup, fn ~m(id) ->
+        %{body: ~m(name inboundService outboundService)} =
+          Livevox.Api.get("configuration/v6.0/resourceGroups/#{id}")
 
-      Enum.concat(inboundService, outboundService)
-      |> Enum.map(fn ~m(id) -> "#{id}" end)
-      |> Enum.map(fn sid -> {sid, name} end)
-    end) |> Enum.into(%{})
+        Enum.concat(inboundService, outboundService)
+        |> Enum.map(fn ~m(id) -> "#{id}" end)
+        |> Enum.map(fn sid -> {sid, name} end)
+      end)
+      |> Enum.into(%{})
 
-    final_services = Enum.map(from_stats, fn {id, map} ->
-      updated_map = map
-      |> Map.put(:caller_id_type, (if MapSet.member?(services_with_lcid, id), do: "LCID", else: "Fixed"))
-      |> Map.put(:caller_id_number, Map.get(service_phones, id, ""))
-      |> Map.put(:resource_group, Map.get(resource_groups, id, ""))
+    final_services =
+      Enum.map(from_stats, fn {id, map} ->
+        updated_map =
+          map
+          |> Map.put(
+               :caller_id_type,
+               if(MapSet.member?(services_with_lcid, id), do: "LCID", else: "Fixed")
+             )
+          |> Map.put(:caller_id_number, Map.get(service_phones, id, ""))
+          |> Map.put(:resource_group, Map.get(resource_groups, id, ""))
 
-      {id, updated_map}
-    end)
+        {id, updated_map}
+      end)
 
     # Delete all records
     %{body: body} =
@@ -84,8 +93,9 @@ defmodule Livevox.Aggregators.ServiceConfig do
     end)
 
     # Create all records
-    Enum.each final_services, fn {service_id, attributes} ->
-      ~m(caller_id_number caller_id_type pacing_method resource_group service_name throttle)a = attributes
+    Enum.each(final_services, fn {service_id, attributes} ->
+      ~m(caller_id_number caller_id_type pacing_method resource_group service_name throttle)a =
+        attributes
 
       fields = %{
         "Service ID" => service_id,
@@ -105,7 +115,7 @@ defmodule Livevox.Aggregators.ServiceConfig do
         ],
         body: ~m(fields) |> Poison.encode!()
       )
-    end
+    end)
 
     :timer.sleep(@resolution)
     get_service_info()

@@ -19,7 +19,8 @@ defmodule LivevoxWeb.LiveController do
           options = Enum.join(ServiceLevel.service_name_options(), ",")
           "Hm, that service was not recognized. Please try one of #{options}"
 
-        pacing -> pacing
+        pacing ->
+          pacing
       end
 
     conn
