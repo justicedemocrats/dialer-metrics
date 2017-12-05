@@ -99,7 +99,7 @@ defmodule Livevox.EventLoggers.CallEvent do
   end
 
   # Flush – post current state as a metric,
-  defp handle_cast(:flush, state) do
+  def handle_cast(:flush, state) do
     now = DateTime.utc_now() |> DateTime.to_unix()
 
     series = Enum.map(state, fn {tag_set, count} ->
