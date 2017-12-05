@@ -154,7 +154,6 @@ defmodule Livevox.Metrics.CallerCounts do
         }
       end)
 
-    IO.inspect(series)
     Dog.post_metrics(series)
   end
 
