@@ -3,15 +3,26 @@ defmodule Livevox.EventLoggers.CallEvent do
   use GenServer
   import ShortMaps
 
+  @flush_resolution 30_000
+
   def start_link do
     GenServer.start_link(__MODULE__, fn ->
       %{}
-    end)
+    end, name: __MODULE__)
   end
 
   def init(opts) do
     PubSub.subscribe(:livevox, "call_event")
+    queue_flush()
     {:ok, %{}}
+  end
+
+  def queue_flush do
+    spawn(fn ->
+      :timer.sleep(@flush_resolution)
+      GenServer.cast(__MODULE__, :flush)
+      queue_flush()
+    end)
   end
 
   def handle_info(message, state) do
@@ -56,6 +67,7 @@ defmodule Livevox.EventLoggers.CallEvent do
 
     {:ok, timestamp} = DateTime.from_unix(underscored["end"], :millisecond)
 
+    # Record the event
     spawn(fn ->
       Dog.post_event(%{
         title: "call",
@@ -64,17 +76,46 @@ defmodule Livevox.EventLoggers.CallEvent do
       })
     end)
 
+    # For mongo
     call =
       Map.merge(~m(agent_name service_name duration phone_dialed lv_result), extra_attributes)
-
     spawn(fn -> Mongo.insert_one(:mongo, "calls", Map.merge(call, ~m(timestamp))) end)
 
-    {:noreply, %{}}
+    # For inc state
+    matchers =
+      Map.merge(~m(service_name lv_result), extra_attributes)
+      |> Map.values()
+      |> MapSet.new()
+
+    {:noreply, inc_state(state, matchers)}
   end
 
   def handle_info(_, state) do
     {:noreply, state}
   end
+
+  defp inc_state(state, matchers) do
+    Map.update(state, matchers, 1, & &1 + 1)
+  end
+
+  # Flush – post current state as a metric,
+  defp handle_cast(:flush, state) do
+    now = DateTime.utc_now() |> DateTime.to_unix()
+
+    series = Enum.map(state, fn {tag_set, count} ->
+      %{metric: "call_count", points: [[now, count]], tags: MapSet.to_list(tag_set)}
+    end)
+
+    if length(series) > 0 do
+      Dog.post_metrics(series)
+    end
+
+    # No reply (just for side effects), and reset state
+    {:noreply, %{}}
+  end
+
+  defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
+  defp typey_downcase(val), do: val
 
   defp get_agent_result(session_id, transaction_id, client_id) do
     %{body: body} =
@@ -86,7 +127,4 @@ defmodule Livevox.EventLoggers.CallEvent do
 
     body
   end
-
-  defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
-  defp typey_downcase(val), do: val
 end
