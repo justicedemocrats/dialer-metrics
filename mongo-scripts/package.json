@@ -1,0 +1,14 @@
+{
+  "name": "livevox-layer-mongo-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ben Packer <ben.paul.ryan.packer@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "monk": "^6.0.5"
+  }
+}
