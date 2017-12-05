@@ -1,7 +1,10 @@
 defmodule Livevox.Metrics.CallerCounts do
   alias Phoenix.{PubSub}
+  alias Livevox.{ServiceInfo}
   use GenServer
   import ShortMaps
+
+  @min_update_resolution 60_000 * 5
 
   def start_link do
     GenServer.start_link(
@@ -15,7 +18,24 @@ defmodule Livevox.Metrics.CallerCounts do
 
   def init(opts) do
     PubSub.subscribe(:livevox, "agent_event")
+    queue_update()
     {:ok, %{ready: %{}, not_ready: %{}, logged_on: %{}, in_call: %{}}}
+  end
+
+  def queue_update do
+    spawn(fn ->
+      :timer.sleep(@min_update_resolution)
+      update()
+    end)
+  end
+
+  def update do
+    state = :sys.get_state(__MODULE__)
+
+    ServiceInfo.all_services()
+    |> Enum.each(fn sid -> post_all(state, sid) end)
+
+    queue_update()
   end
 
   # -------------------------------------------------------------------------
@@ -133,8 +153,8 @@ defmodule Livevox.Metrics.CallerCounts do
           tags: ["service:#{Livevox.ServiceInfo.name_of(sid)}"]
         }
       end)
-      |> IO.inspect()
 
+    IO.inspect(series)
     Dog.post_metrics(series)
   end
 
