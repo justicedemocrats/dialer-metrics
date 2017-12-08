@@ -83,8 +83,8 @@ defmodule Livevox.EventLoggers.CallEvent do
 
     # For inc state
     matchers =
-      Map.merge(~m(service_name lv_result), extra_attributes)
-      |> Map.values()
+      Map.values(~m(service_name lv_result))
+      |> Enum.concat(tags)
       |> MapSet.new()
 
     {:noreply, inc_state(state, matchers)}

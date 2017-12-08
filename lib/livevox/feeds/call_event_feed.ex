@@ -20,8 +20,6 @@ defmodule Livevox.CallEventFeed do
       %{body: %{"token" => new_token}} =
       Livevox.Api.post("realtime/v6.0/callEvent/feed", body: %{token: token}, timeout: 12_000)
 
-    num_calls = Map.get(resp.body, "callEvent", []) |> length()
-
     handle_events(resp.body["callEvent"])
 
     get_calls(new_token)
