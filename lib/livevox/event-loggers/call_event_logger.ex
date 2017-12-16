@@ -18,6 +18,7 @@ defmodule Livevox.EventLoggers.CallEvent do
 
   def init(opts) do
     PubSub.subscribe(:livevox, "call_event")
+    PubSub.subscribe(:livevox, "agent_event")
     queue_flush()
     {:ok, %{}}
   end
@@ -30,25 +31,97 @@ defmodule Livevox.EventLoggers.CallEvent do
     end)
   end
 
-  def handle_info(message, state) do
+  # Successful calls from agent event feed
+  def handle_info(message = %{"lineNumber" => "ACD", "eventType" => "WRAP_UP"}, state) do
+    underscored =
+      Enum.map(message, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
+      |> Enum.into(%{})
+
+    ~m(
+      client_id transaction_id session_id agent_id
+      phone_number call_service_id result
+    ) = underscored
+
+    phone_dialed = phone_number
+    lv_result = Livevox.Standardize.term_code(result)
+    service_id = call_service_id
+
+    agent_name = Livevox.AgentInfo.name_of(agent_id)
+    service_name = Livevox.ServiceInfo.name_of(service_id)
+
+    extra_attributes = Livevox.AirtableCache.get_all() |> Map.get(lv_result)
+
+    actor_tags =
+      case agent_name do
+        "" -> ["service:#{service_name}"]
+        nil -> ["service:#{service_name}"]
+        agent_name -> ["agent:#{agent_name}", "service:#{service_name}"]
+      end
+
+    tags =
+      Enum.filter(extra_attributes, fn
+        {key, val} when is_boolean(val) -> val
+        {key, val} -> val != ""
+      end)
+      |> Enum.map(fn
+           {key, val} when is_boolean(val) -> key
+           {key, val} -> "#{key}:#{val}"
+         end)
+      |> Enum.concat(actor_tags)
+      |> Enum.concat(["lv_result:#{lv_result}"])
+
+    {:ok, timestamp} = DateTime.from_unix(underscored["timestamp"], :millisecond)
+
+    # Record the event
+    spawn(fn ->
+      Dog.post_event(%{
+        title: "call",
+        date_happened: timestamp,
+        tags: tags
+      })
+    end)
+
+    # For mongo
+    client_name = Livevox.ClientInfo.get_client_name(service_name)
+
+    caller_email = get_caller_email(service_name, agent_name)
+
+    call =
+      Map.merge(
+        ~m(agent_name service_name phone_dialed lv_result caller_email),
+        extra_attributes
+      )
+
+    spawn(fn -> Mongo.insert_one(:mongo, "calls", Map.merge(call, ~m(timestamp))) end)
+
+    # For inc state
+    matchers =
+      Map.values(~m(service_name lv_result))
+      |> Enum.concat(tags)
+      |> MapSet.new()
+
+    {:noreply, inc_state(state, matchers)}
+  end
+
+  # Ignore successful calls from call event feed
+  def handle_info(%{"lvResult" => "Operator Transfer" <> _}, state) do
+    {:noreply, state}
+  end
+
+  # Unsuccessful calls from agent event feed
+  def handle_info(message = %{"lvResult" => _something}, state) do
     underscored =
       Enum.map(message, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
       |> Enum.into(%{})
 
     ~m(
       client_id transaction_id session_id duration agent_login_id
-      phone_dialed service_id
+      phone_dialed service_id lv_result
     ) = underscored
 
     agent_name = agent_login_id
     service_name = Livevox.ServiceInfo.name_of(service_id)
-
-    agent_result =
-      get_agent_result(session_id, transaction_id, client_id)
-      |> Enum.map(fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
-      |> Enum.into(%{})
-
-    lv_result = agent_result["lv_result"] || underscored["lv_result"]
+    lv_result = Livevox.Standardize.term_code(lv_result)
 
     extra_attributes = Livevox.AirtableCache.get_all() |> Map.get(lv_result)
 
@@ -104,7 +177,7 @@ defmodule Livevox.EventLoggers.CallEvent do
     {:noreply, inc_state(state, matchers)}
   end
 
-  def handle_info(_, state) do
+  def handle_info(message, state) do
     {:noreply, state}
   end
 
@@ -129,19 +202,19 @@ defmodule Livevox.EventLoggers.CallEvent do
     {:noreply, %{}}
   end
 
-  defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
-  defp typey_downcase(val), do: val
+  def typey_downcase(val) when is_binary(val), do: String.downcase(val)
+  def typey_downcase(val), do: val
 
-  defp get_agent_result(session_id, transaction_id, client_id) do
-    %{body: body} =
-      Livevox.Api.get("realtime/v5.0/callData/postCall", query: %{
-        clientId: client_id,
-        transaction: transaction_id,
-        session: session_id
-      })
-
-    body
-  end
+  # def get_agent_result(session_id, transaction_id, client_id) do
+  #   %{body: body} =
+  #     Livevox.Api.get("realtime/v5.0/callData/postCall", query: %{
+  #       clientId: client_id,
+  #       transaction: transaction_id,
+  #       session: session_id
+  #     })
+  #
+  #   body
+  # end
 
   defp get_caller_email(service_name, agent_name) do
     client_name = Livevox.ClientInfo.get_client_name(service_name)
