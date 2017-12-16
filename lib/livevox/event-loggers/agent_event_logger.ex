@@ -4,11 +4,16 @@ defmodule Livevox.EventLoggers.AgentEvent do
   import ShortMaps
 
   @flush_resolution 30_000
+  @claim_info_url Application.get_env(:livevox, :claim_info_url)
 
   def start_link do
-    GenServer.start_link(__MODULE__, fn ->
-      %{}
-    end, name: __MODULE__)
+    GenServer.start_link(
+      __MODULE__,
+      fn ->
+        %{}
+      end,
+      name: __MODULE__
+    )
   end
 
   def init(opts) do
@@ -39,16 +44,18 @@ defmodule Livevox.EventLoggers.AgentEvent do
 
     metric_title = "agent_event:#{event_type}"
 
+    caller_email = get_caller_email(service_name, agent_name)
+
     spawn(fn ->
       Dog.post_event(%{
         title: metric_title,
         date_happened: timestamp,
-        tags: ["agent:#{agent_name}", "service:#{service_name}"]
+        tags: ["agent:#{agent_name}", "service:#{service_name}", "caller_email:#{caller_email}"]
       })
     end)
 
     spawn(fn ->
-      Mongo.insert_one(:mongo, "agent_events", ~m(agent_name service_name event_type timestamp))
+      Mongo.insert_one(:mongo, "agent_events", ~m(agent_name service_name event_type timestamp caller_email))
     end)
 
     # For inc state
@@ -64,18 +71,22 @@ defmodule Livevox.EventLoggers.AgentEvent do
   end
 
   defp inc_state(state, matchers) do
-    Map.update(state, matchers, 1, & &1 + 1)
+    Map.update(state, matchers, 1, &(&1 + 1))
   end
 
   # Flush – post current state as a metric,
   def handle_cast(:flush, state) do
     now = DateTime.utc_now() |> DateTime.to_unix()
 
-    series = Enum.map(state, fn {tag_set, count} ->
-      metric_title = Enum.filter(tag_set, fn tag -> String.contains?(tag, "agent_event:") end) |> List.first()
-      tags = Enum.reject(tag_set, fn tag -> String.contains?(tag, "agent_event:") end)
-      %{metric: metric_title, points: [[now, count]], tags: tags}
-    end)
+    series =
+      Enum.map(state, fn {tag_set, count} ->
+        metric_title =
+          Enum.filter(tag_set, fn tag -> String.contains?(tag, "agent_event:") end)
+          |> List.first()
+
+        tags = Enum.reject(tag_set, fn tag -> String.contains?(tag, "agent_event:") end)
+        %{metric: metric_title, points: [[now, count]], tags: tags}
+      end)
 
     if length(series) > 0 do
       Dog.post_metrics(series)
@@ -85,7 +96,21 @@ defmodule Livevox.EventLoggers.AgentEvent do
     {:noreply, %{}}
   end
 
-
   defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
   defp typey_downcase(val), do: val
+
+  defp get_caller_email(service_name, agent_name) do
+    client_name = Livevox.ClientInfo.get_client_name(service_name)
+    do_get_caller_email(client_name, agent_name)
+  end
+
+  defp do_get_caller_email(client_name, ""), do: nil
+  defp do_get_caller_email(client_name, nil), do: nil
+  defp do_get_caller_email(client_name, agent_name) do
+    %{body: body} = HTTPotion.get(@claim_info_url <> "/#{client_name}/#{agent_name}")
+    case Poison.decode(body) do
+      {:ok, %{"email" => email}} -> email
+      _ -> nil
+    end
+  end
 end
