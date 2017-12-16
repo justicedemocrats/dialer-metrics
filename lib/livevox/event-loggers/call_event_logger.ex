@@ -4,11 +4,16 @@ defmodule Livevox.EventLoggers.CallEvent do
   import ShortMaps
 
   @flush_resolution 30_000
+  @claim_info_url Application.get_env(:livevox, :claim_info_url)
 
   def start_link do
-    GenServer.start_link(__MODULE__, fn ->
-      %{}
-    end, name: __MODULE__)
+    GenServer.start_link(
+      __MODULE__,
+      fn ->
+        %{}
+      end,
+      name: __MODULE__
+    )
   end
 
   def init(opts) do
@@ -64,6 +69,7 @@ defmodule Livevox.EventLoggers.CallEvent do
            {key, val} -> "#{key}:#{val}"
          end)
       |> Enum.concat(actor_tags)
+      |> Enum.concat(["lv_result:#{lv_result}"])
 
     {:ok, timestamp} = DateTime.from_unix(underscored["end"], :millisecond)
 
@@ -77,8 +83,16 @@ defmodule Livevox.EventLoggers.CallEvent do
     end)
 
     # For mongo
+    client_name = Livevox.ClientInfo.get_client_name(service_name)
+
+    caller_email = get_caller_email(service_name, agent_name)
+
     call =
-      Map.merge(~m(agent_name service_name duration phone_dialed lv_result), extra_attributes)
+      Map.merge(
+        ~m(agent_name service_name duration phone_dialed lv_result caller_email),
+        extra_attributes
+      )
+
     spawn(fn -> Mongo.insert_one(:mongo, "calls", Map.merge(call, ~m(timestamp))) end)
 
     # For inc state
@@ -95,16 +109,17 @@ defmodule Livevox.EventLoggers.CallEvent do
   end
 
   defp inc_state(state, matchers) do
-    Map.update(state, matchers, 1, & &1 + 1)
+    Map.update(state, matchers, 1, &(&1 + 1))
   end
 
   # Flush – post current state as a metric,
   def handle_cast(:flush, state) do
     now = DateTime.utc_now() |> DateTime.to_unix()
 
-    series = Enum.map(state, fn {tag_set, count} ->
-      %{metric: "call_count", points: [[now, count]], tags: MapSet.to_list(tag_set)}
-    end)
+    series =
+      Enum.map(state, fn {tag_set, count} ->
+        %{metric: "call_count", points: [[now, count]], tags: MapSet.to_list(tag_set)}
+      end)
 
     if length(series) > 0 do
       Dog.post_metrics(series)
@@ -126,5 +141,20 @@ defmodule Livevox.EventLoggers.CallEvent do
       })
 
     body
+  end
+
+  defp get_caller_email(service_name, agent_name) do
+    client_name = Livevox.ClientInfo.get_client_name(service_name)
+    do_get_caller_email(client_name, agent_name)
+  end
+
+  defp do_get_caller_email(client_name, ""), do: "unknown"
+  defp do_get_caller_email(client_name, nil), do: "unknown"
+  defp do_get_caller_email(client_name, agent_name) do
+    %{body: body} = HTTPotion.get(@claim_info_url <> "/#{client_name}/#{agent_name}")
+    case Poison.decode(body) do
+      {:ok, %{"email" => email}} -> email
+      _ -> "unknown"
+    end
   end
 end
