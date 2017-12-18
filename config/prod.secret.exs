@@ -15,7 +15,7 @@ config :livevox,
   access_token: "40c206f4423442b0b76d39796498123d",
   clientname: "brandnewcampaign",
   username: "sbriggs",
-  password: "T571tKjKaP6B6jHsDi"
+  password: "3ZBN7g69FD8p"
 
 config :livevox,
   data_dog_api_key: "451d1cce6d3a588ac51bb79f710d2d3d",
