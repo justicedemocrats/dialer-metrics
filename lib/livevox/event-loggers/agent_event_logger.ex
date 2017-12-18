@@ -31,6 +31,21 @@ defmodule Livevox.EventLoggers.AgentEvent do
   end
 
   def handle_info(message = %{"lineNumber" => "ACD"}, state) do
+    new_state = record_and_store_event(message, state)
+    {:noreply, new_state}
+  end
+
+  def handle_info(message = %{"eventType" => "LOGON"}, state) do
+    new_state = record_and_store_event(message, state)
+    {:noreply, new_state}
+  end
+
+  def handle_info(message = %{"eventType" => "LOGOFF"}, state) do
+    new_state = record_and_store_event(message, state)
+    {:noreply, new_state}
+  end
+
+  def record_and_store_event(message, state) do
     underscored =
       Enum.map(message, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
       |> Enum.into(%{})
@@ -63,7 +78,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
       Map.values(~m(service_name event_type metric_title))
       |> MapSet.new()
 
-    {:noreply, inc_state(state, matchers)}
+    inc_state(state, matchers)
   end
 
   def handle_info(_, state) do
