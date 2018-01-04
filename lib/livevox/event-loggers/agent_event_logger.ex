@@ -62,18 +62,27 @@ defmodule Livevox.EventLoggers.AgentEvent do
 
     metric_title = "agent_event:#{event_type}"
 
-    caller_email = get_caller_email(service_name, agent_name)
+    caller_attributes = get_caller_attributes(service_name, agent_name)
 
     spawn(fn ->
       Dog.post_event(%{
         title: metric_title,
         date_happened: timestamp,
-        tags: ["agent:#{agent_name}", "service:#{service_name}", "caller_email:#{caller_email}"]
+        tags: [
+          "agent:#{agent_name}",
+          "service:#{service_name}",
+          "caller_email:#{caller_attributes["email"]}",
+          "calling_from:#{caller_attributes["calling_from"]}"
+        ]
       })
     end)
 
     spawn(fn ->
-      Mongo.insert_one(:mongo, "agent_events", ~m(agent_name service_name event_type timestamp caller_email))
+      Mongo.insert_one(
+        :mongo,
+        "agent_events",
+        Map.merge(~m(agent_name service_name event_type timestamp), caller_attributes)
+      )
     end)
 
     # For inc state
@@ -118,18 +127,20 @@ defmodule Livevox.EventLoggers.AgentEvent do
   defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
   defp typey_downcase(val), do: val
 
-  defp get_caller_email(service_name, agent_name) do
+  defp get_caller_attributes(service_name, agent_name) do
     client_name = Livevox.ClientInfo.get_client_name(service_name)
-    do_get_caller_email(client_name, agent_name)
+    do_get_caller_attributes(client_name, agent_name)
   end
 
-  defp do_get_caller_email(client_name, ""), do: nil
-  defp do_get_caller_email(client_name, nil), do: nil
-  defp do_get_caller_email(client_name, agent_name) do
+  defp do_get_caller_attributes(client_name, ""), do: nil
+  defp do_get_caller_attributes(client_name, nil), do: nil
+
+  defp do_get_caller_attributes(client_name, agent_name) do
     %{body: body} = HTTPotion.get(@claim_info_url <> "/#{client_name}/#{agent_name}")
+
     case Poison.decode(body) do
-      {:ok, %{"email" => email}} -> email
-      _ -> nil
+      {:ok, %{"email" => email, "calling_from" => calling_from}} -> ~m(email calling_from)
+      _ -> %{}
     end
   end
 end
