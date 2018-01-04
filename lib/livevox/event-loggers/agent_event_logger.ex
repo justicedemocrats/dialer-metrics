@@ -93,7 +93,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
     inc_state(state, matchers)
   end
 
-  def handle_info(_, state) do
+  def handle_info(message, state) do
     spawn(fn -> Mongo.insert_one(:mongo, "agent_raw", message) end)
     {:noreply, state}
   end
