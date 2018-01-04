@@ -26,7 +26,9 @@ config :livevox,
   mongodb_username: "livevox-monitor",
   mongodb_hostname: "ds111123.mlab.com",
   mongodb_password: ",GM7NECUh)3F{Tc^",
-  mongodb_port: "11123"
-
-config :livevox,
+  mongodb_port: "11123",
   claim_info_url: "https://now.justicedemocrats.com/call/who-claimed"
+
+config :rollbax,
+  access_token: "0cecad80a99a41c99eabed06a24e4214",
+  environment: "production"
