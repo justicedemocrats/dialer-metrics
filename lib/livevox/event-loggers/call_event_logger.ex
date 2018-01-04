@@ -33,6 +33,8 @@ defmodule Livevox.EventLoggers.CallEvent do
 
   # Successful calls from agent event feed
   def handle_info(message = %{"lineNumber" => "ACD", "eventType" => "WRAP_UP"}, state) do
+    spawn(fn -> Mongo.insert_one(:mongo, "calls_raw", message) end)
+
     underscored =
       Enum.map(message, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
       |> Enum.into(%{})
@@ -104,12 +106,15 @@ defmodule Livevox.EventLoggers.CallEvent do
   end
 
   # Ignore successful calls from call event feed
-  def handle_info(%{"lvResult" => "Operator Transfer" <> _}, state) do
+  def handle_info(message = %{"lvResult" => "Operator Transfer" <> _}, state) do
+    spawn(fn -> Mongo.insert_one(:mongo, "calls_raw", message) end)
     {:noreply, state}
   end
 
   # Unsuccessful calls from agent event feed
   def handle_info(message = %{"lvResult" => _something}, state) do
+    spawn(fn -> Mongo.insert_one(:mongo, "calls_raw", message) end)
+
     underscored =
       Enum.map(message, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
       |> Enum.into(%{})
@@ -178,6 +183,7 @@ defmodule Livevox.EventLoggers.CallEvent do
   end
 
   def handle_info(message, state) do
+    spawn(fn -> Mongo.insert_one(:mongo, "calls_raw", message) end)
     {:noreply, state}
   end
 
