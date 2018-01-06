@@ -37,6 +37,8 @@ defmodule Livevox.Metrics.CallLength do
     if duration > 0 do
       spawn(fn -> Dog.post_metric("call_length", [timestamp, duration], tags) end)
     end
+
+    {:noreply, state}
   end
 
   def handle_info(_, state) do
