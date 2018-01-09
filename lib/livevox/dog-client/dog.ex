@@ -1,20 +1,52 @@
 defmodule Dog do
   import ShortMaps
+  require Logger
+  @live not Application.get_env(:livevox, :test)
 
   def post_metric(metric, point, tags) do
     [timestamp, value] = point
     points = [[timeify(timestamp), value]]
     type = "gauge"
-    Dog.Api.post("series", body: %{series: [~m(metric points tags type)]})
+
+    if @live do
+      Dog.Api.post("series", body: %{series: [~m(metric points tags type)]})
+    else
+      Logger.debug("DOG: post single series: #{inspect(~m(metric points tags type))}")
+    end
   end
 
   def post_metrics(series) do
-    Dog.Api.post("series", body: ~m(series)a)
+    if @live do
+      Dog.Api.post("series", body: ~m(series)a)
+    else
+      Logger.debug("DOG: post series: #{inspect(series |> Enum.map(&md5_metric/1))}")
+    end
   end
 
   def post_event(event) do
     event = Map.update!(event, :date_happened, &timeify/1)
-    Dog.Api.post("events", body: event)
+    md5 = md5_event(event)
+    if @live do
+      Dog.Api.post("events", body: event)
+    else
+      Logger.debug("DOG: post event: #{md5}")
+    end
+  end
+
+  defp md5_event(ev = %{tags: tags}) do
+    :crypto.hash(:md5, Enum.join(tags, "-")) |> Base.encode16(case: :lower)
+  end
+
+  defp md5_metric(~m(points tags)) do
+    md5 = :crypto.hash(:md5, Enum.join(tags, "-")) |> Base.encode16(case: :lower)
+    IO.inspect(Enum.reduce(points, 0, fn [_, n], sum -> sum + n end))
+    "#{md5}: #{inspect(points)}"
+  end
+
+  defp md5_metric(~m(points tags)a) do
+    md5 = :crypto.hash(:md5, Enum.join(tags, "-")) |> Base.encode16(case: :lower)
+    IO.inspect(Enum.reduce(points, 0, fn [_, n], sum -> sum + n end))
+    "#{md5}: #{inspect(points)}"
   end
 
   def delete_all_events do

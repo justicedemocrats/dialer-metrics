@@ -31,19 +31,19 @@ defmodule Livevox.EventLoggers.AgentEvent do
   end
 
   def handle_info(message = %{"lineNumber" => "ACD"}, state) do
-    spawn(fn -> Mongo.insert_one(:mongo, "agent_raw", message) end)
+    Db.insert_one("agent_raw", message)
     new_state = record_and_store_event(message, state)
     {:noreply, new_state}
   end
 
   def handle_info(message = %{"eventType" => "LOGON"}, state) do
-    spawn(fn -> Mongo.insert_one(:mongo, "agent_raw", message) end)
+    Db.insert_one("agent_raw", message)
     new_state = record_and_store_event(message, state)
     {:noreply, new_state}
   end
 
   def handle_info(message = %{"eventType" => "LOGOFF"}, state) do
-    spawn(fn -> Mongo.insert_one(:mongo, "agent_raw", message) end)
+    Db.insert_one("agent_raw", message)
     new_state = record_and_store_event(message, state)
     {:noreply, new_state}
   end
@@ -94,7 +94,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
   end
 
   def handle_info(message, state) do
-    spawn(fn -> Mongo.insert_one(:mongo, "agent_raw", message) end)
+    Db.insert_one("agent_raw", message)
     {:noreply, state}
   end
 

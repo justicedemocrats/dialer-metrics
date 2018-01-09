@@ -25,27 +25,28 @@ defmodule Livevox.Application do
       # Caches / data sources
       worker(Livevox.Session, []),
       worker(Livevox.ServiceInfo, []),
-      worker(Livevox.AgentInfo, []),
-      worker(Livevox.AirtableCache, []),
-
-      # Feeds
-      worker(Livevox.ServiceStatFeed, []),
-      worker(Livevox.AgentEventFeed, []),
-      worker(Livevox.CallEventFeed, []),
+      # worker(Livevox.AgentInfo, []),
+      # worker(Livevox.AirtableCache, []),
+      #
+      # # Feeds
+      # worker(Livevox.ServiceStatFeed, []),
+      # worker(Livevox.AgentEventFeed, []),
+      # worker(Livevox.CallEventFeed, []),
 
       # Metrics
-      worker(Livevox.Metrics.CallerCounts, []),
-      worker(Livevox.Metrics.ServiceLevel, []),
-      worker(Livevox.Metrics.WaitTime, []),
-      worker(Livevox.Metrics.SessionLength, []),
-      worker(Livevox.Metrics.CallLength, []),
-
-      # Event loggers
-      worker(Livevox.EventLoggers.CallEvent, []),
-      worker(Livevox.EventLoggers.AgentEvent, []),
-
-      # Aggregators
-      worker(Livevox.Aggregators.ServiceConfig, [])
+      # worker(Livevox.Metrics.CallerCounts, []),
+      worker(Livevox.Metrics.CallCounts, [])
+      # worker(Livevox.Metrics.ServiceLevel, []),
+      # worker(Livevox.Metrics.WaitTime, []),
+      # worker(Livevox.Metrics.SessionLength, []),
+      # worker(Livevox.Metrics.CallLength, []),
+      #
+      # # Event loggers
+      # worker(Livevox.EventLoggers.CallEvent, [])
+      # worker(Livevox.EventLoggers.AgentEvent, []),
+      #
+      # # Aggregators
+      # worker(Livevox.Aggregators.ServiceConfig, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
