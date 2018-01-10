@@ -72,6 +72,6 @@ defmodule Livevox.Metrics.CallCounts do
 
     {:ok, count} = Db.count("calls", Map.merge(q, ~m(service_name timestamp)))
 
-    Dog.post_metric("call_count", [Timex.now(), count], ["service_name:#{service}", label])
+    Dog.post_metric("call_count_#{minutes_ago}", [Timex.now(), count], ["service_name:#{service}", label])
   end
 end
