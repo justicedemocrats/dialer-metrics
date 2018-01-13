@@ -13,5 +13,7 @@ defmodule LivevoxWeb.Router do
     get("/global-state", LiveController, :global_state)
     get("/pacing-method", LiveController, :pacing_method)
     get("/pacing-method/:service", LiveController, :pacing_method)
+    get("/agent-status", LiveController, :agent_status)
+    get("/agent-status/:service", LiveController, :agent_status)
   end
 end

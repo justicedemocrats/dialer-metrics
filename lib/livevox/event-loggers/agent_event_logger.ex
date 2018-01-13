@@ -62,7 +62,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
 
     metric_title = "agent_event:#{event_type}"
 
-    caller_attributes = get_caller_attributes(service_name, agent_name)
+    caller_attributes = Livevox.AgentInfo.get_caller_attributes(service_name, agent_name)
 
     spawn(fn ->
       Dog.post_event(%{
@@ -126,21 +126,4 @@ defmodule Livevox.EventLoggers.AgentEvent do
 
   defp typey_downcase(val) when is_binary(val), do: String.downcase(val)
   defp typey_downcase(val), do: val
-
-  defp get_caller_attributes(service_name, agent_name) do
-    client_name = Livevox.ClientInfo.get_client_name(service_name)
-    do_get_caller_attributes(client_name, agent_name)
-  end
-
-  defp do_get_caller_attributes(client_name, ""), do: nil
-  defp do_get_caller_attributes(client_name, nil), do: nil
-
-  defp do_get_caller_attributes(client_name, agent_name) do
-    %{body: body} = HTTPotion.get(@claim_info_url <> "/#{client_name}/#{agent_name}")
-
-    case Poison.decode(body) do
-      {:ok, %{"email" => email, "calling_from" => calling_from}} -> ~m(email calling_from)
-      _ -> %{}
-    end
-  end
 end

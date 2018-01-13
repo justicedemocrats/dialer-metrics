@@ -19,13 +19,14 @@ defmodule Dog do
     if @live do
       Dog.Api.post("series", body: ~m(series)a)
     else
-      Logger.debug("DOG: post series: #{inspect(series |> Enum.map(&md5_metric/1))}")
+      Logger.debug("DOG: post series: #{inspect(series)}")
     end
   end
 
   def post_event(event) do
     event = Map.update!(event, :date_happened, &timeify/1)
     md5 = md5_event(event)
+
     if @live do
       Dog.Api.post("events", body: event)
     else
@@ -39,13 +40,13 @@ defmodule Dog do
 
   defp md5_metric(~m(points tags)) do
     md5 = :crypto.hash(:md5, Enum.join(tags, "-")) |> Base.encode16(case: :lower)
-    IO.inspect(Enum.reduce(points, 0, fn [_, n], sum -> sum + n end))
+    Enum.reduce(points, 0, fn [_, n], sum -> sum + n end)
     "#{md5}: #{inspect(points)}"
   end
 
   defp md5_metric(~m(points tags)a) do
     md5 = :crypto.hash(:md5, Enum.join(tags, "-")) |> Base.encode16(case: :lower)
-    IO.inspect(Enum.reduce(points, 0, fn [_, n], sum -> sum + n end))
+    Enum.reduce(points, 0, fn [_, n], sum -> sum + n end)
     "#{md5}: #{inspect(points)}"
   end
 

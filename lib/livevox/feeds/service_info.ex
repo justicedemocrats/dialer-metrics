@@ -58,4 +58,19 @@ defmodule Livevox.ServiceInfo do
       Map.keys(state)
     end)
   end
+
+  def id_of(service_name) do
+    Agent.get(__MODULE__, fn state ->
+      Enum.filter(state, fn {id, name} ->
+        url_service_name =
+          name
+          |> String.downcase()
+          |> String.replace(" ", "_")
+
+        url_service_name == service_name
+      end)
+      |> Enum.map(fn {id, name} -> id end)
+      |> List.first()
+    end)
+  end
 end
