@@ -32,7 +32,7 @@ defmodule Livevox.EventLoggers.CallEvent do
   end
 
   # Successful calls from agent event feed
-  def handle_info(message = %{"lineNumber" => "ACD", "eventType" => "WRAP_UP"}, state) do
+  def handle_info(message = %{"lineNumber" => "ACD", "eventType" => "WRAP_UP", "result" => _}, state) do
     Db.insert_one("calls_raw", message)
 
     underscored =
