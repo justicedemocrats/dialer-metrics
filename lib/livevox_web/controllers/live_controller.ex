@@ -60,7 +60,7 @@ defmodule LivevoxWeb.LiveController do
 
           ~s(<table style="width: 100%;"><tr><th>Email</th><th>Status</th><th>Login</th><th>Calling From</th></tr>#{
             as_html
-          }</table>)
+          }</table><style>table,th,td {border: 1px solid black;}</style>)
       end
 
     conn
