@@ -23,4 +23,23 @@ config :logger,
   level: :info,
   backends: [:console, Rollbax.Logger]
 
-import_config "prod.secret.exs"
+config :livevox,
+  access_token: "${LIVEVOX_ACCESS_TOKEN}",
+  clientname: "${LIVEVOX_CLIENT_NAME}",
+  username: "${LIVEVOX_USERNAME}",
+  password: "${LIVEVOX_PASSWORD}",
+  data_dog_api_key: "${DATA_DOG_API_KEY}",
+  data_dog_application_key: "${DATA_DOG_APP_KEY}",
+  airtable_key: "${AIRTABLE_KEY}",
+  airtable_base: "${AIRTABLE_BASE}",
+  airtable_table_name: "${AIRTABLE_TABLE_NAME}",
+  mongodb_username: "${MONGO_USERNAME}",
+  mongodb_hostname: "${MONGO_HOSTNAME}",
+  mongodb_password: "${MONGO_PASSWORD}",
+  mongodb_port: "${MONGO_PORT}",
+  claim_info_url: "${CLAIM_INFO_URL}",
+  test: false
+
+config :rollbax,
+  access_token: "${ROLLBAR_ACCESS_TOKEN}",
+  environment: "production"
