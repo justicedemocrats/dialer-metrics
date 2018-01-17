@@ -88,13 +88,9 @@ defmodule Livevox.EventLoggers.CallEvent do
 
     # For mongo
     client_name = Livevox.ClientInfo.get_client_name(service_name)
-
     caller_email = get_caller_email(service_name, agent_name)
-
     call =
       Map.merge(~m(agent_name service_name phone_dialed lv_result caller_email), extra_attributes)
-
-    Db.insert_one("calls", Map.merge(call, ~m(timestamp)))
 
     # For inc state
     matchers =
@@ -162,16 +158,12 @@ defmodule Livevox.EventLoggers.CallEvent do
 
     # For mongo
     client_name = Livevox.ClientInfo.get_client_name(service_name)
-
     caller_email = get_caller_email(service_name, agent_name)
-
     call =
       Map.merge(
         ~m(agent_name service_name duration phone_dialed lv_result caller_email),
         extra_attributes
       )
-
-    Db.insert_one("calls", Map.merge(call, ~m(timestamp)))
 
     # For inc state
     matchers =
@@ -211,17 +203,6 @@ defmodule Livevox.EventLoggers.CallEvent do
   def typey_downcase(val) when is_binary(val), do: String.downcase(val)
   def typey_downcase(val), do: val
 
-  # def get_agent_result(session_id, transaction_id, client_id) do
-  #   %{body: body} =
-  #     Livevox.Api.get("realtime/v5.0/callData/postCall", query: %{
-  #       clientId: client_id,
-  #       transaction: transaction_id,
-  #       session: session_id
-  #     })
-  #
-  #   body
-  # end
-
   defp get_caller_email(service_name, agent_name) do
     client_name = Livevox.ClientInfo.get_client_name(service_name)
     do_get_caller_email(client_name, agent_name)
@@ -237,5 +218,10 @@ defmodule Livevox.EventLoggers.CallEvent do
       {:ok, %{"email" => email}} -> email
       _ -> "unknown"
     end
+  end
+
+  def unique_id(call) do
+    timestamp = call["end"] || call["timestamp"]
+    "#{call["phone_dialed"]}-#{timestamp}"
   end
 end

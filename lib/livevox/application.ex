@@ -44,6 +44,7 @@ defmodule Livevox.Application do
       # Event loggers
       worker(Livevox.EventLoggers.CallEvent, []),
       worker(Livevox.EventLoggers.AgentEvent, []),
+      # worker(Livevox.EventLoggers.CallResult, []),
 
       # Aggregators
       worker(Livevox.Aggregators.ServiceConfig, []),
