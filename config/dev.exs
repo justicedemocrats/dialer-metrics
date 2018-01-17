@@ -36,3 +36,24 @@ config :rollbax, enabled: false
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
+
+config :livevox,
+  access_token: System.get_env("LIVEVOX_ACCESS_TOKEN"),
+  clientname: System.get_env("LIVEVOX_CLIENT_NAME"),
+  username: System.get_env("LIVEVOX_USERNAME"),
+  password: System.get_env("LIVEVOX_PASSWORD"),
+  data_dog_api_key: System.get_env("DATA_DOG_API_KEY"),
+  data_dog_application_key: System.get_env("DATA_DOG_APP_KEY"),
+  airtable_key: System.get_env("AIRTABLE_KEY"),
+  airtable_base: System.get_env("AIRTABLE_BASE"),
+  airtable_table_name: System.get_env("AIRTABLE_TABLE_NAME"),
+  mongodb_username: System.get_env("MONGO_USERNAME"),
+  mongodb_hostname: System.get_env("MONGO_HOSTNAME"),
+  mongodb_password: System.get_env("MONGO_PASSWORD"),
+  mongodb_port: System.get_env("MONGO_PORT"),
+  claim_info_url: System.get_env("CLAIM_INFO_URL"),
+  test: true
+
+config :rollbax,
+  access_token: System.get_env("ROLLBAR_ACCESS_TOKEN"),
+  environment: "development"

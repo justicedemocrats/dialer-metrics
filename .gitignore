@@ -15,3 +15,4 @@ erl_crash.dump
 # variables.
 /config/*.secret.exs
 mongo-scripts/node_modules
+.env
