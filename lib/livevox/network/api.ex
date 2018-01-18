@@ -11,7 +11,7 @@ defmodule Livevox.Api do
 
   # --------------- Process request ---------------
   defp process_url(url) do
-    "#{@base}/#{url}"
+    IO.inspect "#{@base}/#{url}"
   end
 
   defp process_request_headers(hdrs) do
