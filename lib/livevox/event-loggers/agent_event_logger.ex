@@ -4,7 +4,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
   import ShortMaps
 
   @flush_resolution 30_000
-  @claim_info_url Application.get_env(:livevox, :claim_info_url)
+  def claim_info_url, do: Application.get_env(:livevox, :claim_info_url)
 
   def start_link do
     GenServer.start_link(

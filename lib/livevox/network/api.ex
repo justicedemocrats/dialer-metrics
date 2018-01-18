@@ -7,7 +7,6 @@ defmodule Livevox.Api do
   use HTTPotion.Base
 
   @base "https://api.na4.livevox.com"
-  @access_token Application.get_env(:livevox, :access_token)
 
   # --------------- Process request ---------------
   defp process_url(url) do
@@ -15,12 +14,14 @@ defmodule Livevox.Api do
   end
 
   defp process_request_headers(hdrs) do
+    access_token = Application.get_env(:livevox, :access_token)
+
     hdrs =
       Enum.into(
         hdrs,
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: "Bearer #{@access_token}"
+        Authorization: "Bearer #{access_token}"
       )
 
     if Keyword.has_key?(hdrs, :no_session) do

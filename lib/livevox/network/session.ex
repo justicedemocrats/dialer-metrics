@@ -2,9 +2,9 @@ defmodule Livevox.Session do
   use Agent
   defstruct [:id, :expires_at]
 
-  @clientname Application.get_env(:livevox, :clientname)
-  @username Application.get_env(:livevox, :username)
-  @password Application.get_env(:livevox, :password)
+  def clientname, do: Application.get_env(:livevox, :clientname)
+  def username, do: Application.get_env(:livevox, :username)
+  def password, do: Application.get_env(:livevox, :password)
 
   # State takes the format index
   def start_link do
@@ -40,7 +40,7 @@ defmodule Livevox.Session do
       Livevox.Api.post(
         "session/v5.0/login",
         headers: [no_session: true],
-        body: %{userName: @username, password: @password, clientName: @clientname}
+        body: %{userName: username, password: password, clientName: clientname}
       )
 
     %Livevox.Session{id: sessionId, expires_at: Timex.shift(Timex.now(), hours: 25)}

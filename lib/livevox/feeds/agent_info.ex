@@ -2,7 +2,7 @@ defmodule Livevox.AgentInfo do
   import ShortMaps
   use Agent
   @ttl 60_000
-  @claim_info_url Application.get_env(:livevox, :claim_info_url)
+  def claim_info_url, do: Application.get_env(:livevox, :claim_info_url)
 
   def start_link do
     Agent.start_link(fn -> %{} end, name: __MODULE__)
@@ -43,7 +43,7 @@ defmodule Livevox.AgentInfo do
   defp do_get_caller_attributes(client_name, nil), do: nil
 
   defp do_get_caller_attributes(client_name, agent_name) do
-    %{body: body} = HTTPotion.get(@claim_info_url <> "/#{client_name}/#{agent_name}")
+    %{body: body} = HTTPotion.get(claim_info_url <> "/#{client_name}/#{agent_name}")
 
     case Poison.decode(body) do
       {:ok, %{"email" => email, "calling_from" => calling_from}} -> ~m(email calling_from)

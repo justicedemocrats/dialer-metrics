@@ -4,7 +4,7 @@ defmodule Livevox.EventLoggers.CallEvent do
   import ShortMaps
 
   @flush_resolution 30_000
-  @claim_info_url Application.get_env(:livevox, :claim_info_url)
+  def claim_info_url, do: Application.get_env(:livevox, :claim_info_url)
 
   def start_link do
     GenServer.start_link(
@@ -212,7 +212,7 @@ defmodule Livevox.EventLoggers.CallEvent do
   defp do_get_caller_email(client_name, nil), do: "unknown"
 
   defp do_get_caller_email(client_name, agent_name) do
-    %{body: body} = HTTPotion.get(@claim_info_url <> "/#{client_name}/#{agent_name}")
+    %{body: body} = HTTPotion.get(claim_info_url <> "/#{client_name}/#{agent_name}")
 
     case Poison.decode(body) do
       {:ok, %{"email" => email}} -> email

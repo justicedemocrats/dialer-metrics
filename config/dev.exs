@@ -51,7 +51,7 @@ config :livevox,
   mongodb_hostname: System.get_env("MONGO_HOSTNAME"),
   mongodb_password: System.get_env("MONGO_PASSWORD"),
   mongodb_port: System.get_env("MONGO_PORT"),
-  claim_info_url: System.get_env("CLAIM_INFO_URL"),
+  login_management_url: System.get_env("LOGIN_MANAGEMENT_URL"),
   test: true
 
 config :rollbax,

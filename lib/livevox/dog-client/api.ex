@@ -1,10 +1,12 @@
 defmodule Dog.Api do
   use HTTPotion.Base
 
-  @default_query %{
-    api_key: Application.get_env(:livevox, :data_dog_api_key),
-    application_key: Application.get_env(:livevox, :data_dog_application_key)
-  }
+  def default_query do
+    %{
+      api_key: Application.get_env(:livevox, :data_dog_api_key),
+      application_key: Application.get_env(:livevox, :data_dog_application_key)
+    }
+  end
 
   # --------------- Process request ---------------
   defp process_url(url) do
@@ -16,8 +18,8 @@ defmodule Dog.Api do
   end
 
   defp process_options(opts) do
-    Keyword.update(opts, :query, @default_query, fn params ->
-      Map.merge(@default_query, params)
+    Keyword.update(opts, :query, default_query, fn params ->
+      Map.merge(default_query, params)
     end)
   end
 

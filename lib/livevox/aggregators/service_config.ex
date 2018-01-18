@@ -3,9 +3,10 @@ defmodule Livevox.Aggregators.ServiceConfig do
   import ShortMaps
 
   @resolution 60_000 * 3600
-  @key Application.get_env(:livevox, :airtable_key)
-  @base Application.get_env(:livevox, :airtable_base)
   @table "Services"
+
+  def key, do: Application.get_env(:livevox, :airtable_key)
+  def base, do: Application.get_env(:livevox, :airtable_base)
 
   def start_link do
     Task.start_link(fn -> get_service_info() end)
@@ -80,15 +81,15 @@ defmodule Livevox.Aggregators.ServiceConfig do
 
     # Delete all records
     %{body: body} =
-      HTTPotion.get("https://api.airtable.com/v0/#{@base}/#{@table}", headers: [
-        Authorization: "Bearer #{@key}"
+      HTTPotion.get("https://api.airtable.com/v0/#{base}/#{@table}", headers: [
+        Authorization: "Bearer #{key}"
       ])
 
     decoded = Poison.decode!(body)
 
     Enum.each(decoded["records"], fn ~m(id) ->
-      HTTPotion.delete("https://api.airtable.com/v0/#{@base}/#{@table}/#{id}", headers: [
-        Authorization: "Bearer #{@key}"
+      HTTPotion.delete("https://api.airtable.com/v0/#{base}/#{@table}/#{id}", headers: [
+        Authorization: "Bearer #{key}"
       ])
     end)
 
@@ -108,9 +109,9 @@ defmodule Livevox.Aggregators.ServiceConfig do
       }
 
       HTTPotion.post(
-        "https://api.airtable.com/v0/#{@base}/#{@table}",
+        "https://api.airtable.com/v0/#{base}/#{@table}",
         headers: [
-          Authorization: "Bearer #{@key}",
+          Authorization: "Bearer #{key}",
           "Content-Type": "application/json"
         ],
         body: ~m(fields) |> Poison.encode!()

@@ -1,11 +1,11 @@
 defmodule Livevox.AirtableCache do
   use Agent
 
-  @key Application.get_env(:livevox, :airtable_key)
-  @base Application.get_env(:livevox, :airtable_base)
-  @table Application.get_env(:livevox, :airtable_table_name)
-
   @interval 1_000_000
+
+  def key, do: Application.get_env(:livevox, :airtable_key)
+  def base, do: Application.get_env(:livevox, :airtable_base)
+  def table, do: Application.get_env(:livevox, :airtable_table_name)
 
   def start_link do
     queue_update()
@@ -40,8 +40,8 @@ defmodule Livevox.AirtableCache do
 
   defp fetch_all() do
     %{body: body} =
-      HTTPotion.get("https://api.airtable.com/v0/#{@base}/#{@table}", headers: [
-        Authorization: "Bearer #{@key}"
+      HTTPotion.get("https://api.airtable.com/v0/#{base}/#{table}", headers: [
+        Authorization: "Bearer #{key}"
       ])
 
     decoded = Poison.decode!(body)
@@ -58,9 +58,9 @@ defmodule Livevox.AirtableCache do
   defp fetch_all(records, offset) do
     %{body: body} =
       HTTPotion.get(
-        "https://api.airtable.com/v0/#{@base}/#{@table}",
+        "https://api.airtable.com/v0/#{base}/#{table}",
         headers: [
-          Authorization: "Bearer #{@key}"
+          Authorization: "Bearer #{key}"
         ],
         query: [offset: offset]
       )
