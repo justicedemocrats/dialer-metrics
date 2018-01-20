@@ -3,8 +3,7 @@ defmodule Livevox.Metrics.CallCounts do
 
   @regexify fn str -> %{"$regex" => ".*#{str}.*", "$options" => "i"} end
 
-  @run_every 60_000
-  @intervals [1, 5, 30, 60, 120, 240]
+  @intervals [240, 120, 60, 30, 5, 1]
   @queries [
     %{"q" => %{}, "label" => "total"},
     %{"q" => %{"dialed" => true}, "label" => "dialed"},
@@ -28,6 +27,8 @@ defmodule Livevox.Metrics.CallCounts do
     %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day_not_voting"}
   ]
 
+  def regexify(str), do: %{"$regex" => ".*#{str}.*", "$options" => "i"}
+
   def start_link do
     GenServer.start_link(
       __MODULE__,
@@ -39,42 +40,78 @@ defmodule Livevox.Metrics.CallCounts do
   end
 
   def init(opts) do
-    queue_update()
     {:ok, %{}}
-  end
-
-  def queue_update do
-    spawn(fn ->
-      :timer.sleep(@run_every)
-      report_over_period()
-    end)
   end
 
   def report_over_period do
     service_names =
       Livevox.ServiceInfo.all_services()
-      |> Enum.map(&Livevox.ServiceInfo.name_of/1)
-
-    Enum.map(@intervals, fn interval ->
-      Enum.map(service_names, fn name ->
-        Enum.map(@queries, fn query ->
-          report_over_period(interval, name, query)
-        end)
+      |> Flow.from_enumerable()
+      |> Flow.map(&Livevox.ServiceInfo.name_of/1)
+      |> Flow.reject(fn s ->
+           String.contains?(s, "UNUSED") or String.contains?(s, "OLD") or String.contains?(s, "XXX")
+         end)
+      |> Flow.reject(fn s ->
+        String.contains?(s, "Inbound")
       end)
-    end)
+      |> Flow.map(& String.replace(&1, "Callers", ""))
+      |> Flow.map(& String.replace(&1, "Monitor", ""))
+      |> Flow.map(& String.replace(&1, "QC", ""))
+      |> Flow.map(& String.trim(&1))
+      |> Enum.to_list()
+      |> MapSet.new()
+      |> Enum.to_list()
+
+    service_names
+    |> Flow.from_enumerable()
+    |> Flow.flat_map(fn name ->
+        starting = initial_count(name)
+
+         Flow.from_enumerable(@queries)
+         |> Flow.flat_map(fn query ->
+              execute_service_query([], starting, @intervals, name, query)
+            end)
+         |> Enum.to_list()
+       end)
+    |> Enum.to_list()
+    |> IO.inspect()
   end
 
-  def report_over_period(minutes_ago, service, ~m(q label)) do
-    time_after = Timex.shift(Timex.now(), minutes: -1 * minutes_ago)
+  def initial_count(service_name) do
+    time_after = Timex.shift(Timex.now(), minutes: -240)
+    timestamp = %{"$gt" => time_after}
+    service_name = regexify(service_name)
+    {:ok, count} = Db.count("calls", ~m(service_name timestamp))
+    count
+  end
 
+  def execute_service_query(acc, _, [], _, _) do
+    acc
+  end
+
+  def execute_service_query(acc, prev_count, [minutes_ago | remaining], service, ~m(q label)) do
+    time_after = Timex.shift(Timex.now(), minutes: -1 * minutes_ago)
     timestamp = %{"$gt" => time_after}
     service_name = service
 
-    {:ok, count} = Db.count("calls", Map.merge(q, ~m(service_name timestamp)))
+    count =
+      case prev_count do
+        0 ->
+          0
 
-    Dog.post_metric("call_count_#{minutes_ago}", [Timex.now(), count], [
-      "service_name:#{service}",
-      label
-    ])
+        _n ->
+          match = regexify(service_name)
+          IO.puts service
+          {:ok, count} = Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
+          count
+      end
+
+    metric = "call_count_#{minutes_ago}"
+    points = [[DateTime.to_unix(Timex.now(), :second), count]]
+    tags = ["service_name:#{service}", label]
+    type = "gauge"
+
+    Enum.concat(acc, [~m(metric points tags type)])
+    |> execute_service_query(count, remaining, service, ~m(q label))
   end
 end

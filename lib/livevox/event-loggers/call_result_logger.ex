@@ -4,7 +4,7 @@ defmodule Livevox.EventLoggers.CallResult do
   import ShortMaps
 
   @flush_resolution 30_000
-  def claim_info_url, do: Application.get_env(:livevox, :claim_info_url)
+  def login_management_url, do: Application.get_env(:livevox, :login_management_url)
 
   def start_link do
     GenServer.start_link(
@@ -46,6 +46,7 @@ defmodule Livevox.EventLoggers.CallResult do
     # For mongo
     client_name = Livevox.ClientInfo.get_client_name(service_name)
     caller_email = get_caller_email(service_name, agent_name)
+
     call =
       Map.merge(~m(agent_name service_name phone_dialed lv_result caller_email), extra_attributes)
 
@@ -75,6 +76,7 @@ defmodule Livevox.EventLoggers.CallResult do
     # For mongo
     client_name = Livevox.ClientInfo.get_client_name(service_name)
     caller_email = get_caller_email(service_name, agent_name)
+
     call =
       Map.merge(
         ~m(agent_name service_name duration phone_dialed lv_result caller_email),
@@ -100,7 +102,7 @@ defmodule Livevox.EventLoggers.CallResult do
   defp do_get_caller_email(client_name, nil), do: "unknown"
 
   defp do_get_caller_email(client_name, agent_name) do
-    %{body: body} = HTTPotion.get(claim_info_url <> "/#{client_name}/#{agent_name}")
+    %{body: body} = HTTPotion.get(login_management_url <> "/#{client_name}/#{agent_name}")
 
     case Poison.decode(body) do
       {:ok, %{"email" => email}} -> email

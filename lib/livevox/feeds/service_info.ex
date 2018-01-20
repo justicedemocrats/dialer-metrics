@@ -3,19 +3,8 @@ defmodule Livevox.ServiceInfo do
   import ShortMaps
   use Agent
 
-  @interval 1_000_000
-
   def start_link do
-    queue_update()
-
     Agent.start_link(fn -> fetch_all() end, name: __MODULE__)
-  end
-
-  def queue_update do
-    spawn(fn ->
-      :timer.sleep(@interval)
-      update()
-    end)
   end
 
   def update() do
@@ -24,7 +13,6 @@ defmodule Livevox.ServiceInfo do
     end)
 
     IO.puts("[service info]: updated at #{inspect(DateTime.utc_now())}")
-    queue_update()
   end
 
   def fetch_all do

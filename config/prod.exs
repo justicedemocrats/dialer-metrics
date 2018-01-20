@@ -37,7 +37,7 @@ config :livevox,
   mongodb_hostname: "${MONGO_HOSTNAME}",
   mongodb_password: "${MONGO_PASSWORD}",
   mongodb_port: "${MONGO_PORT}",
-  claim_info_url: "${CLAIM_INFO_URL}",
+  login_management_url: "${LOGIN_MANAGEMENT_URL}",
   test: false
 
 config :rollbax,

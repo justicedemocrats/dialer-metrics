@@ -48,6 +48,16 @@ defmodule Livevox.Metrics.WaitTime do
             tags: tags
           })
         end)
+
+      nil ->
+        spawn(fn ->
+          Dog.post_event(%{
+            title: "error",
+            text: "expected prev_state to be ready – was nil",
+            date_happened: Timex.now(),
+            tags: tags
+          })
+        end)
     end
 
     {:noreply, Map.put(state, agent_id, %{state: "IN_CALL", changed_at: timestamp})}
