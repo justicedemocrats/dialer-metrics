@@ -101,7 +101,6 @@ defmodule Livevox.Metrics.CallCounts do
 
         _n ->
           match = regexify(service_name)
-          IO.puts service
           {:ok, count} = Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
           count
       end
