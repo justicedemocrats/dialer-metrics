@@ -74,7 +74,7 @@ defmodule Livevox.Metrics.CallCounts do
          |> Enum.to_list()
        end)
     |> Enum.to_list()
-    |> IO.inspect()
+    |> Dog.post_metrics()
   end
 
   def initial_count(service_name) do
