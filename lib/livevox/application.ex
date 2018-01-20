@@ -44,7 +44,7 @@ defmodule Livevox.Application do
       worker(Livevox.Metrics.CallLength, []),
 
       # Event loggers
-      worker(Livevox.EventLoggers.CallEvent, [])
+      worker(Livevox.EventLoggers.CallEvent, []),
       worker(Livevox.EventLoggers.AgentEvent, []),
       # worker(Livevox.EventLoggers.CallResult, []),
 
