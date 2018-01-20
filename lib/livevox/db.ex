@@ -4,7 +4,7 @@ defmodule Db do
 
   def insert_one(collection, documents) do
     if @live do
-      spawn(fn -> Mongo.insert_one(:mongo, collection, documents) end)
+      spawn(fn -> Mongo.insert_one(:mongo, collection, documents, pool: DBConnection.Poolboy) end)
     else
       # Logger.debug("DB: insert #{inspect(documents)} into #{collection}")
     end
@@ -13,7 +13,7 @@ defmodule Db do
   def update(collection, match, document) do
     if @live do
       spawn(fn ->
-        Mongo.update_many!(:mongo, collection, match, %{"$set" => document}, upsert: true)
+        Mongo.update_many!(:mongo, collection, match, %{"$set" => document}, upsert: true, pool: DBConnection.Poolboy)
       end)
     else
       # Logger.debug("DB: update #{inspect(match)} with #{inspect(document)} into #{collection}")
