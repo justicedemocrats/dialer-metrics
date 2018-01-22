@@ -45,7 +45,10 @@ defmodule Livevox.Mixfile do
       {:dogstatsd, "0.0.3"},
       {:mongodb, "~> 0.4.3"},
       {:distillery, "~> 1.0.0"},
-      {:rollbax, "~> 0.6"}
+      {:rollbax, "~> 0.6"},
+      {:quantum, ">= 2.2.1"},
+      {:flow, "~> 0.11"},
+      {:poolboy, "~> 1.5.1"}
     ]
   end
 end

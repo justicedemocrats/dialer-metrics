@@ -3,8 +3,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
   use GenServer
   import ShortMaps
 
-  @flush_resolution 30_000
-  def claim_info_url, do: Application.get_env(:livevox, :claim_info_url)
+  def login_management_url, do: Application.get_env(:livevox, :login_management_url)
 
   def start_link do
     GenServer.start_link(
@@ -18,16 +17,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
 
   def init(opts) do
     PubSub.subscribe(:livevox, "agent_event")
-    queue_flush()
     {:ok, %{}}
-  end
-
-  def queue_flush do
-    spawn(fn ->
-      :timer.sleep(@flush_resolution)
-      GenServer.cast(__MODULE__, :flush)
-      queue_flush()
-    end)
   end
 
   def handle_info(message = %{"lineNumber" => "ACD"}, state) do
@@ -71,7 +61,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
         tags: [
           "agent:#{agent_name}",
           "service:#{service_name}",
-          "caller_email:#{caller_attributes["email"]}",
+          "caller_email:#{caller_attributes["caller_email"]}",
           "calling_from:#{caller_attributes["calling_from"]}"
         ]
       })
@@ -102,8 +92,10 @@ defmodule Livevox.EventLoggers.AgentEvent do
     Map.update(state, matchers, 1, &(&1 + 1))
   end
 
-  # Flush – post current state as a metric,
-  def handle_cast(:flush, state) do
+  # Flush – post current state as a metric
+  def flush do
+    state = :sys.get_state(__MODULE__)
+
     now = DateTime.utc_now() |> DateTime.to_unix()
 
     series =
