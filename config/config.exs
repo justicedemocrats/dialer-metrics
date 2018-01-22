@@ -17,6 +17,16 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+config :livevox, Livevox.Scheduler,
+  jobs: [
+    {"*/5 * * * *", {Livevox.AirtableCache, :update, []}},
+    {"*/5 * * * *", {Livevox.ServiceInfo, :update, []}},
+    {{:extended, "*/30"}, {Livevox.EventLoggers.AgentEvent, :flush, []}},
+    {{:extended, "*/30"}, {Livevox.EventLoggers.CallEvent, :flush, []}},
+    {{:extended, "*/30"}, {Livevox.Metrics.CallerCounts, :update, []}},
+    {{:extended, "*/30"}, {Livevox.Metrics.CallCounts, :report_over_period, []}}
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

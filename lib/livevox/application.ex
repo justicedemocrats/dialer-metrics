@@ -9,8 +9,9 @@ defmodule Livevox.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Core infrastructure
-      supervisor(LivevoxWeb.Endpoint, [])
-      # supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
+      supervisor(LivevoxWeb.Endpoint, []),
+      supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
+      # worker(Livevox.Scheduler, []),
       # worker(Mongo, [
       #   [
       #     name: :mongo,
@@ -18,7 +19,8 @@ defmodule Livevox.Application do
       #     username: Application.get_env(:livevox, :mongodb_username),
       #     password: Application.get_env(:livevox, :mongodb_password),
       #     hostname: Application.get_env(:livevox, :mongodb_hostname),
-      #     port: Application.get_env(:livevox, :mongodb_port)
+      #     port: Application.get_env(:livevox, :mongodb_port),
+      #     pool: DBConnection.Poolboy
       #   ]
       # ]),
       #

@@ -1,15 +1,11 @@
 defmodule Livevox.AirtableCache do
   use Agent
 
-  @interval 1_000_000
-
   def key, do: Application.get_env(:livevox, :airtable_key)
   def base, do: Application.get_env(:livevox, :airtable_base)
   def table, do: Application.get_env(:livevox, :airtable_table_name)
 
   def start_link do
-    queue_update()
-
     Agent.start_link(
       fn ->
         fetch_all()
@@ -18,20 +14,12 @@ defmodule Livevox.AirtableCache do
     )
   end
 
-  def queue_update do
-    spawn(fn ->
-      :timer.sleep(@interval)
-      update()
-    end)
-  end
-
   def update() do
     Agent.update(__MODULE__, fn _current ->
       fetch_all()
     end)
 
     IO.puts("[term codes]: updated at #{inspect(DateTime.utc_now())}")
-    queue_update()
   end
 
   def get_all do
