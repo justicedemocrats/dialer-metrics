@@ -27,7 +27,7 @@ defmodule Livevox.Metrics.CallCounts do
     %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day_not_voting"}
   ]
 
-  def regexify(str), do: %{"$regex" => ".*#{str}_[cmq].*", "$options" => "i"}
+  def service_match(str), do: %{"$regex" => ".*#{str} [CMQ].*", "$options" => "i"}
 
   def start_link do
     GenServer.start_link(
@@ -80,7 +80,7 @@ defmodule Livevox.Metrics.CallCounts do
   def initial_count(service_name) do
     time_after = Timex.shift(Timex.now(), minutes: -240)
     timestamp = %{"$gt" => time_after}
-    service_name = regexify(service_name)
+    service_name = service_match(service_name)
     {:ok, count} = Db.count("calls", ~m(service_name timestamp))
     count
   end
@@ -100,7 +100,7 @@ defmodule Livevox.Metrics.CallCounts do
           0
 
         _n ->
-          match = regexify(service_name)
+          match = service_match(service_name)
           {:ok, count} = Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
           count
       end
