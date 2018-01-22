@@ -19,12 +19,12 @@ config :logger, :console,
 
 config :livevox, Livevox.Scheduler,
   jobs: [
-    {"*/5 * * * *", {Livevox.AirtableCache, :update, []}},
-    {"*/5 * * * *", {Livevox.ServiceInfo, :update, []}},
-    {{:extended, "*/30"}, {Livevox.EventLoggers.AgentEvent, :flush, []}},
-    {{:extended, "*/30"}, {Livevox.EventLoggers.CallEvent, :flush, []}},
-    {{:extended, "*/30"}, {Livevox.Metrics.CallerCounts, :update, []}},
-    {{:extended, "*/30"}, {Livevox.Metrics.CallCounts, :report_over_period, []}}
+    # {"*/5 * * * *", {Livevox.AirtableCache, :update, []}},
+    # {"*/5 * * * *", {Livevox.ServiceInfo, :update, []}},
+    # {{:extended, "*/30"}, {Livevox.EventLoggers.AgentEvent, :flush, []}},
+    # {{:extended, "*/30"}, {Livevox.EventLoggers.CallEvent, :flush, []}},
+    # {{:extended, "*/30"}, {Livevox.Metrics.CallerCounts, :update, []}},
+    # {{:extended, "*/30"}, {Livevox.Metrics.CallCounts, :report_over_period, []}}
   ]
 
 # Import environment specific config. This must remain at the bottom
