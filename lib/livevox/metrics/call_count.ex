@@ -27,7 +27,7 @@ defmodule Livevox.Metrics.CallCounts do
     %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day_not_voting"}
   ]
 
-  def regexify(str), do: %{"$regex" => ".*#{str}.*", "$options" => "i"}
+  def regexify(str), do: %{"$regex" => ".*#{str}_[cmq].*", "$options" => "i"}
 
   def start_link do
     GenServer.start_link(
