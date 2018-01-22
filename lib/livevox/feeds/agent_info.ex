@@ -46,7 +46,7 @@ defmodule Livevox.AgentInfo do
     %{body: body} = HTTPotion.get(login_management_url <> "/#{client_name}/#{agent_name}")
 
     case Poison.decode(body) do
-      {:ok, %{"email" => email, "calling_from" => calling_from}} -> ~m(email calling_from)
+      {:ok, %{"email" => caller_email, "calling_from" => calling_from}} -> ~m(caller_email calling_from)
       _ -> %{}
     end
   end

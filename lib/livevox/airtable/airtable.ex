@@ -81,9 +81,14 @@ defmodule Livevox.AirtableCache do
            end)
            |> Enum.into(%{})
 
-         key = underscored["lv_result"] || underscored["lv_system_result"]
-         key = Livevox.Standardize.term_code(key)
-         Map.put(acc, key, Map.drop(underscored, ["lv_result"]))
+         key =
+           case underscored["lv_result"] do
+             nil -> underscored["lv_system_result"]
+             "" -> underscored["lv_system_result"]
+             something -> Livevox.Standardize.term_code(something)
+           end
+
+         Map.put(acc, key, Map.drop(underscored, ["lv_result", "lv_system_result"]))
        end)
   end
 end

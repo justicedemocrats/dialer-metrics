@@ -61,7 +61,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
         tags: [
           "agent:#{agent_name}",
           "service:#{service_name}",
-          "caller_email:#{caller_attributes["email"]}",
+          "caller_email:#{caller_attributes["caller_email"]}",
           "calling_from:#{caller_attributes["calling_from"]}"
         ]
       })
