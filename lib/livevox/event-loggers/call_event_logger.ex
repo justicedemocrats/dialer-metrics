@@ -62,7 +62,13 @@ defmodule Livevox.EventLoggers.CallEvent do
     {:noreply, inc_state(state, matchers)}
   end
 
-  # Unsuccessful calls from call event feed
+  # If it's got an agent id, we'll get it through the agent event feed
+  def handle_info(message = %{"lvResult" => _, "agentId" => _}, state) do
+    Db.insert_one("calls_raw", message)
+    {:noreply, state}
+  end
+
+  # Calls from call event feed with no agent
   def handle_info(message = %{"lvResult" => _something}, state) do
     Db.insert_one("calls_raw", message)
 
