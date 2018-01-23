@@ -68,8 +68,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
     end)
 
     spawn(fn ->
-      Mongo.insert_one(
-        :mongo,
+      Db.insert_one(
         "agent_events",
         Map.merge(~m(agent_name service_name event_type timestamp), caller_attributes)
       )
