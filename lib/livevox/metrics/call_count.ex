@@ -13,18 +13,18 @@ defmodule Livevox.Metrics.CallCounts do
     %{"q" => %{"canvass" => true}, "label" => "canvass"},
     %{"q" => %{"contact" => true}, "label" => "contact"},
     %{"q" => %{"dnc_pass" => true}, "label" => "dnc"},
-    %{"q" => %{"van_result" => "Wrong Number"}, "label" => "van_wrong_number"},
-    %{"q" => %{"van_result" => @regexify.("strong support")}, "label" => "van_strong_support"},
-    %{"q" => %{"van_result" => @regexify.("lean support")}, "label" => "van_lean_support"},
-    %{"q" => %{"van_result" => @regexify.("undecided")}, "label" => "van_undecided"},
-    %{"q" => %{"van_result" => @regexify.("lean opponent")}, "label" => "van_lean_opponent"},
-    %{"q" => %{"van_result" => @regexify.("strong opponent")}, "label" => "van_strong_opponent"},
-    %{"q" => %{"van_result" => @regexify.("lean other")}, "label" => "van_lean_other"},
-    %{"q" => %{"van_result" => @regexify.("strong other")}, "label" => "van_strong_other"},
-    %{"q" => %{"van_result" => @regexify.("not voting")}, "label" => "van_not_voting"},
-    %{"q" => %{"e_day" => @regexify.("will vote")}, "label" => "e_day_will_vote"},
-    %{"q" => %{"e_day" => @regexify.("already voted")}, "label" => "e_day_already_voted"},
-    %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day_not_voting"}
+    %{"q" => %{"van_result" => "Wrong Number"}, "label" => "van_result:wrong_number"},
+    %{"q" => %{"van_result" => @regexify.("strong support")}, "label" => "van_result:strong_support"},
+    %{"q" => %{"van_result" => @regexify.("lean support")}, "label" => "van_result:lean_support"},
+    %{"q" => %{"van_result" => @regexify.("undecided")}, "label" => "van_result:undecided"},
+    %{"q" => %{"van_result" => @regexify.("lean opponent")}, "label" => "van_result:lean_opponent"},
+    %{"q" => %{"van_result" => @regexify.("strong opponent")}, "label" => "van_result:strong_opponent"},
+    %{"q" => %{"van_result" => @regexify.("lean other")}, "label" => "van_result:lean_other"},
+    %{"q" => %{"van_result" => @regexify.("strong other")}, "label" => "van_result:strong_other"},
+    %{"q" => %{"van_result" => @regexify.("not voting")}, "label" => "van_result:not_voting"},
+    %{"q" => %{"e_day" => @regexify.("will vote")}, "label" => "e_day:will_vote"},
+    %{"q" => %{"e_day" => @regexify.("already voted")}, "label" => "e_day:already_voted"},
+    %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day:not_voting"}
   ]
 
   def service_match(str), do: %{"$regex" => ".*#{str} [CMQ].*", "$options" => "i"}
