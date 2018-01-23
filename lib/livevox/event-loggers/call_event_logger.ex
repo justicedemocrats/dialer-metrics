@@ -97,7 +97,11 @@ defmodule Livevox.EventLoggers.CallEvent do
       |> Enum.concat(tags)
       |> MapSet.new()
 
-    Db.update("calls", ~m(id), call)
+    for_mongo =
+      ~m(service_name agent_name lv_result timestamp)
+      |> Map.merge(extra_attributes)
+
+    Db.update("calls", ~m(id), for_mongo)
 
     {:noreply, inc_state(state, matchers)}
   end

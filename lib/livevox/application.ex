@@ -13,7 +13,7 @@ defmodule Livevox.Application do
       supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
       worker(Livevox.Scheduler, []),
       worker(Mongo, [
-        IO.inspect([
+        [
           name: :mongo,
           database: "livevox",
           username: Application.get_env(:livevox, :mongodb_username),
@@ -21,7 +21,7 @@ defmodule Livevox.Application do
           hostname: Application.get_env(:livevox, :mongodb_hostname),
           port: Application.get_env(:livevox, :mongodb_port),
           pool: DBConnection.Poolboy
-        ])
+        ]
       ]),
 
       # Caches / data sources
