@@ -61,15 +61,14 @@ defmodule Livevox.EventLoggers.AgentEvent do
         tags: [
           "agent:#{agent_name}",
           "service:#{service_name}",
-          "caller_email:#{caller_attributes["email"]}",
+          "caller_email:#{caller_attributes["caller_email"]}",
           "calling_from:#{caller_attributes["calling_from"]}"
         ]
       })
     end)
 
     spawn(fn ->
-      Mongo.insert_one(
-        :mongo,
+      Db.insert_one(
         "agent_events",
         Map.merge(~m(agent_name service_name event_type timestamp), caller_attributes)
       )
