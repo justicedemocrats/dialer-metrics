@@ -78,6 +78,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
     matchers =
       Map.values(~m(service_name event_type metric_title))
       |> MapSet.new()
+      |> MapSet.put("calling_from:#{caller_attributes["calling_from"]}")
 
     inc_state(state, matchers)
   end
