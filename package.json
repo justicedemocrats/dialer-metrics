@@ -2,7 +2,7 @@
   "repository": {},
   "license": "MIT",
   "scripts": {
-    "deploy": "NODE_ENV=prod parcel build lib/livevox_web/static/js/app.js --out-dir priv/static/js",
+    "deploy": "NODE_ENV=prod node_modules/parcel-bundler/bin/cli.js build lib/livevox_web/static/js/app.js --out-dir priv/static/js",
     "watch": "parcel watch lib/livevox_web/static/js/app.js --out-dir priv/static/js"
   },
   "dependencies": {
