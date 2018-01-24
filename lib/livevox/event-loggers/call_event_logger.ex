@@ -28,9 +28,8 @@ defmodule Livevox.EventLoggers.CallEvent do
       ) do
     Db.insert_one("calls_raw", message)
 
-    ~m(service_name agent_name extra_attributes caller_attributes timestamp lv_result)
-      = call
-      = Livevox.EventLoggers.ProcessCall.from_agent_halfway(message)
+    ~m(service_name agent_name extra_attributes caller_attributes timestamp lv_result) =
+      call = Livevox.EventLoggers.ProcessCall.from_agent_halfway(message)
 
     actor_tags =
       case agent_name do
@@ -63,7 +62,8 @@ defmodule Livevox.EventLoggers.CallEvent do
   end
 
   # If it's got an agent id, we'll get it through the agent event feed
-  def handle_info(message = %{"lvResult" => _, "agentId" => _}, state) do
+  def handle_info(message = %{"lvResult" => _, "agentId" => agent_id}, state)
+      when not is_nil(agent_id) do
     Db.insert_one("calls_raw", message)
     {:noreply, state}
   end
@@ -72,9 +72,8 @@ defmodule Livevox.EventLoggers.CallEvent do
   def handle_info(message = %{"lvResult" => _something}, state) do
     Db.insert_one("calls_raw", message)
 
-    ~m(id service_name agent_name extra_attributes lv_result timestamp)
-      = call
-      = Livevox.EventLoggers.ProcessCall.from_call_halfway(message)
+    ~m(id service_name agent_name extra_attributes lv_result timestamp) =
+      call = Livevox.EventLoggers.ProcessCall.from_call_halfway(message)
 
     actor_tags =
       case agent_name do

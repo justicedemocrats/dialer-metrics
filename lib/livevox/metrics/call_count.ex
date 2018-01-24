@@ -14,11 +14,20 @@ defmodule Livevox.Metrics.CallCounts do
     %{"q" => %{"contact" => true}, "label" => "contact"},
     %{"q" => %{"dnc_pass" => true}, "label" => "dnc"},
     %{"q" => %{"van_result" => "Wrong Number"}, "label" => "van_result:wrong_number"},
-    %{"q" => %{"van_result" => @regexify.("strong support")}, "label" => "van_result:strong_support"},
+    %{
+      "q" => %{"van_result" => @regexify.("strong support")},
+      "label" => "van_result:strong_support"
+    },
     %{"q" => %{"van_result" => @regexify.("lean support")}, "label" => "van_result:lean_support"},
     %{"q" => %{"van_result" => @regexify.("undecided")}, "label" => "van_result:undecided"},
-    %{"q" => %{"van_result" => @regexify.("lean opponent")}, "label" => "van_result:lean_opponent"},
-    %{"q" => %{"van_result" => @regexify.("strong opponent")}, "label" => "van_result:strong_opponent"},
+    %{
+      "q" => %{"van_result" => @regexify.("lean opponent")},
+      "label" => "van_result:lean_opponent"
+    },
+    %{
+      "q" => %{"van_result" => @regexify.("strong opponent")},
+      "label" => "van_result:strong_opponent"
+    },
     %{"q" => %{"van_result" => @regexify.("lean other")}, "label" => "van_result:lean_other"},
     %{"q" => %{"van_result" => @regexify.("strong other")}, "label" => "van_result:strong_other"},
     %{"q" => %{"van_result" => @regexify.("not voting")}, "label" => "van_result:not_voting"},
@@ -49,15 +58,16 @@ defmodule Livevox.Metrics.CallCounts do
       |> Flow.from_enumerable()
       |> Flow.map(&Livevox.ServiceInfo.name_of/1)
       |> Flow.reject(fn s ->
-           String.contains?(s, "UNUSED") or String.contains?(s, "OLD") or String.contains?(s, "XXX")
+           String.contains?(s, "UNUSED") or String.contains?(s, "OLD") or
+             String.contains?(s, "XXX")
          end)
       |> Flow.reject(fn s ->
-        String.contains?(s, "Inbound")
-      end)
-      |> Flow.map(& String.replace(&1, "Callers", ""))
-      |> Flow.map(& String.replace(&1, "Monitor", ""))
-      |> Flow.map(& String.replace(&1, "QC", ""))
-      |> Flow.map(& String.trim(&1))
+           String.contains?(s, "Inbound")
+         end)
+      |> Flow.map(&String.replace(&1, "Callers", ""))
+      |> Flow.map(&String.replace(&1, "Monitor", ""))
+      |> Flow.map(&String.replace(&1, "QC", ""))
+      |> Flow.map(&String.trim(&1))
       |> Enum.to_list()
       |> MapSet.new()
       |> Enum.to_list()
@@ -65,7 +75,7 @@ defmodule Livevox.Metrics.CallCounts do
     service_names
     |> Flow.from_enumerable()
     |> Flow.flat_map(fn name ->
-        starting = initial_count(name)
+         starting = initial_count(name)
 
          Flow.from_enumerable(@queries)
          |> Flow.flat_map(fn query ->
@@ -101,7 +111,10 @@ defmodule Livevox.Metrics.CallCounts do
 
         _n ->
           match = service_match(service_name)
-          {:ok, count} = Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
+
+          {:ok, count} =
+            Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
+
           count
       end
 
