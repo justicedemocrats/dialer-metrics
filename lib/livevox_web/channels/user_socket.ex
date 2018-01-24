@@ -2,7 +2,7 @@ defmodule LivevoxWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel("agent-status", LivevoxWeb.AgentsChannel)
+  channel("live", LivevoxWeb.Channel)
 
   ## Transports
   transport(:websocket, Phoenix.Transports.WebSocket)
