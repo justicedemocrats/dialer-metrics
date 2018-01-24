@@ -20,9 +20,13 @@ defmodule LivevoxWeb.Endpoint do
     json_decoder: Poison
   )
 
-  plug Plug.Static,
-    at: "/", from: :livevox, gzip: false,
+  plug(
+    Plug.Static,
+    at: "/",
+    from: :livevox,
+    gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
+  )
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)

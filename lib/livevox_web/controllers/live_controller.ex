@@ -65,7 +65,7 @@ defmodule LivevoxWeb.LiveController do
     #
     conn
     |> delete_resp_header("x-frame-options")
-    |> render("agent-status.html", [service_name: service])
+    |> render("agent-status.html", service_name: service)
   end
 
   def agent_status(conn, _) do

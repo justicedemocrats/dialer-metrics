@@ -148,6 +148,11 @@ defmodule Livevox.Aggregators.AgentStatus do
       |> Enum.into(%{})
   end
 
+  def get_breakdown(~m(service_name)) do
+    sid = ServiceInfo.id_of(service_name)
+    get_breakdown(~m(service_name sid))
+  end
+
   def get_breakdown(sid) do
     service_name = ServiceInfo.name_of(sid)
     get_breakdown(~m(service_name sid))

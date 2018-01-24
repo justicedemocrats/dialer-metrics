@@ -9,6 +9,7 @@ defmodule LivevoxWeb.AgentsChannel do
 
   def handle_in("status-for-service", ~m(service), socket) do
     status_breakdown = Livevox.Aggregators.AgentStatus.get_breakdown(%{"service_name" => service})
-    push socket, "breakdown", status_breakdown
+    push(socket, "breakdown", status_breakdown)
+    {:noreply, socket}
   end
 end

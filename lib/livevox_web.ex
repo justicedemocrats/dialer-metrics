@@ -30,6 +30,7 @@ defmodule LivevoxWeb do
       # Import convenience functions from controllers
       import LivevoxWeb.Router.Helpers
       use Phoenix.HTML
+
       use Phoenix.View,
         root: "lib/livevox_web/templates",
         namespace: Admin

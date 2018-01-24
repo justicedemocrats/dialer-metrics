@@ -18,4 +18,4 @@ mongo-scripts/node_modules
 .env
 /priv/static
 node_modules
-.cache
+/.cache/
