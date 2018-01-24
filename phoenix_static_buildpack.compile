@@ -1,3 +1,4 @@
+mkdir -p priv/static
 NODE_ENV=prod parcel build lib/livevox_web/static/js/app.js --out-dir priv/static/js
 
 cd $phoenix_dir
