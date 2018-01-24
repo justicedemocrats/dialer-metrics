@@ -29,7 +29,10 @@ defmodule LivevoxWeb do
     quote do
       # Import convenience functions from controllers
       import LivevoxWeb.Router.Helpers
-      import LivevoxWeb.ErrorHelpers
+      use Phoenix.HTML
+      use Phoenix.View,
+        root: "lib/livevox_web/templates",
+        namespace: Admin
     end
   end
 
@@ -38,6 +41,12 @@ defmodule LivevoxWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+    end
+  end
+
+  def channel do
+    quote do
+      use Phoenix.Channel
     end
   end
 

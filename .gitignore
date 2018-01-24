@@ -16,3 +16,6 @@ erl_crash.dump
 /config/*.secret.exs
 mongo-scripts/node_modules
 .env
+/priv/static
+node_modules
+.cache

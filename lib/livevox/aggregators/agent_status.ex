@@ -131,9 +131,7 @@ defmodule Livevox.Aggregators.AgentStatus do
     {:noreply, new_state}
   end
 
-  def get_breakdown(sid) do
-    service_name = ServiceInfo.name_of(sid)
-
+  def get_breakdown(~m(service_name sid)) do
     state = :sys.get_state(__MODULE__)
 
     stats =
@@ -148,6 +146,11 @@ defmodule Livevox.Aggregators.AgentStatus do
       |> Enum.map(&fill_info/1)
       |> Enum.map(&Task.await/1)
       |> Enum.into(%{})
+  end
+
+  def get_breakdown(sid) do
+    service_name = ServiceInfo.name_of(sid)
+    get_breakdown(~m(service_name sid))
   end
 
   defp fill_info({metric, service_name, aids}) when is_list(aids) do
