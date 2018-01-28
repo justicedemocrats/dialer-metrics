@@ -2,6 +2,7 @@ defmodule Livevox.AgentInfo do
   import ShortMaps
   use Agent
   @ttl 60_000 * 60
+
   def login_management_url, do: Application.get_env(:livevox, :login_management_url)
 
   def start_link do
@@ -60,10 +61,10 @@ defmodule Livevox.AgentInfo do
     end)
   end
 
-  defp do_get_caller_attributes(client_name, ""), do: nil
-  defp do_get_caller_attributes(client_name, nil), do: nil
+  def do_get_caller_attributes(client_name, ""), do: nil
+  def do_get_caller_attributes(client_name, nil), do: nil
 
-  defp do_get_caller_attributes(client_name, agent_name) do
+  def do_get_caller_attributes(client_name, agent_name) do
     %{body: body} = HTTPotion.get(login_management_url <> "/#{client_name}/#{agent_name}")
 
     case Poison.decode(body) do
