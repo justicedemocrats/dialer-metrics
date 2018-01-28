@@ -58,14 +58,14 @@ defmodule Livevox.AgentInfo do
         caller_attributes = %{} ->
           {caller_attributes, state}
       end
-    end)
+    end, :infinity)
   end
 
   def do_get_caller_attributes(client_name, ""), do: nil
   def do_get_caller_attributes(client_name, nil), do: nil
 
   def do_get_caller_attributes(client_name, agent_name) do
-    %{body: body} = HTTPotion.get(login_management_url <> "/#{client_name}/#{agent_name}")
+    %{body: body} = HTTPotion.get(login_management_url <> "/#{client_name}/#{agent_name}", timeout: :infinity)
 
     case Poison.decode(body) do
       {:ok, %{"email" => caller_email, "calling_from" => calling_from, "phone" => phone}} ->
