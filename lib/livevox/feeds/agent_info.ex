@@ -38,34 +38,39 @@ defmodule Livevox.AgentInfo do
   def get_caller_attributes(service_name, agent_name) do
     key_set = [:logins_to_info, MapSet.new([service_name, agent_name])]
 
-    Agent.get_and_update(__MODULE__, fn state ->
-      case get_in(state, key_set) do
-        nil ->
-          client_name = Livevox.ClientInfo.get_client_name(service_name)
-          attributes = do_get_caller_attributes(client_name, agent_name)
+    Agent.get_and_update(
+      __MODULE__,
+      fn state ->
+        case get_in(state, key_set) do
+          nil ->
+            client_name = Livevox.ClientInfo.get_client_name(service_name)
+            attributes = do_get_caller_attributes(client_name, agent_name)
 
-          # Invalidate in ttl
-          spawn(fn ->
-            :timer.sleep(@ttl)
-            clear_cache_of(key_set)
-          end)
+            # Invalidate in ttl
+            spawn(fn ->
+              :timer.sleep(@ttl)
+              clear_cache_of(key_set)
+            end)
 
-          {
-            attributes,
-            put_in(state, key_set, attributes)
-          }
+            {
+              attributes,
+              put_in(state, key_set, attributes)
+            }
 
-        caller_attributes = %{} ->
-          {caller_attributes, state}
-      end
-    end, :infinity)
+          caller_attributes = %{} ->
+            {caller_attributes, state}
+        end
+      end,
+      :infinity
+    )
   end
 
   def do_get_caller_attributes(client_name, ""), do: nil
   def do_get_caller_attributes(client_name, nil), do: nil
 
   def do_get_caller_attributes(client_name, agent_name) do
-    %{body: body} = HTTPotion.get(login_management_url <> "/#{client_name}/#{agent_name}", timeout: :infinity)
+    %{body: body} =
+      HTTPotion.get(login_management_url <> "/#{client_name}/#{agent_name}", timeout: :infinity)
 
     case Poison.decode(body) do
       {:ok, %{"email" => caller_email, "calling_from" => calling_from, "phone" => phone}} ->

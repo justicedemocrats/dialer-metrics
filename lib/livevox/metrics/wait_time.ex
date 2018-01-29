@@ -43,7 +43,8 @@ defmodule Livevox.Metrics.WaitTime do
         spawn(fn ->
           Dog.post_event(%{
             title: "error",
-            text: "expected prev_state to be ready – was #{something_else} at #{prev_state_set_at}",
+            text:
+              "expected prev_state to be ready – was #{something_else} at #{prev_state_set_at}",
             date_happened: Timex.now(),
             tags: tags
           })

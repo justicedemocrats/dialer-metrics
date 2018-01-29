@@ -22,15 +22,18 @@ defmodule Livevox.ServiceInfo do
     centers
     |> Enum.map(fn %{"callCenterId" => cid} -> cid end)
     |> Enum.flat_map(fn cid ->
-         %{body: %{"service" => services}} =
-           Livevox.Api.get("configuration/v6.0/services", query: %{
-             callCenter: cid,
-             count: 1000,
-             offset: 0
-           })
+      %{body: %{"service" => services}} =
+        Livevox.Api.get(
+          "configuration/v6.0/services",
+          query: %{
+            callCenter: cid,
+            count: 1000,
+            offset: 0
+          }
+        )
 
-         services
-       end)
+      services
+    end)
     |> Enum.map(fn ~m(name serviceId) -> {serviceId, name} end)
     |> Enum.into(%{})
   end

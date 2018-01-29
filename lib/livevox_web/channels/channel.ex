@@ -23,10 +23,13 @@ defmodule LivevoxWeb.Channel do
   def handle_in("set-throttle", ~m(service value), socket) do
     ~m(throttle pacingMethod) = get_config(service)
 
-    Livevox.Api.post("configuration/v6.0/services/#{Livevox.ServiceInfo.id_of(service)}/pacing" |> IO.inspect(), body: %{
-      method: pacingMethod,
-      throttle: value
-    })
+    Livevox.Api.post(
+      "configuration/v6.0/services/#{Livevox.ServiceInfo.id_of(service)}/pacing" |> IO.inspect(),
+      body: %{
+        method: pacingMethod,
+        throttle: value
+      }
+    )
 
     ~m(throttle) = get_config(service)
 
@@ -39,8 +42,8 @@ defmodule LivevoxWeb.Channel do
 
     stats
     |> Enum.filter(fn ~m(throttle serviceId pacingMethod) ->
-         serviceId = Livevox.ServiceInfo.id_of(service)
-       end)
+      serviceId = Livevox.ServiceInfo.id_of(service)
+    end)
     |> List.first()
   end
 end

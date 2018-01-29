@@ -71,12 +71,12 @@ defmodule Livevox.EventLoggers.ProcessCall do
   def tagify(map) do
     map
     |> Enum.filter(fn
-         {key, val} when is_boolean(val) -> val
-         {key, val} -> val != ""
-       end)
+      {key, val} when is_boolean(val) -> val
+      {key, val} -> val != ""
+    end)
     |> Enum.map(fn
-         {key, val} when is_boolean(val) -> key
-         {key, val} -> "#{key}:#{val}"
-       end)
+      {key, val} when is_boolean(val) -> key
+      {key, val} -> "#{key}:#{val}"
+    end)
   end
 end

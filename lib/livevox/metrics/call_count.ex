@@ -58,12 +58,11 @@ defmodule Livevox.Metrics.CallCounts do
       |> Flow.from_enumerable()
       |> Flow.map(&Livevox.ServiceInfo.name_of/1)
       |> Flow.reject(fn s ->
-           String.contains?(s, "UNUSED") or String.contains?(s, "OLD") or
-             String.contains?(s, "XXX")
-         end)
+        String.contains?(s, "UNUSED") or String.contains?(s, "OLD") or String.contains?(s, "XXX")
+      end)
       |> Flow.reject(fn s ->
-           String.contains?(s, "Inbound")
-         end)
+        String.contains?(s, "Inbound")
+      end)
       |> Flow.map(&String.replace(&1, "Callers", ""))
       |> Flow.map(&String.replace(&1, "Monitor", ""))
       |> Flow.map(&String.replace(&1, "QC", ""))
@@ -75,14 +74,14 @@ defmodule Livevox.Metrics.CallCounts do
     service_names
     |> Flow.from_enumerable()
     |> Flow.flat_map(fn name ->
-         starting = initial_count(name)
+      starting = initial_count(name)
 
-         Flow.from_enumerable(@queries)
-         |> Flow.flat_map(fn query ->
-              execute_service_query([], starting, @intervals, name, query)
-            end)
-         |> Enum.to_list()
-       end)
+      Flow.from_enumerable(@queries)
+      |> Flow.flat_map(fn query ->
+        execute_service_query([], starting, @intervals, name, query)
+      end)
+      |> Enum.to_list()
+    end)
     |> Enum.to_list()
     |> Dog.post_metrics()
   end
