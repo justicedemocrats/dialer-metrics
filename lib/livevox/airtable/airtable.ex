@@ -38,7 +38,7 @@ defmodule Livevox.AirtableCache do
           Authorization: "Bearer #{key}"
         ],
         timeout: :infinity
-      )
+      ) |> IO.inspect()
 
     decoded = Poison.decode!(body)
 
@@ -60,7 +60,7 @@ defmodule Livevox.AirtableCache do
         ],
         query: [offset: offset],
         timeout: :infinity
-      )
+      ) |> IO.inspect()
 
     decoded = Poison.decode!(body)
 
