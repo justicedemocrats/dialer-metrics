@@ -10,7 +10,7 @@ defmodule LivevoxWeb.LiveController do
   end
 
   def global_state(conn, _) do
-    global_state = get_global_state
+    global_state = get_global_state()
     json(conn, global_state)
   end
 
@@ -37,9 +37,23 @@ defmodule LivevoxWeb.LiveController do
   end
 
   def agent_status(conn, ~m(service)) do
+    response_fn =
+      case ServiceLevel.pacing_method_of(service) do
+        nil ->
+          options = ServiceLevel.service_name_options() |> Enum.sort() |> Enum.join("\n")
+          fn conn ->
+            text(conn, "Hm, that service was not recognized. Please try one of #{options}")
+          end
+
+        _ ->
+          fn conn ->
+            render(conn, "agent-status.html", service_name: service)
+          end
+      end
+
     conn
     |> delete_resp_header("x-frame-options")
-    |> render("agent-status.html", service_name: service)
+    |> response_fn.()
   end
 
   def agent_status(conn, _) do
@@ -67,7 +81,10 @@ defmodule LivevoxWeb.LiveController do
         Livevox.Metrics.ServiceLevel,
         Livevox.Metrics.WaitTime,
         Livevox.Metrics.SessionLength,
-        Livevox.Metrics.CallLength
+        Livevox.Metrics.CallLength,
+        Livevox.Aggregators.AgentStatus,
+        Livevox.ServiceInfo,
+        Livevox.AgentInfo
       ],
       %{},
       fn process_name, acc ->
