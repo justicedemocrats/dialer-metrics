@@ -1,8 +1,10 @@
 defmodule ScreenBoard do
-  def list do
-    %{body: body} = Dog.Api.get("screen")
+  import ShortMaps
 
-    Enum.each(body, fn ~m(title id) ->
+  def list do
+    %{body: ~m(screenboards)} = Dog.Api.get("screen")
+
+    Enum.each(screenboards, fn ~m(title id) ->
       IO.puts "#{id}: #{title}"
     end)
   end
