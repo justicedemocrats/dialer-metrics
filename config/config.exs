@@ -21,6 +21,7 @@ config :livevox, Livevox.Scheduler,
   jobs: [
     {"*/11 * * * *", {Livevox.AirtableCache, :update, []}},
     {"*/5 * * * *", {Livevox.ServiceInfo, :update, []}},
+    {"*/5 * * * *", {Livevox.ServiceStatFeed, :update, []}},
     {{:extended, "*/30"}, {Livevox.EventLoggers.AgentEvent, :flush, []}},
     {{:extended, "*/30"}, {Livevox.EventLoggers.CallEvent, :flush, []}},
     {{:extended, "*/30"}, {Livevox.Metrics.CallerCounts, :update, []}},
