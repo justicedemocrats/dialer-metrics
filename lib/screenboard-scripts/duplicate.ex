@@ -40,4 +40,30 @@ defmodule ScreenBoard do
 
     IO.inspect(Dog.Api.post("screen", body: duplicate))
   end
+
+  def replace_total_with_dialed(board_id) do
+    %{body: board} = Dog.Api.get("screen/#{board_id}")
+
+    new_widgets =
+      board["widgets"]
+      |> Enum.map(fn w ->
+        requests = get_in(w, ~w(tile_def requests))
+
+        cond do
+          requests == nil -> w
+
+          Regex.run(~r/.*\/.*,total.*/, (List.first(requests) |> Map.get("q"))) != nil ->
+            first_request = List.first(requests)
+            q = Map.get(first_request, "q")
+            new_q = Regex.replace(~r/,total/, q, ",dialed")
+            new_request = Map.put(first_request, "q", new_q)
+            IO.inspect put_in(w, ~w(tile_def requests), [new_request])
+
+          true -> w
+        end
+      end)
+
+    new_board = Map.put(board, "widgets", new_widgets)
+    IO.inspect Dog.Api.put("screen/#{board_id}", body: new_board)
+  end
 end
