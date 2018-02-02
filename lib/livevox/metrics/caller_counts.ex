@@ -126,21 +126,39 @@ defmodule Livevox.Metrics.CallerCounts do
   def post_all(state, sid) do
     now = DateTime.utc_now() |> DateTime.to_unix()
 
+    get_count_in_state = fn key ->
+      Map.get(state, key)
+      |> Enum.filter(fn {aid, other_sid} -> sid == other_sid end)
+      |> length()
+    end
+
+    counts =
+      ~w(logged_on in_call ready not_ready)a
+      |> Enum.map(fn metric ->
+        {metric, get_count_in_state.(metric)}
+      end)
+      |> Enum.into(%{})
+
+    tags = ["service:#{Livevox.ServiceInfo.name_of(sid)}"]
+
     series =
       Enum.map(~w(logged_on in_call ready not_ready)a, fn metric ->
         label = "count_#{Atom.to_string(metric)}"
-
-        count =
-          Map.get(state, metric)
-          |> Enum.filter(fn {aid, other_sid} -> sid == other_sid end)
-          |> length()
+        count = counts[metric]
 
         %{
           metric: label,
           points: [[now, count]],
-          tags: ["service:#{Livevox.ServiceInfo.name_of(sid)}"]
+          tags: tags
         }
       end)
+      |> Enum.concat([
+        %{
+          metric: "count_active",
+          points: [[now, counts.logged_on - counts.not_ready]],
+          tags: tags
+        }
+      ])
 
     Dog.post_metrics(series)
   end

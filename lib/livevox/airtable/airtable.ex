@@ -15,9 +15,13 @@ defmodule Livevox.AirtableCache do
   end
 
   def update() do
-    Agent.update(__MODULE__, fn _current ->
-      fetch_all()
-    end)
+    Agent.update(
+      __MODULE__,
+      fn _current ->
+        fetch_all()
+      end,
+      20_000
+    )
 
     IO.puts("[term codes]: updated at #{inspect(DateTime.utc_now())}")
   end
@@ -28,9 +32,13 @@ defmodule Livevox.AirtableCache do
 
   defp fetch_all() do
     %{body: body} =
-      HTTPotion.get("https://api.airtable.com/v0/#{base}/#{table}", headers: [
-        Authorization: "Bearer #{key}"
-      ])
+      HTTPotion.get(
+        "https://api.airtable.com/v0/#{base}/#{table}",
+        headers: [
+          Authorization: "Bearer #{key}"
+        ],
+        timeout: :infinity
+      ) |> IO.inspect()
 
     decoded = Poison.decode!(body)
 
@@ -50,8 +58,9 @@ defmodule Livevox.AirtableCache do
         headers: [
           Authorization: "Bearer #{key}"
         ],
-        query: [offset: offset]
-      )
+        query: [offset: offset],
+        timeout: :infinity
+      ) |> IO.inspect()
 
     decoded = Poison.decode!(body)
 
@@ -72,23 +81,23 @@ defmodule Livevox.AirtableCache do
     records
     |> Enum.filter(fn %{"fields" => fields} -> Map.has_key?(fields, "LV System Result") end)
     |> Enum.reduce(%{}, fn %{"fields" => fields}, acc ->
-         underscored =
-           Enum.map(fields, fn {key, val} ->
-             {
-               key |> String.replace(" ", "") |> Macro.underscore(),
-               typey_downcase(val)
-             }
-           end)
-           |> Enum.into(%{})
+      underscored =
+        Enum.map(fields, fn {key, val} ->
+          {
+            key |> String.replace(" ", "") |> Macro.underscore(),
+            typey_downcase(val)
+          }
+        end)
+        |> Enum.into(%{})
 
-         key =
-           case underscored["lv_result"] do
-             nil -> underscored["lv_system_result"]
-             "" -> underscored["lv_system_result"]
-             something -> Livevox.Standardize.term_code(something)
-           end
+      key =
+        case underscored["lv_result"] do
+          nil -> underscored["lv_system_result"]
+          "" -> underscored["lv_system_result"]
+          something -> Livevox.Standardize.term_code(something)
+        end
 
-         Map.put(acc, key, Map.drop(underscored, ["lv_result", "lv_system_result"]))
-       end)
+      Map.put(acc, key, Map.drop(underscored, ["lv_result", "lv_system_result"]))
+    end)
   end
 end

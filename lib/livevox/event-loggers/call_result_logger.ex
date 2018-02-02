@@ -25,7 +25,6 @@ defmodule Livevox.EventLoggers.CallResult do
         message = %{"lineNumber" => "ACD", "eventType" => "WRAP_UP", "result" => _},
         state
       ) do
-
     ~m(id) = call = Livevox.EventLoggers.ProcessCall.from_agent_fully(message)
     Db.update("calls", ~m(id), call)
 

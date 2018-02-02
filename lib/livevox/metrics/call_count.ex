@@ -13,18 +13,27 @@ defmodule Livevox.Metrics.CallCounts do
     %{"q" => %{"canvass" => true}, "label" => "canvass"},
     %{"q" => %{"contact" => true}, "label" => "contact"},
     %{"q" => %{"dnc_pass" => true}, "label" => "dnc"},
-    %{"q" => %{"van_result" => "Wrong Number"}, "label" => "van_wrong_number"},
-    %{"q" => %{"van_result" => @regexify.("strong support")}, "label" => "van_strong_support"},
-    %{"q" => %{"van_result" => @regexify.("lean support")}, "label" => "van_lean_support"},
-    %{"q" => %{"van_result" => @regexify.("undecided")}, "label" => "van_undecided"},
-    %{"q" => %{"van_result" => @regexify.("lean opponent")}, "label" => "van_lean_opponent"},
-    %{"q" => %{"van_result" => @regexify.("strong opponent")}, "label" => "van_strong_opponent"},
-    %{"q" => %{"van_result" => @regexify.("lean other")}, "label" => "van_lean_other"},
-    %{"q" => %{"van_result" => @regexify.("strong other")}, "label" => "van_strong_other"},
-    %{"q" => %{"van_result" => @regexify.("not voting")}, "label" => "van_not_voting"},
-    %{"q" => %{"e_day" => @regexify.("will vote")}, "label" => "e_day_will_vote"},
-    %{"q" => %{"e_day" => @regexify.("already voted")}, "label" => "e_day_already_voted"},
-    %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day_not_voting"}
+    %{"q" => %{"van_result" => "Wrong Number"}, "label" => "van_result:wrong_number"},
+    %{
+      "q" => %{"van_result" => @regexify.("strong support")},
+      "label" => "van_result:strong_support"
+    },
+    %{"q" => %{"van_result" => @regexify.("lean support")}, "label" => "van_result:lean_support"},
+    %{"q" => %{"van_result" => @regexify.("undecided")}, "label" => "van_result:undecided"},
+    %{
+      "q" => %{"van_result" => @regexify.("lean opponent")},
+      "label" => "van_result:lean_opponent"
+    },
+    %{
+      "q" => %{"van_result" => @regexify.("strong opponent")},
+      "label" => "van_result:strong_opponent"
+    },
+    %{"q" => %{"van_result" => @regexify.("lean other")}, "label" => "van_result:lean_other"},
+    %{"q" => %{"van_result" => @regexify.("strong other")}, "label" => "van_result:strong_other"},
+    %{"q" => %{"van_result" => @regexify.("not voting")}, "label" => "van_result:not_voting"},
+    %{"q" => %{"e_day" => @regexify.("will vote")}, "label" => "e_day:will_vote"},
+    %{"q" => %{"e_day" => @regexify.("already voted")}, "label" => "e_day:already_voted"},
+    %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day:not_voting"}
   ]
 
   def service_match(str), do: %{"$regex" => ".*#{str} [CMQ].*", "$options" => "i"}
@@ -49,15 +58,15 @@ defmodule Livevox.Metrics.CallCounts do
       |> Flow.from_enumerable()
       |> Flow.map(&Livevox.ServiceInfo.name_of/1)
       |> Flow.reject(fn s ->
-           String.contains?(s, "UNUSED") or String.contains?(s, "OLD") or String.contains?(s, "XXX")
-         end)
+        String.contains?(s, "UNUSED") or String.contains?(s, "OLD") or String.contains?(s, "XXX")
+      end)
       |> Flow.reject(fn s ->
         String.contains?(s, "Inbound")
       end)
-      |> Flow.map(& String.replace(&1, "Callers", ""))
-      |> Flow.map(& String.replace(&1, "Monitor", ""))
-      |> Flow.map(& String.replace(&1, "QC", ""))
-      |> Flow.map(& String.trim(&1))
+      |> Flow.map(&String.replace(&1, "Callers", ""))
+      |> Flow.map(&String.replace(&1, "Monitor", ""))
+      |> Flow.map(&String.replace(&1, "QC", ""))
+      |> Flow.map(&String.trim(&1))
       |> Enum.to_list()
       |> MapSet.new()
       |> Enum.to_list()
@@ -65,14 +74,14 @@ defmodule Livevox.Metrics.CallCounts do
     service_names
     |> Flow.from_enumerable()
     |> Flow.flat_map(fn name ->
-        starting = initial_count(name)
+      starting = initial_count(name)
 
-         Flow.from_enumerable(@queries)
-         |> Flow.flat_map(fn query ->
-              execute_service_query([], starting, @intervals, name, query)
-            end)
-         |> Enum.to_list()
-       end)
+      Flow.from_enumerable(@queries)
+      |> Flow.flat_map(fn query ->
+        execute_service_query([], starting, @intervals, name, query)
+      end)
+      |> Enum.to_list()
+    end)
     |> Enum.to_list()
     |> Dog.post_metrics()
   end
@@ -101,7 +110,10 @@ defmodule Livevox.Metrics.CallCounts do
 
         _n ->
           match = service_match(service_name)
-          {:ok, count} = Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
+
+          {:ok, count} =
+            Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
+
           count
       end
 

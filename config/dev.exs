@@ -11,7 +11,15 @@ config :livevox, LivevoxWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: []
+  watchers: [
+    node: [
+      "node_modules/parcel-bundler/bin/cli.js",
+      "watch",
+      "lib/livevox_web/static/js/app.js",
+      "--out-dir",
+      "priv/static/js"
+    ]
+  ]
 
 # ## SSL Support
 #

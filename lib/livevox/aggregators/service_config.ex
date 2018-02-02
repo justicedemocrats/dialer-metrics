@@ -70,9 +70,9 @@ defmodule Livevox.Aggregators.ServiceConfig do
         updated_map =
           map
           |> Map.put(
-               :caller_id_type,
-               if(MapSet.member?(services_with_lcid, id), do: "LCID", else: "Fixed")
-             )
+            :caller_id_type,
+            if(MapSet.member?(services_with_lcid, id), do: "LCID", else: "Fixed")
+          )
           |> Map.put(:caller_id_number, Map.get(service_phones, id, ""))
           |> Map.put(:resource_group, Map.get(resource_groups, id, ""))
 
@@ -81,16 +81,22 @@ defmodule Livevox.Aggregators.ServiceConfig do
 
     # Delete all records
     %{body: body} =
-      HTTPotion.get("https://api.airtable.com/v0/#{base}/#{@table}", headers: [
-        Authorization: "Bearer #{key}"
-      ])
+      HTTPotion.get(
+        "https://api.airtable.com/v0/#{base}/#{@table}",
+        headers: [
+          Authorization: "Bearer #{key}"
+        ]
+      )
 
     decoded = Poison.decode!(body)
 
     Enum.each(decoded["records"], fn ~m(id) ->
-      HTTPotion.delete("https://api.airtable.com/v0/#{base}/#{@table}/#{id}", headers: [
-        Authorization: "Bearer #{key}"
-      ])
+      HTTPotion.delete(
+        "https://api.airtable.com/v0/#{base}/#{@table}/#{id}",
+        headers: [
+          Authorization: "Bearer #{key}"
+        ]
+      )
     end)
 
     # Create all records

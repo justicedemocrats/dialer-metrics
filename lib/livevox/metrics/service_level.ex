@@ -24,12 +24,12 @@ defmodule Livevox.Metrics.ServiceLevel do
     series =
       Map.drop(message, ~w(service_name timestamp)a)
       |> Enum.map(fn {metric, val} ->
-           %{
-             metric: Atom.to_string(metric),
-             points: [[timestamp, val]],
-             tags: ["service:#{service_name}"]
-           }
-         end)
+        %{
+          metric: Atom.to_string(metric),
+          points: [[timestamp, val]],
+          tags: ["service:#{service_name}"]
+        }
+      end)
 
     spawn(fn -> Dog.post_metrics(series) end)
 

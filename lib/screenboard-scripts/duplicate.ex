@@ -1,4 +1,12 @@
 defmodule ScreenBoard do
+  def list do
+    %{body: body} = Dog.Api.get("screen")
+
+    Enum.each(body, fn ~m(title id) ->
+      IO.puts "#{id}: #{title}"
+    end)
+  end
+
   def duplicate(board_id, new_title, replacements) do
     %{body: original} = Dog.Api.get("screen/#{board_id}")
 
