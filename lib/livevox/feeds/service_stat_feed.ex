@@ -4,10 +4,22 @@ defmodule Livevox.ServiceStatFeed do
   use Agent
 
   def start_link do
-    Agent.start_link(fn -> get_all_cips() end, name: __MODULE__)
+    Agent.start_link(fn -> fetch() end, name: __MODULE__)
   end
 
   def update do
+    Agent.update(__MODULE__, fn _ -> fetch() end)
+  end
+
+  def all_stats do
+    :sys.get_state(__MODULE__)
+  end
+
+  def stats_for(service_name) do
+    :sys.get_state(__MODULE__)[service_name]
+  end
+
+  def fetch do
     %{body: ~m(stats)} = Livevox.Api.post("realtime/v6.0/service/stats", body: %{})
     timestamp = DateTime.utc_now()
 
@@ -39,15 +51,5 @@ defmodule Livevox.ServiceStatFeed do
       {serviceName, stats}
     end)
     |> Enum.into(%{})
-
-    Agent.update(__MODULE__, fn _ -> by_service end)
-  end
-
-  def all_stats do
-    :sys.get_state(__MODULE__)
-  end
-
-  def stats_for(service_name) do
-    :sys.get_state(__MODULE__)[service_name]
   end
 end
