@@ -1,4 +1,5 @@
 defmodule ScreenBoard do
+  import ShortMaps
   def list do
     %{body: body} = Dog.Api.get("screen")
 
