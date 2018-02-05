@@ -106,6 +106,7 @@ defmodule Livevox.EventLoggers.CallEvent do
       ~m(service_name agent_name lv_result timestamp)
       |> Map.merge(extra_attributes)
 
+    IO.inspect for_mongo
     Db.update("calls", ~m(id), for_mongo)
 
     {:noreply, inc_state(state, matchers)}
