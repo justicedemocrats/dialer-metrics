@@ -18,7 +18,7 @@ defmodule Livevox.Application do
           database: "livevox",
           username: Application.get_env(:livevox, :mongodb_username),
           password: Application.get_env(:livevox, :mongodb_password),
-          hostname: Application.get_env(:livevox, :mongodb_hostname),
+          seeds: Application.get_env(:livevox, :mongodb_seeds),
           port: Application.get_env(:livevox, :mongodb_port),
           pool: DBConnection.Poolboy
         ]

@@ -41,6 +41,7 @@ defmodule LivevoxWeb.LiveController do
       case ServiceLevel.pacing_method_of(service) do
         nil ->
           options = ServiceLevel.service_name_options() |> Enum.sort() |> Enum.join("\n")
+
           fn conn ->
             text(conn, "Hm, that service was not recognized. Please try one of #{options}")
           end
