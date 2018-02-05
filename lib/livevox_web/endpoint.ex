@@ -1,6 +1,8 @@
 defmodule LivevoxWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :livevox
 
+  socket("/socket", LivevoxWeb.UserSocket)
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
@@ -16,6 +18,14 @@ defmodule LivevoxWeb.Endpoint do
     parsers: [:json],
     pass: ["*/*"],
     json_decoder: Poison
+  )
+
+  plug(
+    Plug.Static,
+    at: "/",
+    from: :livevox,
+    gzip: false,
+    only: ~w(css fonts images js favicon.ico robots.txt)
   )
 
   plug(Plug.MethodOverride)

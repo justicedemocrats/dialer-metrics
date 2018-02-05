@@ -33,6 +33,7 @@ defmodule Livevox.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.3.0"},
+      {:phoenix_html, "~> 2.10"},
       {:phoenix_pubsub, "~> 1.0"},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
@@ -48,7 +49,8 @@ defmodule Livevox.Mixfile do
       {:rollbax, "~> 0.6"},
       {:quantum, ">= 2.2.1"},
       {:flow, "~> 0.11"},
-      {:poolboy, "~> 1.5.1"}
+      {:poolboy, "~> 1.5.1"},
+      {:airtable_config, git: "https://github.com/justicedemocrats/airtable_config.git"}
     ]
   end
 end

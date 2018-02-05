@@ -62,14 +62,13 @@ defmodule Livevox.EventLoggers.AgentEvent do
           "agent:#{agent_name}",
           "service:#{service_name}",
           "caller_email:#{caller_attributes["caller_email"]}",
-          "calling_from:#{caller_attributes["calling_from"]}"
+          "calling_from:#{caller_attributes["calling_from"] || "campaign-office"}"
         ]
       })
     end)
 
     spawn(fn ->
-      Mongo.insert_one(
-        :mongo,
+      Db.insert_one(
         "agent_events",
         Map.merge(~m(agent_name service_name event_type timestamp), caller_attributes)
       )
@@ -79,6 +78,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
     matchers =
       Map.values(~m(service_name event_type metric_title))
       |> MapSet.new()
+      |> MapSet.put("calling_from:#{caller_attributes["calling_from"] || "campaign-office"}")
 
     inc_state(state, matchers)
   end

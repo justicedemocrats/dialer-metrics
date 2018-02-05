@@ -1,0 +1,4 @@
+<div id="agent-status" data-service="<%= @service_name %>">
+</div>
+<link rel="stylesheet" href="https://cdn.shoelace.style/1.0.0-beta24/shoelace.css">
+<script src="/js/app.js"></script>

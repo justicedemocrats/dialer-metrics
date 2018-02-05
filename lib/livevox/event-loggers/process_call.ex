@@ -75,8 +75,8 @@ defmodule Livevox.EventLoggers.ProcessCall do
       {key, val} -> val != ""
     end)
     |> Enum.map(fn
-       {key, val} when is_boolean(val) -> key
-       {key, val} -> "#{key}:#{val}"
-     end)
+      {key, val} when is_boolean(val) -> key
+      {key, val} -> "#{key}:#{val}"
+    end)
   end
 end

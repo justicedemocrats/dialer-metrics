@@ -13,7 +13,14 @@ defmodule Db do
   def update(collection, match, document) do
     if @live do
       spawn(fn ->
-        Mongo.update_many!(:mongo, collection, match, %{"$set" => document}, upsert: true, pool: DBConnection.Poolboy)
+        Mongo.update_many!(
+          :mongo,
+          collection,
+          match,
+          %{"$set" => document},
+          upsert: true,
+          pool: DBConnection.Poolboy
+        )
       end)
     else
       # Logger.debug("DB: update #{inspect(match)} with #{inspect(document)} into #{collection}")
