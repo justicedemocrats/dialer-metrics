@@ -11,7 +11,7 @@ defmodule Dog do
     if @live do
       Dog.Api.post("series", body: %{series: [~m(metric points tags type)]})
     else
-      # Logger.debug("DOG: post single series: #{inspect(~m(metric points tags type))}")
+      Logger.debug("DOG: post single series: #{inspect(~m(metric points tags type))}")
     end
   end
 
@@ -19,7 +19,7 @@ defmodule Dog do
     if @live do
       Dog.Api.post("series", body: ~m(series)a)
     else
-      # Logger.debug("DOG: post series: #{inspect(series)}")
+      Logger.debug("DOG: post series: #{inspect(series)}")
     end
   end
 
@@ -30,7 +30,7 @@ defmodule Dog do
     if @live do
       Dog.Api.post("events", body: event)
     else
-      # Logger.debug("DOG: post event: #{md5}")
+      Logger.debug("DOG: post event: #{md5}")
     end
   end
 

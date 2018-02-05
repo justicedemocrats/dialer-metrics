@@ -56,7 +56,10 @@ config :livevox,
   airtable_base: System.get_env("AIRTABLE_BASE"),
   airtable_table_name: System.get_env("AIRTABLE_TABLE_NAME"),
   mongodb_username: System.get_env("MONGO_USERNAME"),
-  mongodb_hostname: System.get_env("MONGO_HOSTNAME"),
+  mongodb_seeds: [
+    System.get_env("MONGO_SEED_1"),
+    System.get_env("MONGO_SEED_2")
+  ],
   mongodb_password: System.get_env("MONGO_PASSWORD"),
   mongodb_port: System.get_env("MONGO_PORT"),
   login_management_url: System.get_env("LOGIN_MANAGEMENT_URL"),
