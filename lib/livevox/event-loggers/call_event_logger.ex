@@ -72,7 +72,7 @@ defmodule Livevox.EventLoggers.CallEvent do
   def handle_info(message = %{"lvResult" => _something}, state) do
     Db.insert_one("calls_raw", message)
 
-    ~m(id service_name agent_name extra_attributes lv_result timestamp phone_dialed) =
+    ~m(id service_name agent_name extra_attributes lv_result timestamp phone_dialed duration) =
       call = Livevox.EventLoggers.ProcessCall.from_call_halfway(message)
 
     actor_tags =
@@ -103,7 +103,7 @@ defmodule Livevox.EventLoggers.CallEvent do
       |> MapSet.new()
 
     for_mongo =
-      ~m(service_name agent_name lv_result timestamp phone_dialed duration service_id)
+      ~m(service_name agent_name lv_result timestamp phone_dialed duration)
       |> Map.merge(extra_attributes)
 
     Db.update("calls", ~m(id), for_mongo)
