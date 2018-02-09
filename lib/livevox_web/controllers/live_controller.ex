@@ -11,7 +11,7 @@ defmodule LivevoxWeb.LiveController do
 
   def global_state(conn, _) do
     global_state = get_global_state()
-    json(conn, global_state)
+    json(conn, Poison.decode!(Poison.encode!(global_state)))
   end
 
   def pacing_method(conn, ~m(service)) do
