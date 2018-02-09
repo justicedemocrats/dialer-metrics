@@ -4,9 +4,11 @@ defmodule ScreenBoard do
   def list do
     %{body: ~m(screenboards)} = Dog.Api.get("screen")
 
-    Enum.each(screenboards, fn ~m(title id) ->
+    Enum.map(screenboards, fn ~m(title id) ->
       IO.puts "#{id}: #{title}"
+      {id, title}
     end)
+
   end
 
   def duplicate(board_id, new_title, replacements) do
@@ -65,5 +67,44 @@ defmodule ScreenBoard do
 
     new_board = Map.put(board, "widgets", new_widgets)
     IO.inspect Dog.Api.put("screen/#{board_id}", body: new_board)
+  end
+
+  def set_interval_to_10(board_id) do
+    %{body: board} = Dog.Api.get("screen/#{board_id}")
+
+    new_widgets =
+      board["widgets"]
+      |> Enum.map(fn w ->
+        if extract_q(w) |> contains_any?(~w(loaded percent_complete remaining throttle)) do
+          Map.put(w, "timeframe", "10m")
+        else
+          w
+        end
+      end)
+
+    new_board = Map.put(board, "widgets", new_widgets)
+    IO.inspect Dog.Api.put("screen/#{board_id}", body: new_board)
+  end
+
+  def extract_q(%{"tile_def" => ~m(requests)}) do
+    case List.first(requests) do
+      ~m(q) -> q
+      _ -> nil
+    end
+  end
+
+  def extract_q(_) do
+    nil
+  end
+
+  def contains_any?(string, options) when is_binary(string) do
+    options
+    |> Enum.filter(& String.contains?(string, &1))
+    |> length()
+    |> (& &1 > 0).()
+  end
+
+  def contains_any?(_, _) do
+    false
   end
 end
