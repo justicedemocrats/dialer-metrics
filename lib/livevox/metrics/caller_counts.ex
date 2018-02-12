@@ -47,7 +47,6 @@ defmodule Livevox.Metrics.CallerCounts do
     new_state =
       state
       |> Map.update!(:ready, &Map.put(&1, aid, sid))
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
       |> Map.update!(:in_call, &Map.drop(&1, [aid]))
 
@@ -64,7 +63,6 @@ defmodule Livevox.Metrics.CallerCounts do
     new_state =
       state
       |> Map.update!(:not_ready, &Map.put(&1, aid, sid))
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:ready, &Map.drop(&1, [aid]))
       |> Map.update!(:in_call, &Map.drop(&1, [aid]))
 
@@ -81,7 +79,6 @@ defmodule Livevox.Metrics.CallerCounts do
     new_state =
       state
       |> Map.update!(:in_call, &Map.put(&1, aid, sid))
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:ready, &Map.drop(&1, [aid]))
       |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
 
@@ -97,7 +94,6 @@ defmodule Livevox.Metrics.CallerCounts do
 
     new_state =
       state
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:in_call, &Map.drop(&1, [aid]))
       |> Map.update!(:ready, &Map.drop(&1, [aid]))
       |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
