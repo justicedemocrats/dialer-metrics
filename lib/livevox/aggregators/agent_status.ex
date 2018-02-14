@@ -158,7 +158,7 @@ defmodule Livevox.Aggregators.AgentStatus do
       with_info =
         aids
         |> Enum.map(fn aid -> fill_info(service_name, aid) end)
-        |> Enum.map(&Task.await/1)
+        |> Enum.map(fn t -> Task.await(t, 100_000) end)
 
       {metric, with_info}
     end)

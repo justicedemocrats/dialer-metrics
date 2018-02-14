@@ -37,25 +37,24 @@ defmodule LivevoxWeb.LiveController do
   end
 
   def agent_status(conn, ~m(service)) do
-    text conn, "Agent status tables are down for maintenance!"
-    # response_fn =
-    #   case ServiceLevel.pacing_method_of(service) do
-    #     nil ->
-    #       options = ServiceLevel.service_name_options() |> Enum.sort() |> Enum.join("\n")
-    #
-    #       fn conn ->
-    #         text(conn, "Hm, that service was not recognized. Please try one of #{options}")
-    #       end
-    #
-    #     _ ->
-    #       fn conn ->
-    #         render(conn, "agent-status.html", service_name: service)
-    #       end
-    #   end
-    #
-    # conn
-    # |> delete_resp_header("x-frame-options")
-    # |> response_fn.()
+    response_fn =
+      case ServiceLevel.pacing_method_of(service) do
+        nil ->
+          options = ServiceLevel.service_name_options() |> Enum.sort() |> Enum.join("\n")
+
+          fn conn ->
+            text(conn, "Hm, that service was not recognized. Please try one of #{options}")
+          end
+
+        _ ->
+          fn conn ->
+            render(conn, "agent-status.html", service_name: service)
+          end
+      end
+
+    conn
+    |> delete_resp_header("x-frame-options")
+    |> response_fn.()
   end
 
   def agent_status(conn, _) do
