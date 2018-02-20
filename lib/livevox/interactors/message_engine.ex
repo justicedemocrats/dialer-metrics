@@ -24,38 +24,44 @@ defmodule Livevox.Interactors.MessageEngine do
     service_name = Livevox.ServiceInfo.name_of(message["agentServiceId"])
     agent_name = Livevox.AgentInfo.name_of(message["agentId"])
 
-    potentially_queued =
-      if state.to_ignore |> MapSet.member?(agent_name) do
-        Logger.info(
-          "#{agent_name} has already demonstrated competence over the Ready / Not Ready functionality"
-        )
+    if service_name == "dialer_monitor" do
+      {:noreply, state}
+    else
+      potentially_queued =
+        if state.to_ignore |> MapSet.member?(agent_name) do
+          Logger.info(
+            "#{agent_name} has already demonstrated competence over the Ready / Not Ready functionality"
+          )
 
-        Livevox.MessageEngineConfig.get_all()
-        |> Enum.filter(fn ~m(trigger_despite_competence) -> trigger_despite_competence == true end)
-      else
-        Livevox.MessageEngineConfig.get_all()
-      end
+          Livevox.MessageEngineConfig.get_all()
+          |> Enum.filter(fn ~m(trigger_despite_competence) ->
+            trigger_despite_competence == true
+          end)
+        else
+          Livevox.MessageEngineConfig.get_all()
+        end
 
-    queued_actions =
-      potentially_queued
-      |> Enum.filter(&is_in_active_time_range/1)
-      |> Enum.filter(fn ~m(service_regex) -> Regex.match?(service_regex, service_name) end)
-      |> Enum.map(fn ~m(seconds_in_not_ready action message) ->
-        {method, args} =
-          case action do
-            "message only" -> {:message, [agent_name, message]}
-            "message and kick" -> {:message_and_kick, [agent_name, message]}
-            "kick only" -> {:kick, [agent_name]}
-            "force ready" -> {:force_ready, [agent_name]}
-          end
+      queued_actions =
+        potentially_queued
+        |> Enum.filter(&is_in_active_time_range/1)
+        |> Enum.filter(fn ~m(service_regex) -> Regex.match?(service_regex, service_name) end)
+        |> Enum.map(fn ~m(seconds_in_not_ready action message) ->
+          {method, args} =
+            case action do
+              "message only" -> {:message, [agent_name, message]}
+              "message and kick" -> {:message_and_kick, [agent_name, message]}
+              "kick only" -> {:kick, [agent_name]}
+              "force ready" -> {:force_ready, [agent_name]}
+            end
 
-        {:ok, timer_ref} =
-          :timer.apply_after(:timer.seconds(seconds_in_not_ready), __MODULE__, method, args)
+          {:ok, timer_ref} =
+            :timer.apply_after(:timer.seconds(seconds_in_not_ready), __MODULE__, method, args)
 
-        timer_ref
-      end)
+          timer_ref
+        end)
 
-    {:noreply, put_in(state, [:queued, agent_name], queued_actions)}
+      {:noreply, put_in(state, [:queued, agent_name], queued_actions)}
+    end
   end
 
   # When they go ready, they know whats up and should be ignored
