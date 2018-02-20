@@ -19,6 +19,8 @@ defmodule Livevox.MessageEngineConfig do
     action = fields["Action"]
     message = fields["Message"]
     reference_name = fields["Reference Name"]
-    ~m(service_regex active_time_range seconds_in_not_ready action message reference_name)
+    trigger_despite_competence = fields["Trigger Despite Competence"]
+
+    ~m(service_regex active_time_range seconds_in_not_ready action message reference_name trigger_despite_competence)
   end
 end

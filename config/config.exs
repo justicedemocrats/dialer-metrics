@@ -20,6 +20,7 @@ config :logger, :console,
 config :livevox, Livevox.Scheduler,
   jobs: [
     {"*/11 * * * *", {Livevox.AirtableCache, :update, []}},
+    {"*/12 * * * *", {Livevox.MessageEngineConfig, :update, []}},
     {"*/5 * * * *", {Livevox.ServiceInfo, :update, []}},
     {"*/5 * * * *", {Livevox.ServiceStatFeed, :update, []}},
     {{:extended, "*/30"}, {Livevox.EventLoggers.AgentEvent, :flush, []}},
