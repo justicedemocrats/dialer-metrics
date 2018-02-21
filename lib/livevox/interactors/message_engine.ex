@@ -60,6 +60,8 @@ defmodule Livevox.Interactors.MessageEngine do
           timer_ref
         end)
 
+      Logger.info("Queued #{length(queued_actions)} for #{agent_name}")
+
       {:noreply, put_in(state, [:queued, agent_name], queued_actions)}
     end
   end
@@ -67,10 +69,14 @@ defmodule Livevox.Interactors.MessageEngine do
   # When they go ready, they know whats up and should be ignored
   def handle_info(%{"lineNumber" => "ACD", "agentId" => agentId, "eventType" => "READY"}, state) do
     agent_name = Livevox.AgentInfo.name_of(agentId)
-    Logger.info("[message engine] Dropping queued actions for #{agent_name}")
 
-    (state[agent_name] || [])
-    |> Enum.map(fn timer_ref -> :timer.cancel(timer_ref) end)
+    cancellation_results =
+      (state.queued[agent_name] || [])
+      |> Enum.map(fn timer_ref -> :timer.cancel(timer_ref) end)
+
+    Logger.info(
+      "Cancelled #{length(cancellation_results)} messages for #{agent_name} because of READY"
+    )
 
     new_queued = Map.drop(state.queued, [agent_name])
     to_ignore = state.to_ignore |> MapSet.put(agent_name)
@@ -80,12 +86,17 @@ defmodule Livevox.Interactors.MessageEngine do
   # When they do anything else, cancel all of the queues and drop them from state
   def handle_info(%{"lineNumber" => "ACD", "agentId" => agentId}, state) do
     agent_name = Livevox.AgentInfo.name_of(agentId)
-    Logger.info("[message engine] Dropping queued actions for #{agent_name}")
 
-    (state[agent_name] || [])
-    |> Enum.map(fn timer_ref -> :timer.cancel(timer_ref) end)
+    cancellation_results =
+      (state.queued[agent_name] || [])
+      |> Enum.map(fn timer_ref -> :timer.cancel(timer_ref) end)
 
-    {:noreply, put_in(state, [:queued, agent_name], Map.drop(state.queued, [agent_name]))}
+    Logger.info(
+      "Cancelled #{length(cancellation_results)} messages for #{agent_name} because of READY"
+    )
+
+    new_queued = Map.drop(state.queued, [agent_name])
+    {:noreply, Map.put(state, :queued, new_queued)}
   end
 
   def handle_info(_message, state) do
