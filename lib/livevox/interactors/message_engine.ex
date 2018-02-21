@@ -24,7 +24,8 @@ defmodule Livevox.Interactors.MessageEngine do
     service_name = Livevox.ServiceInfo.name_of(message["agentServiceId"])
     agent_name = Livevox.AgentInfo.name_of(message["agentId"])
 
-    if service_name == "dialer_monitor" do
+    if service_name == "Dialer Monitor" do
+      Logger.info("#{agent_name} is a dialer monitor. Ignoring.")
       {:noreply, state}
     else
       potentially_queued =
@@ -84,7 +85,7 @@ defmodule Livevox.Interactors.MessageEngine do
   end
 
   # When they do anything else, cancel all of the queues and drop them from state
-  def handle_info(%{"lineNumber" => "ACD", "agentId" => agentId}, state) do
+  def handle_info(%{"lineNumber" => "ACD", "agentId" => agentId, "eventType" => et}, state) do
     agent_name = Livevox.AgentInfo.name_of(agentId)
 
     cancellation_results =
@@ -92,7 +93,20 @@ defmodule Livevox.Interactors.MessageEngine do
       |> Enum.map(fn timer_ref -> :timer.cancel(timer_ref) end)
 
     Logger.info(
-      "Cancelled #{length(cancellation_results)} messages for #{agent_name} because of READY"
+      "Cancelled #{length(cancellation_results)} messages for #{agent_name} because of #{et}"
+    )
+
+    new_queued = Map.drop(state.queued, [agent_name])
+    {:noreply, Map.put(state, :queued, new_queued)}
+  end
+
+  def handle_cast({:cancel, agent_name}, state) do
+    cancellation_results =
+      (state.queued[agent_name] || [])
+      |> Enum.map(fn timer_ref -> :timer.cancel(timer_ref) end)
+
+    Logger.info(
+      "Cancelled #{length(cancellation_results)} messages for #{agent_name} because of internal force"
     )
 
     new_queued = Map.drop(state.queued, [agent_name])
@@ -151,6 +165,8 @@ defmodule Livevox.Interactors.MessageEngine do
 
   def force_ready(agent) do
     Logger.info("[message engine] Forcing #{agent} ready")
+
+    GenServer.cast(__MODULE__, {:cancel, agent})
 
     Livevox.Api.post(
       "callControl/v6.0/supervisor/agent/status/ready",

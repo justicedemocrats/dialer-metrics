@@ -51,10 +51,10 @@ defmodule Livevox.Application do
 
       # Aggregators
       worker(Livevox.Aggregators.ServiceConfig, []),
-      worker(Livevox.Aggregators.AgentStatus, [])
+      worker(Livevox.Aggregators.AgentStatus, []),
 
       # Interactors
-      # worker(Livevox.Interactors.MessageEngine, [])
+      worker(Livevox.Interactors.MessageEngine, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
