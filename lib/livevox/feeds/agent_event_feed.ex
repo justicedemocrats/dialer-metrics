@@ -30,7 +30,9 @@ defmodule Livevox.AgentEventFeed do
   end
 
   defp handle_events(events) do
-    Enum.each(events, fn ev ->
+    events
+    |> Enum.sort_by(& &1["timestamp"], &<=/2)
+    |> Enum.each(fn ev ->
       PubSub.broadcast(:livevox, "agent_event", ev)
     end)
   end

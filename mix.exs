@@ -4,7 +4,7 @@ defmodule Livevox.Mixfile do
   def project do
     [
       app: :livevox,
-      version: "0.0.4",
+      version: "0.0.6",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -49,7 +49,8 @@ defmodule Livevox.Mixfile do
       {:rollbax, "~> 0.6"},
       {:quantum, ">= 2.2.1"},
       {:flow, "~> 0.11"},
-      {:poolboy, "~> 1.5.1"}
+      {:poolboy, "~> 1.5.1"},
+      {:airtable_config, git: "https://github.com/justicedemocrats/airtable_config.git"}
     ]
   end
 end

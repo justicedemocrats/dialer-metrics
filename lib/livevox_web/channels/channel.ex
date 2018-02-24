@@ -38,7 +38,7 @@ defmodule LivevoxWeb.Channel do
   end
 
   def get_config(service) do
-    %{body: ~m(stats)} = Livevox.Api.post("realtime/v6.0/service/stats", body: %{})
+    stats = Livevox.ServiceStatFeed.all_stats()
 
     stats
     |> Enum.filter(fn ~m(throttle serviceId pacingMethod) ->

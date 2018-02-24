@@ -11,7 +11,7 @@ defmodule LivevoxWeb.LiveController do
 
   def global_state(conn, _) do
     global_state = get_global_state()
-    json(conn, global_state)
+    json(conn, Poison.decode!(Poison.encode!(global_state)))
   end
 
   def pacing_method(conn, ~m(service)) do
@@ -41,6 +41,7 @@ defmodule LivevoxWeb.LiveController do
       case ServiceLevel.pacing_method_of(service) do
         nil ->
           options = ServiceLevel.service_name_options() |> Enum.sort() |> Enum.join("\n")
+
           fn conn ->
             text(conn, "Hm, that service was not recognized. Please try one of #{options}")
           end

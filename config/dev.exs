@@ -38,7 +38,7 @@ config :livevox, LivevoxWeb.Endpoint,
 # different ports.
 
 # Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+config :logger, :console, format: "[$level] $message\n", level: :info
 config :rollbax, enabled: false
 
 # Set a higher stacktrace during development. Avoid configuring such
@@ -56,10 +56,16 @@ config :livevox,
   airtable_base: System.get_env("AIRTABLE_BASE"),
   airtable_table_name: System.get_env("AIRTABLE_TABLE_NAME"),
   mongodb_username: System.get_env("MONGO_USERNAME"),
-  mongodb_hostname: System.get_env("MONGO_HOSTNAME"),
+  mongodb_seeds: [
+    System.get_env("MONGO_SEED_1"),
+    System.get_env("MONGO_SEED_2")
+  ],
   mongodb_password: System.get_env("MONGO_PASSWORD"),
   mongodb_port: System.get_env("MONGO_PORT"),
   login_management_url: System.get_env("LOGIN_MANAGEMENT_URL"),
+  message_engine_key: System.get_env("MESSAGE_ENGINE_KEY"),
+  message_engine_base: System.get_env("MESSAGE_ENGINE_BASE"),
+  message_engine_table_name: System.get_env("MESSAGE_ENGINE_TABLE_NAME"),
   test: true
 
 config :rollbax,

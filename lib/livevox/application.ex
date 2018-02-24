@@ -10,7 +10,7 @@ defmodule Livevox.Application do
     children = [
       # Core infrastructure
       supervisor(LivevoxWeb.Endpoint, []),
-      supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
+      supervisor(Phoenix.PubSub.PG2, [:livevox, []])
       # worker(Livevox.Scheduler, []),
       # worker(Mongo, [
       #   [

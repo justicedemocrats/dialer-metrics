@@ -39,7 +39,6 @@ defmodule Livevox.Aggregators.AgentStatus do
     new_state =
       state
       |> Map.update!(:ready, &Map.put(&1, aid, sid))
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
       |> Map.update!(:in_call, &Map.drop(&1, [aid]))
       |> Map.update!(:wrap_up, &Map.drop(&1, [aid]))
@@ -56,7 +55,6 @@ defmodule Livevox.Aggregators.AgentStatus do
     new_state =
       state
       |> Map.update!(:not_ready, &Map.put(&1, aid, sid))
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:ready, &Map.drop(&1, [aid]))
       |> Map.update!(:in_call, &Map.drop(&1, [aid]))
       |> Map.update!(:wrap_up, &Map.drop(&1, [aid]))
@@ -73,7 +71,6 @@ defmodule Livevox.Aggregators.AgentStatus do
     new_state =
       state
       |> Map.update!(:in_call, &Map.put(&1, aid, sid))
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:ready, &Map.drop(&1, [aid]))
       |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
       |> Map.update!(:wrap_up, &Map.drop(&1, [aid]))
@@ -90,7 +87,6 @@ defmodule Livevox.Aggregators.AgentStatus do
     new_state =
       state
       |> Map.update!(:wrap_up, &Map.put(&1, aid, sid))
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:ready, &Map.drop(&1, [aid]))
       |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
       |> Map.update!(:in_call, &Map.drop(&1, [aid]))
@@ -106,7 +102,6 @@ defmodule Livevox.Aggregators.AgentStatus do
 
     new_state =
       state
-      |> Map.update!(:logged_on, &Map.put(&1, aid, sid))
       |> Map.update!(:in_call, &Map.drop(&1, [aid]))
       |> Map.update!(:ready, &Map.drop(&1, [aid]))
       |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
@@ -163,7 +158,7 @@ defmodule Livevox.Aggregators.AgentStatus do
       with_info =
         aids
         |> Enum.map(fn aid -> fill_info(service_name, aid) end)
-        |> Enum.map(&Task.await/1)
+        |> Enum.map(fn t -> Task.await(t, 100_000) end)
 
       {metric, with_info}
     end)
