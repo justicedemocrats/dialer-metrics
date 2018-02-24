@@ -19,3 +19,4 @@ mongo-scripts/node_modules
 /priv/static
 node_modules
 /.cache/
+.elixir_ls
