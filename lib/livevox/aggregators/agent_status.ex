@@ -4,8 +4,6 @@ defmodule Livevox.Aggregators.AgentStatus do
   use GenServer
   import ShortMaps
 
-  @min_update_resolution 60_000 * 5
-
   def start_link do
     GenServer.start_link(
       __MODULE__,
@@ -16,7 +14,7 @@ defmodule Livevox.Aggregators.AgentStatus do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     PubSub.subscribe(:livevox, "agent_event")
     {:ok, %{ready: %{}, not_ready: %{}, logged_on: %{}, in_call: %{}, wrap_up: %{}}}
   end
@@ -98,7 +96,7 @@ defmodule Livevox.Aggregators.AgentStatus do
   # ---------------------------- OTHER ACD EVENT ----------------------------
   # -------------------------------------------------------------------------
   def handle_info(message = %{"eventType" => _unknown, "lineNumber" => "ACD"}, state) do
-    %{"agentId" => aid, "agentServiceId" => sid} = message
+    %{"agentId" => aid} = message
 
     new_state =
       state
@@ -114,7 +112,7 @@ defmodule Livevox.Aggregators.AgentStatus do
   # ---------------------------- LOG OFF ------------------------------------
   # -------------------------------------------------------------------------
   def handle_info(message = %{"eventType" => "LOGOFF"}, state) do
-    %{"agentId" => aid, "agentServiceId" => sid} = message
+    %{"agentId" => aid} = message
 
     new_state =
       state
@@ -126,21 +124,24 @@ defmodule Livevox.Aggregators.AgentStatus do
     {:noreply, new_state}
   end
 
+  def handle_info(_, state) do
+    {:noreply, state}
+  end
+
   def get_breakdown(~m(service_name sid)) do
     state = :sys.get_state(__MODULE__)
 
-    stats =
-      Enum.map(~w(in_call ready not_ready wrap_up)a, fn metric ->
-        aids =
-          Map.get(state, metric)
-          |> Enum.filter(fn {aid, other_sid} -> sid == other_sid end)
-          |> Enum.map(fn {aid, _} -> aid end)
+    Enum.map(~w(in_call ready not_ready wrap_up)a, fn metric ->
+      aids =
+        Map.get(state, metric)
+        |> Enum.filter(fn {_aid, other_sid} -> sid == other_sid end)
+        |> Enum.map(fn {aid, _} -> aid end)
 
-        {metric, service_name, aids}
-      end)
-      |> Enum.map(&fill_info/1)
-      |> Enum.map(&Task.await/1)
-      |> Enum.into(%{})
+      {metric, service_name, aids}
+    end)
+    |> Enum.map(&fill_info/1)
+    |> Enum.map(fn t -> Task.await(t, 100_000) end)
+    |> Enum.into(%{})
   end
 
   def get_breakdown(~m(service_name)) do
@@ -170,9 +171,5 @@ defmodule Livevox.Aggregators.AgentStatus do
       other_attrs = AgentInfo.get_caller_attributes(service_name, login)
       Map.merge(other_attrs, ~m(login))
     end)
-  end
-
-  def handle_info(_, state) do
-    {:noreply, state}
   end
 end

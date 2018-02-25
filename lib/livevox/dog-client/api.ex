@@ -18,8 +18,8 @@ defmodule Dog.Api do
   end
 
   defp process_options(opts) do
-    Keyword.update(opts, :query, default_query, fn params ->
-      Map.merge(default_query, params)
+    Keyword.update(opts, :query, default_query(), fn params ->
+      Map.merge(default_query(), params)
     end)
   end
 

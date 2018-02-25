@@ -48,7 +48,7 @@ defmodule Livevox.Metrics.CallCounts do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     {:ok, %{}}
   end
 
