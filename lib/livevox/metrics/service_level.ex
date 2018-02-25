@@ -13,7 +13,7 @@ defmodule Livevox.Metrics.ServiceLevel do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     PubSub.subscribe(:livevox, "service_stats")
     {:ok, %{}}
   end

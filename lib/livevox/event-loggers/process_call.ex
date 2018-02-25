@@ -6,8 +6,7 @@ defmodule Livevox.EventLoggers.ProcessCall do
       Enum.map(call, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
       |> Enum.into(%{})
 
-    ~m(client_id transaction_id session_id agent_id
-       phone_number call_service_id result) = underscored
+    ~m(agent_id phone_number call_service_id result) = underscored
 
     phone_dialed = phone_number
 
@@ -17,7 +16,6 @@ defmodule Livevox.EventLoggers.ProcessCall do
 
     lv_result =
       case Livevox.Standardize.term_code(result) do
-        nil -> "operator transfer"
         "" -> "operator transfer"
         something -> something
       end
@@ -45,8 +43,7 @@ defmodule Livevox.EventLoggers.ProcessCall do
       Enum.map(call, fn {key, val} -> {Macro.underscore(key), typey_downcase(val)} end)
       |> Enum.into(%{})
 
-    ~m(client_id transaction_id session_id duration agent_login_id
-       phone_dialed service_id lv_result) = underscored
+    ~m(duration agent_login_id phone_dialed service_id lv_result) = underscored
 
     agent_name = agent_login_id
     service_name = Livevox.ServiceInfo.name_of(service_id)
@@ -56,8 +53,7 @@ defmodule Livevox.EventLoggers.ProcessCall do
 
     {:ok, timestamp} = DateTime.from_unix(underscored["end"], :millisecond)
 
-    ~m(id agent_name service_name phone_dialed lv_result id timestamp duration
-       extra_attributes)
+    ~m(id agent_name service_name phone_dialed lv_result timestamp duration extra_attributes)
   end
 
   def unique_id(call) do
@@ -71,8 +67,8 @@ defmodule Livevox.EventLoggers.ProcessCall do
   def tagify(map) do
     map
     |> Enum.filter(fn
-      {key, val} when is_boolean(val) -> val
-      {key, val} -> val != ""
+      {_key, val} when is_boolean(val) -> val
+      {_key, val} -> val != ""
     end)
     |> Enum.map(fn
       {key, val} when is_boolean(val) -> key

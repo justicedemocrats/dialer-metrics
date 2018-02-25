@@ -15,7 +15,7 @@ defmodule Livevox.EventLoggers.CallEvent do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     PubSub.subscribe(:livevox, "call_event")
     PubSub.subscribe(:livevox, "agent_event")
     {:ok, %{}}
@@ -28,8 +28,8 @@ defmodule Livevox.EventLoggers.CallEvent do
       ) do
     Db.insert_one("calls_raw", message)
 
-    ~m(service_name agent_name extra_attributes caller_attributes timestamp lv_result) =
-      call = Livevox.EventLoggers.ProcessCall.from_agent_halfway(message)
+    ~m(service_name agent_name extra_attributes timestamp lv_result) =
+      Livevox.EventLoggers.ProcessCall.from_agent_halfway(message)
 
     actor_tags =
       case agent_name do
@@ -73,7 +73,7 @@ defmodule Livevox.EventLoggers.CallEvent do
     Db.insert_one("calls_raw", message)
 
     ~m(id service_name agent_name extra_attributes lv_result timestamp phone_dialed duration) =
-      call = Livevox.EventLoggers.ProcessCall.from_call_halfway(message)
+      Livevox.EventLoggers.ProcessCall.from_call_halfway(message)
 
     actor_tags =
       case agent_name do

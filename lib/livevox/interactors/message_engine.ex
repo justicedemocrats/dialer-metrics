@@ -14,7 +14,7 @@ defmodule Livevox.Interactors.MessageEngine do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     PubSub.subscribe(:livevox, "agent_event")
     {:ok, %{queued: %{}, to_ignore: MapSet.new()}}
   end
@@ -100,6 +100,11 @@ defmodule Livevox.Interactors.MessageEngine do
     {:noreply, Map.put(state, :queued, new_queued)}
   end
 
+  def handle_info(_message, state) do
+    IO.puts("[messaging engine] unhandled message")
+    {:noreply, state}
+  end
+
   def handle_cast({:cancel, agent_name}, state) do
     cancellation_results =
       (state.queued[agent_name] || [])
@@ -111,11 +116,6 @@ defmodule Livevox.Interactors.MessageEngine do
 
     new_queued = Map.drop(state.queued, [agent_name])
     {:noreply, Map.put(state, :queued, new_queued)}
-  end
-
-  def handle_info(_message, state) do
-    IO.puts("[messaging engine] unhandled message")
-    {:noreply, state}
   end
 
   def is_in_active_time_range(~m(active_time_range)) do

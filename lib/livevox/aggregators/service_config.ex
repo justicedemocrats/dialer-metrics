@@ -1,5 +1,4 @@
 defmodule Livevox.Aggregators.ServiceConfig do
-  alias Phoenix.PubSub
   import ShortMaps
 
   @resolution 60_000 * 3600
@@ -14,7 +13,6 @@ defmodule Livevox.Aggregators.ServiceConfig do
 
   def get_service_info do
     %{body: ~m(stats)} = Livevox.Api.post("realtime/v6.0/service/stats", body: %{})
-    timestamp = DateTime.utc_now()
 
     from_stats =
       Enum.map(stats, fn ~m(pacingMethod throttle serviceName serviceId) ->
@@ -82,9 +80,9 @@ defmodule Livevox.Aggregators.ServiceConfig do
     # Delete all records
     %{body: body} =
       HTTPotion.get(
-        "https://api.airtable.com/v0/#{base}/#{@table}",
+        "https://api.airtable.com/v0/#{base()}/#{@table}",
         headers: [
-          Authorization: "Bearer #{key}"
+          Authorization: "Bearer #{key()}"
         ]
       )
 
@@ -92,9 +90,9 @@ defmodule Livevox.Aggregators.ServiceConfig do
 
     Enum.each(decoded["records"], fn ~m(id) ->
       HTTPotion.delete(
-        "https://api.airtable.com/v0/#{base}/#{@table}/#{id}",
+        "https://api.airtable.com/v0/#{base()}/#{@table}/#{id}",
         headers: [
-          Authorization: "Bearer #{key}"
+          Authorization: "Bearer #{key()}"
         ]
       )
     end)
@@ -115,9 +113,9 @@ defmodule Livevox.Aggregators.ServiceConfig do
       }
 
       HTTPotion.post(
-        "https://api.airtable.com/v0/#{base}/#{@table}",
+        "https://api.airtable.com/v0/#{base()}/#{@table}",
         headers: [
-          Authorization: "Bearer #{key}",
+          Authorization: "Bearer #{key()}",
           "Content-Type": "application/json"
         ],
         body: ~m(fields) |> Poison.encode!()

@@ -1,5 +1,4 @@
 defmodule Livevox.ServiceInfo do
-  alias Phoenix.PubSub
   import ShortMaps
   use Agent
 
@@ -52,7 +51,7 @@ defmodule Livevox.ServiceInfo do
 
   def id_of(service_name) do
     Agent.get(__MODULE__, fn state ->
-      Enum.filter(state, fn {id, name} ->
+      Enum.filter(state, fn {_id, name} ->
         url_service_name =
           name
           |> String.downcase()
@@ -60,7 +59,7 @@ defmodule Livevox.ServiceInfo do
 
         url_service_name == service_name
       end)
-      |> Enum.map(fn {id, name} -> id end)
+      |> Enum.map(fn {id, _name} -> id end)
       |> List.first()
     end)
   end
