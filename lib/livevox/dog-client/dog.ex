@@ -1,7 +1,7 @@
 defmodule Dog do
   import ShortMaps
   require Logger
-  @live not Application.get_env(:livevox, :test)
+  @live not (Application.get_env(:livevox, :test) == true)
 
   def post_metric(metric, point, tags) do
     [timestamp, value] = point

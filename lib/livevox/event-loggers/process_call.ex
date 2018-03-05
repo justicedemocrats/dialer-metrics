@@ -58,7 +58,8 @@ defmodule Livevox.EventLoggers.ProcessCall do
 
   def unique_id(call) do
     timestamp = call["end"] || call["timestamp"]
-    "#{call["phone_dialed"]}-#{timestamp}"
+    phone_dialed = call["phone_dialed"] || call["phone_number"]
+    "#{phone_dialed}-#{timestamp}"
   end
 
   def typey_downcase(val) when is_binary(val), do: String.downcase(val)
