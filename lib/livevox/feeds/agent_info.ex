@@ -48,8 +48,7 @@ defmodule Livevox.AgentInfo do
 
     case get_in(state, key_set) do
       nil ->
-        client_name = Livevox.ClientInfo.get_client_name(service_name)
-        attributes = do_get_caller_attributes(client_name, agent_name)
+        attributes = do_get_caller_attributes(agent_name)
 
         # Invalidate in ttl
         spawn(fn ->
@@ -70,12 +69,12 @@ defmodule Livevox.AgentInfo do
     end
   end
 
-  def do_get_caller_attributes(_client_name, ""), do: nil
-  def do_get_caller_attributes(_client_name, nil), do: nil
+  def do_get_caller_attributes(""), do: nil
+  def do_get_caller_attributes(nil), do: nil
 
-  def do_get_caller_attributes(client_name, agent_name) do
+  def do_get_caller_attributes(agent_name) do
     %{body: body} =
-      HTTPotion.get(login_management_url() <> "/#{client_name}/#{agent_name}", timeout: :infinity)
+      HTTPotion.get(login_management_url() <> "/infer-client/#{agent_name}", timeout: :infinity)
 
     case Poison.decode(body) do
       {:ok, %{"email" => caller_email, "calling_from" => calling_from, "phone" => phone}} ->
