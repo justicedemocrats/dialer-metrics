@@ -3,7 +3,7 @@ defmodule Livevox.Metrics.CallCounts do
 
   @regexify fn str -> %{"$regex" => ".*#{str}.*", "$options" => "i"} end
 
-  @intervals [240, 120, 60, 30, 5, 1]
+  @intervals ["today", 240, 120, 60, 30, 5, 1]
   @queries [
     %{"q" => %{}, "label" => "total"},
     %{"q" => %{"dialed" => true}, "label" => "dialed"},
@@ -99,7 +99,12 @@ defmodule Livevox.Metrics.CallCounts do
   end
 
   def execute_service_query(acc, prev_count, [minutes_ago | remaining], service, ~m(q label)) do
-    time_after = Timex.shift(Timex.now(), minutes: -1 * minutes_ago)
+    time_after =
+      case minutes_ago do
+        "today" -> Timex.now("America/New_York") |> Timex.set(hour: 0, minute: 0, second: 0)
+        n -> Timex.shift(Timex.now(), minutes: -1 * n)
+      end
+
     timestamp = %{"$gt" => time_after}
     service_name = service
 
