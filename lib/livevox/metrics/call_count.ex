@@ -101,8 +101,13 @@ defmodule Livevox.Metrics.CallCounts do
   def execute_service_query(acc, prev_count, [minutes_ago | remaining], service, ~m(q label)) do
     time_after =
       case minutes_ago do
-        "today" -> Timex.now("America/New_York") |> Timex.set(hour: 0, minute: 0, second: 0)
-        n -> Timex.shift(Timex.now(), minutes: -1 * n)
+        "today" ->
+          Timex.now("America/New_York")
+          |> Timex.set(hour: 0, minute: 0, second: 0)
+          |> Timex.Timezone.convert("Etc/Greenwich")
+
+        n ->
+          Timex.shift(Timex.now(), minutes: -1 * n)
       end
 
     timestamp = %{"$gt" => time_after}
