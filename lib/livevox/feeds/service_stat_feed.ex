@@ -20,7 +20,13 @@ defmodule Livevox.ServiceStatFeed do
   end
 
   def fetch do
-    %{body: ~m(stats)} = Livevox.Api.post("realtime/v6.0/service/stats", body: %{})
+    %{body: ~m(stats)} =
+      Livevox.Api.post(
+        "realtime/v6.0/service/stats",
+        body: %{},
+        timeout: 20_000
+      )
+
     timestamp = DateTime.utc_now()
 
     Enum.map(stats, fn s ->
