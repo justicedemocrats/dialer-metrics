@@ -102,9 +102,11 @@ defmodule Livevox.Metrics.CallCounts do
     time_after =
       case minutes_ago do
         "today" ->
-          Timex.now("America/New_York")
+          Timex.now("America/Los_Angeles")
           |> Timex.set(hour: 0, minute: 0, second: 0)
           |> Timex.Timezone.convert("Etc/Greenwich")
+          |> Timex.to_unix()
+          |> DateTime.from_unix!()
 
         n ->
           Timex.shift(Timex.now(), minutes: -1 * n)
