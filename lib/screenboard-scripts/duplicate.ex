@@ -43,6 +43,41 @@ defmodule ScreenBoard do
     IO.inspect(Dog.Api.post("screen", body: duplicate))
   end
 
+  def duplicate_insides(source_id, target_id, replacements) do
+    %{body: source} = Dog.Api.get("screen/#{source_id}")
+    %{body: target} = Dog.Api.get("screen/#{target_id}")
+
+    widgets =
+      source
+      |> Map.update!("widgets", fn widget_list ->
+        Enum.map(widget_list, fn widget ->
+          if widget["tile_def"] != nil and widget["tile_def"]["requests"] != nil do
+            update_in(widget, ~w(tile_def requests), fn requests ->
+              Enum.map(requests, fn req ->
+                Map.update!(req, "q", fn string ->
+                  # if String.contains?(string, "call_count") do
+                  Enum.reduce(replacements, string, fn {match, replace}, acc ->
+                    String.replace(acc, match, replace, global: true)
+                  end)
+
+                  # else
+                  #   string
+                  # end
+                end)
+              end)
+            end)
+          else
+            widget
+          end
+        end)
+      end)
+      |> Map.get("widgets")
+
+    new_target = Map.put(target, "widgets", widgets)
+
+    IO.inspect(Dog.Api.put("screen/#{target_id}", body: new_target))
+  end
+
   def replace_total_with_dialed(board_id) do
     %{body: board} = Dog.Api.get("screen/#{board_id}")
 
