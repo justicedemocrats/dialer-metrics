@@ -102,11 +102,8 @@ defmodule Livevox.Metrics.CallCounts do
     time_after =
       case minutes_ago do
         "today" ->
-          Timex.now("America/Los_Angeles")
-          |> Timex.set(hour: 0, minute: 0, second: 0)
-          |> Timex.Timezone.convert("Etc/Greenwich")
-          |> Timex.to_unix()
-          |> DateTime.from_unix!()
+          la_hours = Timex.now("America/Los_Angeles").hour
+          Timex.shift(Timex.now(), hours: -1 * la_hours)
 
         n ->
           Timex.shift(Timex.now(), minutes: -1 * n)
@@ -122,9 +119,13 @@ defmodule Livevox.Metrics.CallCounts do
 
         _n ->
           match = service_match(service_name)
+          IO.puts(minutes_ago)
 
           {:ok, count} =
-            Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
+            Db.count(
+              "calls",
+              Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}) |> IO.inspect()
+            )
 
           count
       end
