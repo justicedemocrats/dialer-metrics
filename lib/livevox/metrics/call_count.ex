@@ -87,7 +87,7 @@ defmodule Livevox.Metrics.CallCounts do
   end
 
   def initial_count(service_name) do
-    time_after = Timex.shift(Timex.now(), minutes: -240)
+    time_after = Timex.shift(Timex.now(), minutes: -60 * Timex.now("America/Los_Angeles").hour)
     timestamp = %{"$gt" => time_after}
     service_name = service_match(service_name)
     {:ok, count} = Db.count("calls", ~m(service_name timestamp))
