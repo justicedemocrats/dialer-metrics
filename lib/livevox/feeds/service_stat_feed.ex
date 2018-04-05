@@ -54,7 +54,7 @@ defmodule Livevox.ServiceStatFeed do
       }
 
       PubSub.broadcast!(:livevox, "service_stats", service_stats)
-      {serviceName, stats}
+      {serviceName, service_stats}
     end)
   end
 end
