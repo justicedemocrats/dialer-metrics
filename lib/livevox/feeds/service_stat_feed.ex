@@ -3,6 +3,8 @@ defmodule Livevox.ServiceStatFeed do
   import ShortMaps
   use Agent
 
+  @delay 250
+
   def start_link do
     Agent.start_link(fn -> fetch() end, name: __MODULE__)
   end
@@ -20,10 +22,18 @@ defmodule Livevox.ServiceStatFeed do
   end
 
   def fetch do
-    %{body: ~m(stats)} = Livevox.Api.post("realtime/v6.0/service/stats", body: %{})
+    %{body: ~m(stats)} =
+      Livevox.Api.post(
+        "realtime/v6.0/service/stats",
+        body: %{},
+        timeout: 20_000
+      )
+
     timestamp = DateTime.utc_now()
 
-    Enum.map(stats, fn s ->
+    stats
+    |> Enum.with_index()
+    |> Enum.map(fn {s, idx} ->
       ~m(abandonRate callsWithAgent cip loaded longestCallInQueue pacingMethod
          percentComplete playingDialable remaining throttle totalAbandoned
          totalAgents totalHandled totalOffered serviceName) = s
@@ -47,8 +57,12 @@ defmodule Livevox.ServiceStatFeed do
         timestamp: timestamp
       }
 
-      PubSub.broadcast!(:livevox, "service_stats", service_stats)
-      {serviceName, stats}
+      spawn(fn ->
+        :timer.sleep(idx * @delay)
+        PubSub.broadcast!(:livevox, "service_stats", service_stats)
+      end)
+
+      {serviceName, service_stats}
     end)
   end
 end

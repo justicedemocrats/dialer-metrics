@@ -166,11 +166,24 @@ defmodule Livevox.Interactors.MessageEngine do
   def force_ready(agent) do
     Logger.info("[message engine] Forcing #{agent} ready")
 
-    GenServer.cast(__MODULE__, {:cancel, agent})
+    resp =
+      Livevox.Api.post(
+        "callControl/v6.0/supervisor/agent/status/ready",
+        body: %{"agents" => [agent]}
+      )
 
-    Livevox.Api.post(
-      "callControl/v6.0/supervisor/agent/status/ready",
-      body: %{"agents" => [agent]}
-    )
+    case List.first(resp.body["agents"]) |> Map.get("status") do
+      # forced ready
+      "Success" ->
+        GenServer.cast(__MODULE__, {:cancel, agent})
+
+      # already ready
+      "Invalid Agent state" ->
+        GenServer.cast(__MODULE__, {:cancel, agent})
+
+      # failure
+      _ ->
+        IO.puts("#{agent} has not connected yet. Cannot force ready, will try again.")
+    end
   end
 end

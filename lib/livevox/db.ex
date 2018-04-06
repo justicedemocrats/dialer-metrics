@@ -1,6 +1,6 @@
 defmodule Db do
   require Logger
-  @live not Application.get_env(:livevox, :test)
+  @live not (Application.get_env(:livevox, :test) == true)
 
   def insert_one(collection, documents) do
     if @live do

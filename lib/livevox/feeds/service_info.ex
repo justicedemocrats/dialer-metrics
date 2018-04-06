@@ -16,7 +16,11 @@ defmodule Livevox.ServiceInfo do
 
   def fetch_all do
     %{body: %{"callCenter" => centers}} =
-      Livevox.Api.get("configuration/v6.0/callCenters", query: %{count: 1000, offset: 0})
+      Livevox.Api.get(
+        "configuration/v6.0/callCenters",
+        query: %{count: 1000, offset: 0},
+        timeout: 20_000
+      )
 
     centers
     |> Enum.map(fn %{"callCenterId" => cid} -> cid end)
@@ -28,7 +32,8 @@ defmodule Livevox.ServiceInfo do
             callCenter: cid,
             count: 1000,
             offset: 0
-          }
+          },
+          timeout: 20_000
         )
 
       services

@@ -146,7 +146,11 @@ defmodule Livevox.Aggregators.AgentStatus do
 
   def get_breakdown(~m(service_name)) do
     sid = ServiceInfo.id_of(service_name)
-    get_breakdown(~m(service_name sid))
+    real_service_name = ServiceInfo.name_of(sid)
+
+    ~m(sid)
+    |> Map.put("service_name", real_service_name)
+    |> get_breakdown()
   end
 
   def get_breakdown(sid) do

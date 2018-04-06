@@ -3,7 +3,7 @@ defmodule Livevox.Metrics.CallCounts do
 
   @regexify fn str -> %{"$regex" => ".*#{str}.*", "$options" => "i"} end
 
-  @intervals [240, 120, 60, 30, 5, 1]
+  @intervals ["today", 240, 120, 60, 30, 5, 1]
   @queries [
     %{"q" => %{}, "label" => "total"},
     %{"q" => %{"dialed" => true}, "label" => "dialed"},
@@ -87,7 +87,7 @@ defmodule Livevox.Metrics.CallCounts do
   end
 
   def initial_count(service_name) do
-    time_after = Timex.shift(Timex.now(), minutes: -240)
+    time_after = Timex.shift(Timex.now(), minutes: -60 * Timex.now("America/Los_Angeles").hour)
     timestamp = %{"$gt" => time_after}
     service_name = service_match(service_name)
     {:ok, count} = Db.count("calls", ~m(service_name timestamp))
@@ -99,7 +99,16 @@ defmodule Livevox.Metrics.CallCounts do
   end
 
   def execute_service_query(acc, prev_count, [minutes_ago | remaining], service, ~m(q label)) do
-    time_after = Timex.shift(Timex.now(), minutes: -1 * minutes_ago)
+    time_after =
+      case minutes_ago do
+        "today" ->
+          la_hours = Timex.now("America/Los_Angeles").hour
+          Timex.shift(Timex.now(), minutes: -60 * la_hours)
+
+        n ->
+          Timex.shift(Timex.now(), minutes: -1 * n)
+      end
+
     timestamp = %{"$gt" => time_after}
     service_name = service
 
@@ -112,7 +121,10 @@ defmodule Livevox.Metrics.CallCounts do
           match = service_match(service_name)
 
           {:ok, count} =
-            Db.count("calls", Map.merge(q, %{"service_name" => match, "timestamp" => timestamp}))
+            Db.count(
+              "calls",
+              Map.merge(q, %{"service_name" => match, "timestamp" => timestamp})
+            )
 
           count
       end
