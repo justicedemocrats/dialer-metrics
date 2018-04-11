@@ -66,6 +66,7 @@ config :livevox,
   message_engine_key: System.get_env("MESSAGE_ENGINE_KEY"),
   message_engine_base: System.get_env("MESSAGE_ENGINE_BASE"),
   message_engine_table_name: System.get_env("MESSAGE_ENGINE_TABLE_NAME"),
+  on_new_dashboard_webhook: System.get_env("ON_NEW_DASHBOARD_WEBHOOK"),
   test: true
 
 config :rollbax,
