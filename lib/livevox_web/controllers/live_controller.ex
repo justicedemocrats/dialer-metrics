@@ -93,4 +93,10 @@ defmodule LivevoxWeb.LiveController do
       end
     )
   end
+
+  def get_process_call_from_agent(conn, call) do
+  end
+
+  def get_process_call_from_call(conn, call) do
+  end
 end
