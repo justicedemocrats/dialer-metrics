@@ -18,6 +18,7 @@ config :logger, :console,
   metadata: [:request_id]
 
 config :livevox, Livevox.Scheduler,
+  timezone: "America/New_York",
   jobs: [
     # {"*/5 * * * *", {Livevox.AirtableCache, :update, []}},
     # {"*/5 * * * *", {Livevox.ServiceInfo, :update, []}},

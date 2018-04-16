@@ -15,7 +15,7 @@ defmodule Livevox.EventLoggers.CallResult do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     PubSub.subscribe(:livevox, "agent_event")
     {:ok, %{}}
   end

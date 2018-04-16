@@ -4,7 +4,7 @@ defmodule Livevox.Mixfile do
   def project do
     [
       app: :livevox,
-      version: "0.0.3",
+      version: "0.0.22",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -45,7 +45,7 @@ defmodule Livevox.Mixfile do
       {:postgrex, "~> 0.11"},
       {:dogstatsd, "0.0.3"},
       {:mongodb, "~> 0.4.3"},
-      {:distillery, "~> 1.0.0"},
+      {:distillery, "~> 1.5", runtime: false},
       {:rollbax, "~> 0.6"},
       {:quantum, ">= 2.2.1"},
       {:flow, "~> 0.11"},

@@ -1,5 +1,4 @@
 defmodule Livevox.ServiceInfo do
-  alias Phoenix.PubSub
   import ShortMaps
   use Agent
 
@@ -17,7 +16,11 @@ defmodule Livevox.ServiceInfo do
 
   def fetch_all do
     %{body: %{"callCenter" => centers}} =
-      Livevox.Api.get("configuration/v6.0/callCenters", query: %{count: 1000, offset: 0})
+      Livevox.Api.get(
+        "configuration/v6.0/callCenters",
+        query: %{count: 1000, offset: 0},
+        timeout: 20_000
+      )
 
     centers
     |> Enum.map(fn %{"callCenterId" => cid} -> cid end)
@@ -29,7 +32,8 @@ defmodule Livevox.ServiceInfo do
             callCenter: cid,
             count: 1000,
             offset: 0
-          }
+          },
+          timeout: 20_000
         )
 
       services
@@ -52,7 +56,7 @@ defmodule Livevox.ServiceInfo do
 
   def id_of(service_name) do
     Agent.get(__MODULE__, fn state ->
-      Enum.filter(state, fn {id, name} ->
+      Enum.filter(state, fn {_id, name} ->
         url_service_name =
           name
           |> String.downcase()
@@ -60,7 +64,7 @@ defmodule Livevox.ServiceInfo do
 
         url_service_name == service_name
       end)
-      |> Enum.map(fn {id, name} -> id end)
+      |> Enum.map(fn {id, _name} -> id end)
       |> List.first()
     end)
   end

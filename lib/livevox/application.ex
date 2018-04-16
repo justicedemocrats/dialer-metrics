@@ -29,6 +29,7 @@ defmodule Livevox.Application do
       worker(Livevox.ServiceInfo, []),
       worker(Livevox.AgentInfo, []),
       worker(Livevox.AirtableCache, []),
+      worker(Livevox.MessageEngineConfig, []),
 
       # Feeds
       worker(Livevox.ServiceStatFeed, []),

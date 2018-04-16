@@ -15,7 +15,7 @@ defmodule Livevox.EventLoggers.CallEvent do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     PubSub.subscribe(:livevox, "call_event")
     PubSub.subscribe(:livevox, "agent_event")
     {:ok, %{}}
@@ -28,8 +28,8 @@ defmodule Livevox.EventLoggers.CallEvent do
       ) do
     Db.insert_one("calls_raw", message)
 
-    ~m(service_name agent_name extra_attributes caller_attributes timestamp lv_result) =
-      call = Livevox.EventLoggers.ProcessCall.from_agent_halfway(message)
+    ~m(service_name agent_name extra_attributes timestamp lv_result) =
+      Livevox.EventLoggers.ProcessCall.from_agent_halfway(message)
 
     actor_tags =
       case agent_name do
@@ -72,8 +72,8 @@ defmodule Livevox.EventLoggers.CallEvent do
   def handle_info(message = %{"lvResult" => _something}, state) do
     Db.insert_one("calls_raw", message)
 
-    ~m(id service_name agent_name extra_attributes lv_result timestamp) =
-      call = Livevox.EventLoggers.ProcessCall.from_call_halfway(message)
+    ~m(id service_name agent_name extra_attributes lv_result timestamp phone_dialed duration) =
+      Livevox.EventLoggers.ProcessCall.from_call_halfway(message)
 
     actor_tags =
       case agent_name do
@@ -103,10 +103,9 @@ defmodule Livevox.EventLoggers.CallEvent do
       |> MapSet.new()
 
     for_mongo =
-      ~m(service_name agent_name lv_result timestamp)
+      ~m(service_name agent_name lv_result timestamp phone_dialed duration)
       |> Map.merge(extra_attributes)
 
-    IO.inspect for_mongo
     Db.update("calls", ~m(id), for_mongo)
 
     {:noreply, inc_state(state, matchers)}

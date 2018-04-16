@@ -39,6 +39,10 @@ config :livevox,
   mongodb_password: "${MONGO_PASSWORD}",
   mongodb_port: "${MONGO_PORT}",
   login_management_url: "${LOGIN_MANAGEMENT_URL}",
+  message_engine_key: "${MESSAGE_ENGINE_KEY}",
+  message_engine_base: "${MESSAGE_ENGINE_BASE}",
+  message_engine_table_name: "${MESSAGE_ENGINE_TABLE_NAME}",
+  on_new_dashboard_webhook: "${ON_NEW_DASHBOARD_WEBHOOK}",
   test: false
 
 config :rollbax,

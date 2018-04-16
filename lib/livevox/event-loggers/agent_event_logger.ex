@@ -15,7 +15,7 @@ defmodule Livevox.EventLoggers.AgentEvent do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     PubSub.subscribe(:livevox, "agent_event")
     {:ok, %{}}
   end
@@ -36,6 +36,11 @@ defmodule Livevox.EventLoggers.AgentEvent do
     Db.insert_one("agent_raw", message)
     new_state = record_and_store_event(message, state)
     {:noreply, new_state}
+  end
+
+  def handle_info(message, state) do
+    Db.insert_one("agent_raw", message)
+    {:noreply, state}
   end
 
   def record_and_store_event(message, state) do
@@ -81,11 +86,6 @@ defmodule Livevox.EventLoggers.AgentEvent do
       |> MapSet.put("calling_from:#{caller_attributes["calling_from"] || "campaign-office"}")
 
     inc_state(state, matchers)
-  end
-
-  def handle_info(message, state) do
-    Db.insert_one("agent_raw", message)
-    {:noreply, state}
   end
 
   defp inc_state(state, matchers) do

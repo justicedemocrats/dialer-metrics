@@ -38,7 +38,7 @@ config :livevox, LivevoxWeb.Endpoint,
 # different ports.
 
 # Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+config :logger, :console, format: "[$level] $message\n", level: :info
 config :rollbax, enabled: false
 
 # Set a higher stacktrace during development. Avoid configuring such
@@ -63,6 +63,10 @@ config :livevox,
   mongodb_password: System.get_env("MONGO_PASSWORD"),
   mongodb_port: System.get_env("MONGO_PORT"),
   login_management_url: System.get_env("LOGIN_MANAGEMENT_URL"),
+  message_engine_key: System.get_env("MESSAGE_ENGINE_KEY"),
+  message_engine_base: System.get_env("MESSAGE_ENGINE_BASE"),
+  message_engine_table_name: System.get_env("MESSAGE_ENGINE_TABLE_NAME"),
+  on_new_dashboard_webhook: System.get_env("ON_NEW_DASHBOARD_WEBHOOK"),
   test: true
 
 config :rollbax,

@@ -13,13 +13,13 @@ defmodule Livevox.Metrics.CallLength do
     )
   end
 
-  def init(opts) do
+  def init(_opts) do
     PubSub.subscribe(:livevox, "call_event")
     {:ok, %{}}
   end
 
   def handle_info(
-        message = %{"lvResult" => "Operator Transfer" <> _rest, "duration" => duration},
+        message = %{"lvResult" => "Operator Transfer" <> _rest},
         state
       ) do
     underscored =
