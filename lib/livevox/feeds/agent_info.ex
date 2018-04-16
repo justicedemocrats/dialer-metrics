@@ -1,7 +1,7 @@
 defmodule Livevox.AgentInfo do
   import ShortMaps
   use Agent
-  @ttl 60_000 * 60
+  @ttl 60 * 60 * 1_000
 
   def login_management_url, do: Application.get_env(:livevox, :login_management_url)
 
@@ -39,6 +39,10 @@ defmodule Livevox.AgentInfo do
     Agent.update(__MODULE__, fn state ->
       put_in(state, key_list, nil)
     end)
+  end
+
+  def clear_cache() do
+    Agent.update(__MODULE__, fn -> %{ids_to_logins: %{}, logins_to_info: %{}} end)
   end
 
   def get_caller_attributes(service_name, agent_name) do
