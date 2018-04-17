@@ -3,9 +3,9 @@ defmodule Livevox.Session do
   defstruct [:id, :expires_at]
   require Logger
 
-  def clientname, do: Application.get_env(:justice_dialer, :livevox_clientname)
-  def username, do: Application.get_env(:justice_dialer, :livevox_username)
-  def password, do: Application.get_env(:justice_dialer, :livevox_password)
+  def clientname, do: Application.get_env(:livevox, :clientname)
+  def username, do: Application.get_env(:livevox, :username)
+  def password, do: Application.get_env(:livevox, :password)
 
   # State takes the format index
   def start_link do
