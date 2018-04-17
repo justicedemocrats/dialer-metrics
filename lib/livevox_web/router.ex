@@ -18,4 +18,8 @@ defmodule LivevoxWeb.Router do
     get("/throttle", LiveController, :control_throttle)
     get("/throttle/:service", LiveController, :control_throttle)
   end
+
+  scope "/api", LivevoxWeb do
+    get("agent-desktop-info", ApiController, :agent_desktop_info)
+  end
 end
