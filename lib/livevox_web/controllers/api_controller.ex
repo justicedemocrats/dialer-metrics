@@ -13,8 +13,15 @@ defmodule LivevoxWeb.ApiController do
   def get_agent_desktop_info(service_name) do
     [
       Task.async(fn ->
-        ~m(in_call ready wrap_up)a = AgentStatus.get_breakdown(service_name)
-        length(in_call) + length(ready) + length(wrap_up)
+        ~m(active)a =
+          AgentStatus.get_breakdown(%{
+            "service_name" =>
+              service_name
+              |> String.downcase()
+              |> String.replace(" ", "_", global: true)
+          })
+
+        length(active)
       end),
       Task.async(fn ->
         %{body: ~m(series)} =
