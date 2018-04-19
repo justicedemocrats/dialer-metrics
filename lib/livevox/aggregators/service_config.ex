@@ -44,7 +44,7 @@ defmodule Livevox.Aggregators.ServiceConfig do
 
     service_phones =
       Enum.map(services_without_lcid, fn id ->
-        %{body: ~m(defaultCallerId)} = Livevox.Api.get("configuration/v6.0/services/#{id}/phone")
+        %{body: ~m(defaultCallerId)} = Livevox.Api.get("configuration/services/#{id}/phone")
         {id, defaultCallerId}
       end)
       |> Enum.into(%{})

@@ -23,11 +23,12 @@ defmodule Livevox.ServiceInfo do
       )
 
     centers
+    |> Enum.filter(&(&1["name"] != "Call Center"))
     |> Enum.map(fn %{"callCenterId" => cid} -> cid end)
     |> Enum.flat_map(fn cid ->
       %{body: %{"service" => services}} =
         Livevox.Api.get(
-          "configuration/v6.0/services",
+          "configuration/services",
           query: %{
             callCenter: cid,
             count: 1000,
