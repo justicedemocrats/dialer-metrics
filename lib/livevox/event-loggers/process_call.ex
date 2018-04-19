@@ -51,13 +51,14 @@ defmodule Livevox.EventLoggers.ProcessCall do
 
     extra_attributes = Livevox.AirtableCache.get_all() |> Map.get(lv_result)
 
-    {:ok, timestamp} = DateTime.from_unix(underscored["end"], :millisecond)
+    {:ok, timestamp} =
+      DateTime.from_unix(underscored["end"] || underscored["start"], :millisecond)
 
     ~m(id agent_name service_name phone_dialed lv_result timestamp duration extra_attributes)
   end
 
   def unique_id(call) do
-    timestamp = call["end"] || call["timestamp"]
+    timestamp = call["end"] || call["timestamp"] || call["start"]
     phone_dialed = call["phone_dialed"] || call["phone_number"]
     "#{phone_dialed}-#{timestamp}"
   end

@@ -37,7 +37,7 @@ defmodule Livevox.Application do
       worker(Livevox.CallEventFeed, []),
 
       # Metrics
-      worker(Livevox.Metrics.CallerCounts, []),
+      # worker(Livevox.Metrics.CallerCounts, []),
       worker(Livevox.Metrics.CallCounts, []),
       worker(Livevox.Metrics.ServiceLevel, []),
       worker(Livevox.Metrics.WaitTime, []),

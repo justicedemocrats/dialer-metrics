@@ -26,8 +26,8 @@ config :livevox, Livevox.Scheduler,
     {"*/1 * * * *", {Livevox.ServiceStatFeed, :update, []}},
     {"0 8 * * *", {ScreenBoard.Jobs, :revoke_and_share_all, []}},
     {{:extended, "*/30"}, {Livevox.EventLoggers.AgentEvent, :flush, []}},
+    {{:extended, "*/15"}, {Livevox.Aggregators.AgentStatus, :update, []}},
     {{:extended, "*/30"}, {Livevox.EventLoggers.CallEvent, :flush, []}},
-    {{:extended, "*/30"}, {Livevox.Metrics.CallerCounts, :update, []}},
     {{:extended, "*/30"}, {Livevox.Metrics.CallCounts, :report_over_period, []}}
   ]
 
