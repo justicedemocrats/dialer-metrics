@@ -12,7 +12,7 @@ defmodule Livevox.Aggregators.ServiceConfig do
   end
 
   def get_service_info do
-    %{body: ~m(stats)} = Livevox.Api.post("realtime/v6.0/service/stats", body: %{})
+    %{body: ~m(stats)} = Livevox.Api.post("realtime/service/stats", body: %{})
 
     from_stats =
       Enum.map(stats, fn ~m(pacingMethod throttle serviceName serviceId) ->
@@ -28,13 +28,13 @@ defmodule Livevox.Aggregators.ServiceConfig do
       |> Enum.into(%{})
 
     %{body: ~m(lcidPackage)} =
-      Livevox.Api.get("configuration/v6.0/lcidPackages", query: %{offset: 0, count: 1000})
+      Livevox.Api.get("configuration/lcidPackages", query: %{offset: 0, count: 1000})
 
     lcid_package_ids = Enum.map(lcidPackage, fn ~m(id) -> id end)
 
     services_with_lcid =
       Enum.flat_map(lcid_package_ids, fn id ->
-        %{body: ~m(service)} = Livevox.Api.get("configuration/v6.0/lcidPackages/#{id}")
+        %{body: ~m(service)} = Livevox.Api.get("configuration/lcidPackages/#{id}")
         Enum.map(service, fn ~m(id) -> "#{id}" end)
       end)
       |> MapSet.new()
@@ -50,12 +50,12 @@ defmodule Livevox.Aggregators.ServiceConfig do
       |> Enum.into(%{})
 
     %{body: ~m(resourceGroup)} =
-      Livevox.Api.get("configuration/v6.0/resourceGroups", query: %{offset: 0, count: 1000})
+      Livevox.Api.get("configuration/resourceGroups", query: %{offset: 0, count: 1000})
 
     resource_groups =
       Enum.flat_map(resourceGroup, fn ~m(id) ->
         %{body: ~m(name inboundService outboundService)} =
-          Livevox.Api.get("configuration/v6.0/resourceGroups/#{id}")
+          Livevox.Api.get("configuration/resourceGroups/#{id}")
 
         Enum.concat(inboundService, outboundService)
         |> Enum.map(fn ~m(id) -> "#{id}" end)

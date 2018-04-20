@@ -14,7 +14,7 @@ defmodule Livevox.AgentInfo do
 
     case get_in(state, [:ids_to_logins, "agent_id"]) do
       nil ->
-        %{body: %{"loginId" => name}} = Livevox.Api.get("configuration/v6.0/agents/#{agent_id}")
+        %{body: %{"loginId" => name}} = Livevox.Api.get("configuration/agents/#{agent_id}")
 
         # Invalidate in ttl
         spawn(fn ->

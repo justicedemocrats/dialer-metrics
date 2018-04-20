@@ -66,6 +66,9 @@ config :livevox,
   message_engine_key: System.get_env("MESSAGE_ENGINE_KEY"),
   message_engine_base: System.get_env("MESSAGE_ENGINE_BASE"),
   message_engine_table_name: System.get_env("MESSAGE_ENGINE_TABLE_NAME"),
+  campaign_controller_base: System.get_env("CAMPAIGN_CONTROLLER_BASE"),
+  campaign_controller_table_name: System.get_env("CAMPAIGN_CONTROLLER_TABLE_NAME"),
+  campaign_controller_key: System.get_env("CAMPAIGN_CONTROLLER_KEY"),
   on_new_dashboard_webhook: System.get_env("ON_NEW_DASHBOARD_WEBHOOK"),
   test: true
 

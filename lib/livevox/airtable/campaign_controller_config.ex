@@ -9,11 +9,13 @@ defmodule Livevox.CampaignControllerConfig do
   def into_what, do: []
 
   def filter_record(~m(fields)) do
-    fields["Active"] == true
+    Map.has_key?(fields, "Start Time (EST)")
   end
 
   def process_record(~m(fields)) do
-    {:ok, service_regex} = Regex.compile(fields["Service Regex"])
+    {:ok, service_regex} =
+      Regex.compile(fields["Service Regex"] |> String.trim() |> String.downcase())
+
     active_days = fields["Active Days of the Week"]
     start_time = fields["Start Time (EST)"]
     end_time = fields["End Time (EST)"]

@@ -6,31 +6,38 @@ defmodule Livevox.Interactors.CampaignContacts do
     Logger.info("It's 1 after! Checking what to do")
 
     now = Timex.now("America/New_York")
-    before = Timex.now() |> Timex.shift(minutes: -10)
+    before = Timex.now() |> Timex.shift(minutes: -30)
 
-    # Livevox.CampaignControllerConfig.get_all()
-    # |> Enum.filter(&is_active_today/1)
-    # |> Enum.map(&should_run_now(&1, before))
-    # |> Enum.each(&run(&1, campaigns))
+    Livevox.CampaignControllerConfig.get_all()
+    |> Enum.filter(&is_active_today/1)
+    |> Enum.map(&should_run_now(&1, before))
+    |> Enum.filter(&(&1 != :no_action))
+    |> Enum.take(2)
+    |> Enum.each(&run/1)
   end
 
-  def is_active_today(~m(active_days_of_the_week)) do
+  def is_active_today(~m(active_days)) do
     day = "#{Timex.now() |> Timex.weekday()}"
-    String.split(active_days_of_the_week, ",") |> Enum.member?(day)
+    String.split(active_days, ",") |> Enum.member?(day)
   end
 
   def should_run_now(~m(start_time end_time service_regex), before) do
     {start_hour, _} = Integer.parse(start_time)
     {end_hour, _} = Integer.parse(end_time)
 
-    now = Timex.now()
-    start_struct = now |> Timex.set(hour: start_hour)
-    end_struct = now |> Timex.set(hour: end_hour)
+    now = Timex.now("America/New_York")
+    start_struct = now |> Timex.set(hour: start_hour, minute: 0)
+    end_struct = now |> Timex.set(hour: end_hour, minute: 0)
 
     cond do
-      Timex.after?(start_struct, now) -> {:start, service_regex}
-      Timex.after?(end_struct, now) -> {:end, service_regex}
-      true -> :no_action
+      Timex.after?(now, start_struct) and Timex.after?(start_struct, before) ->
+        {:start, service_regex}
+
+      Timex.after?(now, end_struct) and Timex.after?(end_struct, before) ->
+        {:end, service_regex}
+
+      true ->
+        :no_action
     end
   end
 
@@ -38,12 +45,12 @@ defmodule Livevox.Interactors.CampaignContacts do
     matching_services =
       Livevox.ServiceInfo.all_services()
       |> Enum.map(&{&1, Livevox.ServiceInfo.name_of(&1)})
-      |> Enum.filter(fn {_, n} -> Regex.match?(service, n) end)
+      |> Enum.filter(fn {_, n} -> Regex.match?(service, String.downcase(n)) end)
       |> Enum.map(fn {id, _} -> ~m(id) end)
 
     %{body: ~m(campaign)} =
       Livevox.Api.post(
-        "campaign/v6.0/campaigns/search",
+        "campaign/campaigns/search",
         body: %{
           service: %{service: matching_services},
           dateRange: %{
@@ -59,7 +66,7 @@ defmodule Livevox.Interactors.CampaignContacts do
     |> Enum.map(fn ~m(id) -> id end)
     |> Enum.map(
       &Task.async(fn ->
-        Livevox.Api.put("campaign/v6.0/campaigns/#{&1}/state", body: %{state: "PLAY"})
+        Livevox.Api.put("campaign/campaigns/#{&1}/state", body: %{state: "PLAY"})
       end)
     )
     |> Enum.map(&Task.await/1)
@@ -69,12 +76,12 @@ defmodule Livevox.Interactors.CampaignContacts do
     matching_services =
       Livevox.ServiceInfo.all_services()
       |> Enum.map(&{&1, Livevox.ServiceInfo.name_of(&1)})
-      |> Enum.filter(fn {_, n} -> Regex.match?(service, n) end)
+      |> Enum.filter(fn {_, n} -> Regex.match?(service, String.downcase(n)) end)
       |> Enum.map(fn {id, _} -> ~m(id) end)
 
     %{body: ~m(campaign)} =
       Livevox.Api.post(
-        "campaign/v6.0/campaigns/search",
+        "campaign/campaigns/search",
         body: %{
           service: %{service: matching_services},
           dateRange: %{
@@ -87,14 +94,28 @@ defmodule Livevox.Interactors.CampaignContacts do
       )
 
     campaign
+    |> IO.inspect()
     |> Enum.map(fn ~m(id) -> id end)
     |> Enum.map(
       &Task.async(fn ->
-        Livevox.Api.put("campaign/v6.0/campaigns/#{&1}/state", body: %{state: "PAUSE"})
-        Livevox.Api.put("campaign/v6.0/campaigns/#{&1}/state", body: %{state: "STOP"})
+        Livevox.Api.get(
+          "campaign/campaigns/#{&1}" |> IO.inspect()
+          # body: %{state: "PAUSE"}
+        )
+        |> IO.inspect()
+
+        Livevox.Api.put(
+          "campaign/campaigns/#{&1}/state" |> IO.inspect(),
+          body: %{state: "PAUSE"}
+        )
+        |> IO.inspect()
+
+        Livevox.Api.put("campaign/campaigns/#{&1}/state", body: %{state: "STOP"})
+        |> IO.inspect()
       end)
     )
     |> Enum.map(&Task.await/1)
+    |> IO.inspect()
   end
 
   def run(:no_action) do

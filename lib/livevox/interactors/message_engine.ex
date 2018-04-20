@@ -126,12 +126,11 @@ defmodule Livevox.Interactors.MessageEngine do
     now_est_hours >= start_hours and now_est_hours < end_hours
   end
 
-  # https://docs.livevox.com/display/DP/Call+Control+API+v6.0+-+REST#CallControlAPIv6.0-REST-LogoffAgents
   def kick(agent) do
     Logger.info("[message engine] Kicking #{agent}")
 
     Livevox.Api.post(
-      "callControl/v6.0/supervisor/agent/status/logoff",
+      "callControl/supervisor/agent/status/logoff",
       body: %{
         "agents" => [agent]
       }
@@ -142,7 +141,7 @@ defmodule Livevox.Interactors.MessageEngine do
     Logger.info("[message engine] Kicking #{agent} with message #{message}")
 
     Livevox.Api.post(
-      "callControl/v6.0/supervisor/agent/status/logoff",
+      "callControl/supervisor/agent/status/logoff",
       body: %{
         "agents" => [agent],
         "message" => message
@@ -150,12 +149,11 @@ defmodule Livevox.Interactors.MessageEngine do
     )
   end
 
-  # https://docs.livevox.com/display/DP/Call+Control+API+v6.0+-+REST#CallControlAPIv6.0-REST-SendChatMessage.1
   def message(agent, message) do
     Logger.info("[message engine] Messaging #{agent} with message #{message}")
 
     Livevox.Api.post(
-      "callControl/v6.0/supervisor/chat/send",
+      "callControl/supervisor/chat/send",
       body: %{
         "userLoginId" => agent,
         "message" => message
@@ -168,7 +166,7 @@ defmodule Livevox.Interactors.MessageEngine do
 
     resp =
       Livevox.Api.post(
-        "callControl/v6.0/supervisor/agent/status/ready",
+        "callControl/supervisor/agent/status/ready",
         body: %{"agents" => [agent]}
       )
 
