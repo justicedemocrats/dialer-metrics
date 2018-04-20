@@ -23,7 +23,6 @@ defmodule Livevox.AgentEventFeed do
         body: %{token: token},
         timeout: 20_000
       )
-      |> IO.inspect()
 
     handle_events(resp.body["agentEvent"])
 
