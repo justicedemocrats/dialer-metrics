@@ -11,7 +11,7 @@ defmodule Livevox.Application do
       # Core infrastructure
       supervisor(LivevoxWeb.Endpoint, []),
       supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
-      # worker(Livevox.Scheduler, []),
+      worker(Livevox.Scheduler, []),
       worker(Mongo, [
         [
           name: :mongo,
@@ -33,29 +33,29 @@ defmodule Livevox.Application do
       worker(Livevox.CampaignControllerConfig, []),
 
       # Feeds
-      # worker(Livevox.ServiceStatFeed, []),
+      worker(Livevox.ServiceStatFeed, []),
       worker(Livevox.AgentEventFeed, [])
-      # worker(Livevox.CallEventFeed, []),
+      worker(Livevox.CallEventFeed, []),
 
       # # Metrics
       # # worker(Livevox.Metrics.CallerCounts, []),
-      # worker(Livevox.Metrics.CallCounts, []),
-      # worker(Livevox.Metrics.ServiceLevel, []),
-      # worker(Livevox.Metrics.WaitTime, []),
-      # worker(Livevox.Metrics.SessionLength, []),
-      # worker(Livevox.Metrics.CallLength, []),
+      worker(Livevox.Metrics.CallCounts, []),
+      worker(Livevox.Metrics.ServiceLevel, []),
+      worker(Livevox.Metrics.WaitTime, []),
+      worker(Livevox.Metrics.SessionLength, []),
+      worker(Livevox.Metrics.CallLength, []),
 
       # # Event loggers
-      # worker(Livevox.EventLoggers.CallEvent, []),
-      # worker(Livevox.EventLoggers.AgentEvent, []),
+      worker(Livevox.EventLoggers.CallEvent, []),
+      worker(Livevox.EventLoggers.AgentEvent, []),
       # # worker(Livevox.EventLoggers.CallResult, []),
 
       # # Aggregators
-      # worker(Livevox.Aggregators.ServiceConfig, []),
-      # worker(Livevox.Aggregators.AgentStatus, []),
+      worker(Livevox.Aggregators.ServiceConfig, []),
+      worker(Livevox.Aggregators.AgentStatus, []),
 
       # # Interactors
-      # worker(Livevox.Interactors.MessageEngine, [])
+      worker(Livevox.Interactors.MessageEngine, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
