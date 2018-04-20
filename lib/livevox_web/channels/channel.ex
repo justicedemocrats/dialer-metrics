@@ -24,7 +24,7 @@ defmodule LivevoxWeb.Channel do
     ~m(throttle pacingMethod) = get_config(service)
 
     Livevox.Api.post(
-      "configuration/v6.0/services/#{Livevox.ServiceInfo.id_of(service)}/pacing" |> IO.inspect(),
+      "configuration/services/#{Livevox.ServiceInfo.id_of(service)}/pacing" |> IO.inspect(),
       body: %{
         method: pacingMethod,
         throttle: value

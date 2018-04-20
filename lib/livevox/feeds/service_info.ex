@@ -17,7 +17,7 @@ defmodule Livevox.ServiceInfo do
   def fetch_all do
     %{body: %{"callCenter" => centers}} =
       Livevox.Api.get(
-        "configuration/v6.0/callCenters",
+        "configuration/callCenters",
         query: %{count: 1000, offset: 0},
         timeout: 20_000
       )

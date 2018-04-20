@@ -8,7 +8,7 @@ defmodule Livevox.CallEventFeed do
   def get_calls do
     resp =
       %{body: %{"token" => token}} =
-      Livevox.Api.post("realtime/v6.0/callEvent/feed", body: %{}, timeout: 20_000)
+      Livevox.Api.post("realtime/callEvent/feed", body: %{}, timeout: 20_000)
 
     handle_events(resp.body["callEvent"])
 
@@ -18,7 +18,7 @@ defmodule Livevox.CallEventFeed do
   def get_calls(token) do
     resp =
       %{body: %{"token" => new_token}} =
-      Livevox.Api.post("realtime/v6.0/callEvent/feed", body: %{token: token}, timeout: 20_000)
+      Livevox.Api.post("realtime/callEvent/feed", body: %{token: token}, timeout: 20_000)
 
     handle_events(resp.body["callEvent"])
 

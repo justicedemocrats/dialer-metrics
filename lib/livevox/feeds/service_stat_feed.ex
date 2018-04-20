@@ -24,7 +24,7 @@ defmodule Livevox.ServiceStatFeed do
   def fetch do
     %{body: ~m(stats)} =
       Livevox.Api.post(
-        "realtime/v6.0/service/stats",
+        "realtime/service/stats",
         body: %{},
         timeout: 20_000
       )

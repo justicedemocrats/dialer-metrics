@@ -8,7 +8,7 @@ defmodule Livevox.AgentEventFeed do
   def get_activity do
     resp =
       %{body: %{"token" => token}} =
-      Livevox.Api.post("realtime/v6.0/agentEvent/feed", body: %{}, timeout: 20_000)
+      Livevox.Api.post("realtime/agentEvent/feed", body: %{}, timeout: 20_000)
 
     handle_events(resp.body["agentEvent"])
 
@@ -19,10 +19,11 @@ defmodule Livevox.AgentEventFeed do
     resp =
       %{body: %{"token" => new_token}} =
       Livevox.Api.post(
-        "realtime/v6.0/agentEvent/feed",
+        "realtime/agentEvent/feed",
         body: %{token: token},
         timeout: 20_000
       )
+      |> IO.inspect()
 
     handle_events(resp.body["agentEvent"])
 
