@@ -17,7 +17,7 @@ defmodule Livevox.AirtableCache do
       Enum.map(fields, fn {key, val} ->
         {
           key |> String.replace(" ", "") |> Macro.underscore() |> String.trim(),
-          typey_downcase(val) |> String.trim()
+          typey_downcase(val)
         }
       end)
       |> Enum.into(%{})
