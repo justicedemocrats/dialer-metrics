@@ -16,13 +16,14 @@ defmodule Livevox.CallEventFeed do
   end
 
   def get_calls(token) do
-    resp =
-      %{body: %{"token" => new_token}} =
-      Livevox.Api.post("realtime/callEvent/feed", body: %{token: token}, timeout: 20_000)
+    case Livevox.Api.post("realtime/callEvent/feed", body: %{token: token}, timeout: 20_000) do
+      resp = %{body: %{"token" => new_token}} ->
+        handle_events(resp.body["callEvent"])
+        get_calls(new_token)
 
-    handle_events(resp.body["callEvent"])
-
-    get_calls(new_token)
+      %HTTPotion.ErrorResponse{message: "req_timedout"} ->
+        get_calls()
+    end
   end
 
   def handle_events(events) do
