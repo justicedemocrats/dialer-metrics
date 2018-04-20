@@ -34,7 +34,7 @@ defmodule Livevox.Application do
 
       # Feeds
       worker(Livevox.ServiceStatFeed, []),
-      worker(Livevox.AgentEventFeed, [])
+      worker(Livevox.AgentEventFeed, []),
       worker(Livevox.CallEventFeed, []),
 
       # # Metrics
