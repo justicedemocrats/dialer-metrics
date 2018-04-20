@@ -1,3 +1,4 @@
+# UNUSED
 defmodule Livevox.Metrics.CallerCounts do
   alias Phoenix.{PubSub}
   alias Livevox.{ServiceInfo}

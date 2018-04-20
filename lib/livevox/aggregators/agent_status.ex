@@ -1,143 +1,63 @@
 defmodule Livevox.Aggregators.AgentStatus do
   alias Phoenix.{PubSub}
   alias Livevox.{ServiceInfo, AgentInfo}
-  use GenServer
+  use Agent
   import ShortMaps
 
+  @status_map %{
+    "0" => [],
+    "1" => ~w(logged_on)a,
+    "2" => ~w(logged_on ready active)a,
+    "3" => ~w(logged_on not_ready)a,
+    "4" => ~w(logged_on in_call active)a,
+    "5" => ~w(logged_on wrap_up active)a
+  }
+
+  @initial_state %{
+    ready: %{},
+    not_ready: %{},
+    logged_on: %{},
+    in_call: %{},
+    wrap_up: %{},
+    active: %{}
+  }
+
   def start_link do
-    GenServer.start_link(
-      __MODULE__,
+    Agent.start_link(
       fn ->
-        %{ready: %{}, not_ready: %{}, logged_on: %{}, in_call: %{}, wrap_up: %{}}
+        @initial_state
       end,
       name: __MODULE__
     )
   end
 
-  def init(_opts) do
-    PubSub.subscribe(:livevox, "agent_event")
-    {:ok, %{ready: %{}, not_ready: %{}, logged_on: %{}, in_call: %{}, wrap_up: %{}}}
-  end
+  def update do
+    %{body: ~m(agentDetails)} = Livevox.Api.post("realtime/service/agents/status", body: %{})
 
-  # -------------------------------------------------------------------------
-  # -------------------------------- LOGON ----------------------------------
-  # -------------------------------------------------------------------------
-  def handle_info(message = %{"eventType" => "LOGON"}, state) do
-    %{"agentId" => aid, "agentServiceId" => sid} = message
-    new_state = Map.update!(state, :logged_on, &Map.put(&1, aid, sid))
-    {:noreply, new_state}
-  end
+    reducer = fn ~m(serviceId agentLoginId stateId), acc ->
+      statuses = @status_map["#{stateId}"]
 
-  # -------------------------------------------------------------------------
-  # -------------------------------- READY ----------------------------------
-  # -------------------------------------------------------------------------
-  def handle_info(message = %{"eventType" => "READY", "lineNumber" => "ACD"}, state) do
-    %{"agentId" => aid, "agentServiceId" => sid} = message
+      Enum.reduce(statuses, acc, fn status, deep_acc ->
+        put_in(deep_acc, [status, agentLoginId], serviceId)
+      end)
+    end
 
-    new_state =
-      state
-      |> Map.update!(:ready, &Map.put(&1, aid, sid))
-      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
-      |> Map.update!(:wrap_up, &Map.drop(&1, [aid]))
-
-    {:noreply, new_state}
-  end
-
-  # -------------------------------------------------------------------------
-  # ---------------------------- NOT READY ----------------------------------
-  # -------------------------------------------------------------------------
-  def handle_info(message = %{"eventType" => "NOT_READY", "lineNumber" => "ACD"}, state) do
-    %{"agentId" => aid, "agentServiceId" => sid} = message
-
-    new_state =
-      state
-      |> Map.update!(:not_ready, &Map.put(&1, aid, sid))
-      |> Map.update!(:ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
-      |> Map.update!(:wrap_up, &Map.drop(&1, [aid]))
-
-    {:noreply, new_state}
-  end
-
-  # -------------------------------------------------------------------------
-  # ---------------------------- IN CALL ------------------------------------
-  # -------------------------------------------------------------------------
-  def handle_info(message = %{"eventType" => "IN_CALL", "lineNumber" => "ACD"}, state) do
-    %{"agentId" => aid, "agentServiceId" => sid} = message
-
-    new_state =
-      state
-      |> Map.update!(:in_call, &Map.put(&1, aid, sid))
-      |> Map.update!(:ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:wrap_up, &Map.drop(&1, [aid]))
-
-    {:noreply, new_state}
-  end
-
-  # -------------------------------------------------------------------------
-  # ---------------------------- WRAP UP ------------------------------------
-  # -------------------------------------------------------------------------
-  def handle_info(message = %{"eventType" => "WRAP_UP", "lineNumber" => "ACD"}, state) do
-    %{"agentId" => aid, "agentServiceId" => sid} = message
-
-    new_state =
-      state
-      |> Map.update!(:wrap_up, &Map.put(&1, aid, sid))
-      |> Map.update!(:ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
-
-    {:noreply, new_state}
-  end
-
-  # -------------------------------------------------------------------------
-  # ---------------------------- OTHER ACD EVENT ----------------------------
-  # -------------------------------------------------------------------------
-  def handle_info(message = %{"eventType" => _unknown, "lineNumber" => "ACD"}, state) do
-    %{"agentId" => aid} = message
-
-    new_state =
-      state
-      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
-      |> Map.update!(:ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:wrap_up, &Map.drop(&1, [aid]))
-
-    {:noreply, new_state}
-  end
-
-  # -------------------------------------------------------------------------
-  # ---------------------------- LOG OFF ------------------------------------
-  # -------------------------------------------------------------------------
-  def handle_info(message = %{"eventType" => "LOGOFF"}, state) do
-    %{"agentId" => aid} = message
-
-    new_state =
-      state
-      |> Map.update!(:logged_on, &Map.drop(&1, [aid]))
-      |> Map.update!(:in_call, &Map.drop(&1, [aid]))
-      |> Map.update!(:ready, &Map.drop(&1, [aid]))
-      |> Map.update!(:not_ready, &Map.drop(&1, [aid]))
-
-    {:noreply, new_state}
-  end
-
-  def handle_info(_, state) do
-    {:noreply, state}
+    state = Enum.reduce(agentDetails, @initial_state, reducer)
+    Agent.update(__MODULE__, fn _ -> state end)
+    spawn(fn -> post_metrics(state) end)
+    :ok
   end
 
   def get_breakdown(~m(service_name sid)) do
     state = :sys.get_state(__MODULE__)
 
-    Enum.map(~w(in_call ready not_ready wrap_up)a, fn metric ->
-      aids =
+    Enum.map(~w(in_call ready not_ready wrap_up active)a, fn metric ->
+      logins =
         Map.get(state, metric)
         |> Enum.filter(fn {_aid, other_sid} -> sid == other_sid end)
-        |> Enum.map(fn {aid, _} -> aid end)
+        |> Enum.map(fn {login, _} -> login end)
 
-      {metric, service_name, aids}
+      {metric, service_name, logins}
     end)
     |> Enum.map(&fill_info/1)
     |> Enum.map(fn t -> Task.await(t, 100_000) end)
@@ -158,22 +78,57 @@ defmodule Livevox.Aggregators.AgentStatus do
     get_breakdown(~m(service_name sid))
   end
 
-  defp fill_info({metric, service_name, aids}) when is_list(aids) do
+  defp fill_info({metric, service_name, logins}) when is_list(logins) do
     Task.async(fn ->
       with_info =
-        aids
-        |> Enum.map(fn aid -> fill_info(service_name, aid) end)
+        logins
+        |> Enum.map(fn login -> fill_info(service_name, login) end)
         |> Enum.map(fn t -> Task.await(t, 100_000) end)
 
       {metric, with_info}
     end)
   end
 
-  defp fill_info(service_name, aid) do
+  defp fill_info(service_name, login) do
     Task.async(fn ->
-      login = AgentInfo.name_of(aid)
       other_attrs = AgentInfo.get_caller_attributes(service_name, login)
       Map.merge(other_attrs, ~m(login))
+    end)
+  end
+
+  defp post_metrics(state) do
+    ServiceInfo.all_services()
+    |> Enum.each(fn sid ->
+      now = DateTime.utc_now() |> DateTime.to_unix()
+
+      get_count_in_state = fn key ->
+        Map.get(state, key)
+        |> Enum.filter(fn {_aid, other_sid} -> sid == other_sid end)
+        |> length()
+      end
+
+      counts =
+        ~w(logged_on in_call ready not_ready)a
+        |> Enum.map(fn metric ->
+          {metric, get_count_in_state.(metric)}
+        end)
+        |> Enum.into(%{})
+
+      tags = ["service:#{Livevox.ServiceInfo.name_of(sid)}"]
+
+      series =
+        Enum.map(~w(logged_on in_call ready not_ready active)a, fn metric ->
+          label = "count_#{Atom.to_string(metric)}"
+          count = counts[metric]
+
+          %{
+            metric: label,
+            points: [[now, count]],
+            tags: tags
+          }
+        end)
+
+      Dog.post_metrics(series)
     end)
   end
 end
