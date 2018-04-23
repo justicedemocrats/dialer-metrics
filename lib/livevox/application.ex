@@ -1,62 +1,72 @@
 defmodule Livevox.Application do
   use Application
 
+  @do_things true
+
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
     import Supervisor.Spec
 
     # Define workers and child supervisors to be supervised
-    children = [
-      # Core infrastructure
-      supervisor(LivevoxWeb.Endpoint, []),
-      supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
-      worker(Livevox.Scheduler, []),
-      worker(Mongo, [
+    children =
+      Enum.concat(
         [
-          name: :mongo,
-          database: "livevox",
-          username: Application.get_env(:livevox, :mongodb_username),
-          password: Application.get_env(:livevox, :mongodb_password),
-          seeds: Application.get_env(:livevox, :mongodb_seeds),
-          port: Application.get_env(:livevox, :mongodb_port),
-          pool: DBConnection.Poolboy
-        ]
-      ]),
+          # Core infrastructure
+          supervisor(LivevoxWeb.Endpoint, []),
+          supervisor(Phoenix.PubSub.PG2, [:livevox, []]),
+          worker(Livevox.Scheduler, []),
+          worker(Mongo, [
+            [
+              name: :mongo,
+              database: "livevox",
+              username: Application.get_env(:livevox, :mongodb_username),
+              password: Application.get_env(:livevox, :mongodb_password),
+              seeds: Application.get_env(:livevox, :mongodb_seeds),
+              port: Application.get_env(:livevox, :mongodb_port),
+              pool: DBConnection.Poolboy
+            ]
+          ]),
 
-      # Caches / data sources
-      worker(Livevox.Session, []),
-      worker(Livevox.ServiceInfo, []),
-      worker(Livevox.AgentInfo, []),
-      worker(Livevox.AirtableCache, []),
-      worker(Livevox.MessageEngineConfig, []),
-      # worker(Livevox.CampaignControllerConfig, []),
+          # Caches / data sources
+          worker(Livevox.Session, []),
+          worker(Livevox.ServiceInfo, []),
+          worker(Livevox.AgentInfo, []),
+          worker(Livevox.AirtableCache, []),
+          worker(Livevox.MessageEngineConfig, []),
+          worker(Livevox.CampaignControllerConfig, [])
+        ],
+        if @do_things do
+          # Feeds
+          [
+            worker(Livevox.ServiceStatFeed, []),
+            worker(Livevox.AgentEventFeed, []),
+            worker(Livevox.CallEventFeed, []),
 
-      # Feeds
-      worker(Livevox.ServiceStatFeed, []),
-      worker(Livevox.AgentEventFeed, []),
-      worker(Livevox.CallEventFeed, []),
+            # # Metrics
+            # # worker(Livevox.Metrics.CallerCounts, []),
+            worker(Livevox.Metrics.CallCounts, []),
+            worker(Livevox.Metrics.ServiceLevel, []),
+            worker(Livevox.Metrics.WaitTime, []),
+            worker(Livevox.Metrics.SessionLength, []),
+            worker(Livevox.Metrics.CallLength, []),
 
-      # # Metrics
-      # # worker(Livevox.Metrics.CallerCounts, []),
-      worker(Livevox.Metrics.CallCounts, []),
-      worker(Livevox.Metrics.ServiceLevel, []),
-      worker(Livevox.Metrics.WaitTime, []),
-      worker(Livevox.Metrics.SessionLength, []),
-      worker(Livevox.Metrics.CallLength, []),
+            # # Event loggers
+            worker(Livevox.EventLoggers.CallEvent, []),
+            worker(Livevox.EventLoggers.AgentEvent, []),
+            # # worker(Livevox.EventLoggers.CallResult, []),
 
-      # # Event loggers
-      worker(Livevox.EventLoggers.CallEvent, []),
-      worker(Livevox.EventLoggers.AgentEvent, []),
-      # # worker(Livevox.EventLoggers.CallResult, []),
+            # # Aggregators
+            worker(Livevox.Aggregators.ServiceConfig, []),
+            worker(Livevox.Aggregators.AgentStatus, []),
 
-      # # Aggregators
-      worker(Livevox.Aggregators.ServiceConfig, []),
-      worker(Livevox.Aggregators.AgentStatus, []),
-
-      # # Interactors
-      worker(Livevox.Interactors.MessageEngine, [])
-    ]
+            # # Interactors
+            worker(Livevox.Interactors.MessageEngine, [])
+          ]
+        else
+          []
+        end
+      )
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

@@ -1,4 +1,4 @@
-defmodule Livevox.Interactors.CampaignContacts do
+defmodule Livevox.Interactors.CampaignStarter do
   require Logger
   import ShortMaps
 
@@ -57,7 +57,7 @@ defmodule Livevox.Interactors.CampaignContacts do
             from: Timex.now() |> Timex.shift(days: -5),
             to: Timex.now() |> Timex.shift(days: 5)
           },
-          state: ~w(PAUSED)
+          state: ~w(PAUSED STOPPED)
         },
         query: %{offset: 0, count: 1000}
       )
@@ -66,6 +66,7 @@ defmodule Livevox.Interactors.CampaignContacts do
     |> Enum.map(fn ~m(id) -> id end)
     |> Enum.map(
       &Task.async(fn ->
+        Livevox.Api.put("campaign/campaigns/#{&1}/state", body: %{state: "BUILD"})
         Livevox.Api.put("campaign/campaigns/#{&1}/state", body: %{state: "PLAY"})
       end)
     )
@@ -94,28 +95,14 @@ defmodule Livevox.Interactors.CampaignContacts do
       )
 
     campaign
-    |> IO.inspect()
     |> Enum.map(fn ~m(id) -> id end)
     |> Enum.map(
       &Task.async(fn ->
-        Livevox.Api.get(
-          "campaign/campaigns/#{&1}" |> IO.inspect()
-          # body: %{state: "PAUSE"}
-        )
-        |> IO.inspect()
-
-        Livevox.Api.put(
-          "campaign/campaigns/#{&1}/state" |> IO.inspect(),
-          body: %{state: "PAUSE"}
-        )
-        |> IO.inspect()
-
+        Livevox.Api.put("campaign/campaigns/#{&1}/state", body: %{state: "PAUSE"})
         Livevox.Api.put("campaign/campaigns/#{&1}/state", body: %{state: "STOP"})
-        |> IO.inspect()
       end)
     )
     |> Enum.map(&Task.await/1)
-    |> IO.inspect()
   end
 
   def run(:no_action) do
