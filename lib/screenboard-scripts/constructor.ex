@@ -14,8 +14,9 @@ defmodule ScreenBoard.Constructor do
     active_services =
       Livevox.CampaignControllerConfig.get_all()
       |> Enum.filter(fn ~m(start_time end_time) ->
-        current_est_hours = Timex.now("America/New_York").hour
-        current_est_hours >= start_time and current_est_hours <= end_time
+        beginning_est_hours = (Timex.now("America/New_York") |> Timex.shift(minutes: 16)).hour
+        end_est_hours = Timex.now("America/New_York").hour
+        beginning_est_hours >= start_time and end_est_hours <= end_time
       end)
 
     board =
