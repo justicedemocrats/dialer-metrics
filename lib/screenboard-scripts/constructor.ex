@@ -1051,9 +1051,9 @@ defmodule ScreenBoard.Constructor do
                 %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
               ],
               "q" =>
-                "(sum:call_count_5{dropped,service_name:#{service_base}}/(sum:call_count_5{dropped,service_name:#{
+                "(sum:call_count_5{dropped,service_name:#{service_base}_monitor}/(sum:call_count_5{dropped,service_name:#{
                   service_base
-                }}+sum:call_count_5{service_name:#{service_base},contact}))*100",
+                }_monitor}+sum:call_count_5{service_name:#{service_base}_monitor,contact}))*100",
               "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
               "type" => nil
             }
@@ -1089,9 +1089,9 @@ defmodule ScreenBoard.Constructor do
                 %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
               ],
               "q" =>
-                "(sum:call_count_today{dropped,service_name:#{service_base}}/(sum:call_count_today{contact,service_name:#{
+                "(sum:call_count_today{dropped,service_name:#{service_base}_monitor}/(sum:call_count_today{contact,service_name:#{
                   service_base
-                }}+sum:call_count_today{dropped,service_name:#{service_base}}))*100",
+                }_monitor}+sum:call_count_today{dropped,service_name:#{service_base}_monitor}))*100",
               "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
               "type" => nil
             }
@@ -1191,9 +1191,9 @@ defmodule ScreenBoard.Constructor do
               "aggregator" => "avg",
               "conditional_formats" => [],
               "q" =>
-                "(sum:call_count_today{dropped,service_name:#{service_base}} by {service_name}/(sum:call_count_today{contact,service_name:#{
+                "(sum:call_count_today{dropped,service_name:#{service_base}_monitor} by {service_name}/(sum:call_count_today{contact,service_name:#{
                   service_base
-                }}+sum:call_count_today{dropped,service_name:#{service_base}} by {service_name}))*100",
+                }_monitor}+sum:call_count_today{dropped,service_name:#{service_base}_monitor} by {service_name}))*100",
               "style" => %{"palette" => "purple", "type" => "solid", "width" => "normal"},
               "type" => "area"
             }
@@ -1229,9 +1229,9 @@ defmodule ScreenBoard.Constructor do
                 %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
               ],
               "q" =>
-                "(sum:call_count_1{dropped,service_name:#{service_base}}/(sum:call_count_1{dropped,service_name:#{
+                "(sum:call_count_1{dropped,service_name:#{service_base}_monitor}/(sum:call_count_1{dropped,service_name:#{
                   service_base
-                }}+sum:call_count_1{service_name:#{service_base},contact}))*100",
+                }_monitor}+sum:call_count_1{service_name:#{service_base},contact}))*100",
               "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
               "type" => nil
             }
