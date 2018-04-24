@@ -1,4 +1,4 @@
-defmodule Screenboard.Jobs do
+defmodule ScreenBoard.Jobs do
   import ShortMaps
 
   def revoke_and_share_all do
@@ -14,5 +14,9 @@ defmodule Screenboard.Jobs do
       Application.get_env(:livevox, :on_new_dashboard_webhook),
       body: Poison.encode!(~m(public_url))
     )
+  end
+
+  def reconstruct_manager do
+    ScreenBoard.Constructor.fill()
   end
 end

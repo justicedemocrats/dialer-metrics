@@ -1,7 +1,7 @@
 defmodule Livevox.Application do
   use Application
 
-  @do_things true
+  @do_things false
 
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
