@@ -1,7 +1,7 @@
 defmodule Livevox.Application do
   use Application
 
-  @do_things false
+  @do_things true
 
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
@@ -46,6 +46,7 @@ defmodule Livevox.Application do
             # # Metrics
             # # worker(Livevox.Metrics.CallerCounts, []),
             worker(Livevox.Metrics.CallCounts, []),
+            worker(Livevox.Metrics.MonitorDropCounts, []),
             worker(Livevox.Metrics.ServiceLevel, []),
             worker(Livevox.Metrics.WaitTime, []),
             worker(Livevox.Metrics.SessionLength, []),
