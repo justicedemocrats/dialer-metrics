@@ -21,6 +21,7 @@ config :livevox, Livevox.Scheduler,
   timezone: "America/New_York",
   jobs: [
     {"*/11 * * * *", {Livevox.AirtableCache, :update, []}},
+    {"*/9 * * * *", {Livevox.CampaignControllerConfig, :update, []}},
     {"*/12 * * * *", {Livevox.MessageEngineConfig, :update, []}},
     {"*/5 * * * *", {Livevox.ServiceInfo, :update, []}},
     {"0 8 * * *", {ScreenBoard.Jobs, :revoke_and_share_all, []}},
