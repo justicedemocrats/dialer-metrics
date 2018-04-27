@@ -2,7 +2,7 @@ defmodule ScreenBoard.Jobs do
   import ShortMaps
 
   def revoke_and_share_all do
-    [288_880]
+    [327_102]
     |> Enum.each(&revoke_and_share/1)
   end
 
