@@ -8,7 +8,7 @@ defmodule ScreenBoard.Constructor do
   @y_base 18
   @y_step 36
 
-  @row_length 8
+  @row_length 9
 
   def fill do
     active_services =
@@ -18,6 +18,7 @@ defmodule ScreenBoard.Constructor do
         end_est_hours = Timex.now("America/New_York").hour
         beginning_est_hours >= start_time and end_est_hours <= end_time
       end)
+      |> Enum.sort_by(& &1["candidate"])
 
     board =
       base()
