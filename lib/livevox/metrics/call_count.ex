@@ -36,8 +36,8 @@ defmodule Livevox.Metrics.CallCounts do
     %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day:not_voting"}
   ]
 
-  def service_match("Total Monitor"), do: %{"$regex" => ".*#{str} Monitor.*", "$options" => "i"}
-  def service_match("Total Callers"), do: %{"$regex" => ".*#{str} Callers.*", "$options" => "i"}
+  def service_match("Total Monitor"), do: %{"$regex" => ".*Monitor.*", "$options" => "i"}
+  def service_match("Total Callers"), do: %{"$regex" => ".*Callers.*", "$options" => "i"}
   def service_match(str), do: %{"$regex" => ".*#{str} [CMQ].*", "$options" => "i"}
 
   def start_link do
