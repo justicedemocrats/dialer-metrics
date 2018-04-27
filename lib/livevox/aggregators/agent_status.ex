@@ -119,7 +119,7 @@ defmodule Livevox.Aggregators.AgentStatus do
       end
 
       counts =
-        ~w(logged_on in_call ready not_ready)a
+        ~w(logged_on in_call ready not_ready active)a
         |> Enum.map(fn metric ->
           {metric, get_count_in_state.(metric)}
         end)
