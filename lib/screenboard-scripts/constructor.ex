@@ -131,7 +131,7 @@ defmodule ScreenBoard.Constructor do
                   %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
                 ],
                 "q" =>
-                  "(sum:call_count_5{dropped}/(sum:call_count_5{contact}+sum:call_count_5{dropped}))*100",
+                  "(sum:call_count_5{dropped,service_name:total_monitor}/(sum:call_count_5{contact,service_name:total_monitor}+sum:call_count_5{dropped,service_name:total_monitor}))*100",
                 "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
                 "type" => nil
               }
@@ -201,7 +201,7 @@ defmodule ScreenBoard.Constructor do
                   %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
                 ],
                 "q" =>
-                  "(sum:call_count_60{dropped}/(sum:call_count_60{contact}+sum:call_count_60{dropped}))*100",
+                  "(sum:call_count_60{dropped,service_name:total_monitor}/(sum:call_count_60{contact,service_name:total_monitor}+sum:call_count_60{dropped,service_name:total_monitor}))*100",
                 "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
                 "type" => nil
               }
@@ -299,7 +299,7 @@ defmodule ScreenBoard.Constructor do
                 "aggregator" => "avg",
                 "conditional_formats" => [],
                 "q" =>
-                  "(sum:call_count_today{dropped} by {service_name}/(sum:call_count_today{contact}+sum:call_count_today{dropped} by {service_name}))*100",
+                  "(sum:call_count_today{dropped,service_name:total_monitor} by {service_name}/(sum:call_count_today{contact,service_name:total_monitor}+sum:call_count_today{dropped,service_name:total_monitor} by {service_name}))*100",
                 "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
                 "type" => "area"
               }
@@ -335,7 +335,7 @@ defmodule ScreenBoard.Constructor do
                   %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
                 ],
                 "q" =>
-                  "(sum:call_count_30{dropped}/(sum:call_count_30{contact}+sum:call_count_30{dropped}))*100",
+                  "(sum:call_count_30{dropped,service_name:total_monitor}/(sum:call_count_30{contact,service_name:total_monitor}+sum:call_count_30{dropped,service_name:total_monitor}))*100",
                 "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
                 "type" => nil
               }
@@ -371,7 +371,7 @@ defmodule ScreenBoard.Constructor do
                   %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
                 ],
                 "q" =>
-                  "(sum:call_count_1{dropped}/(sum:call_count_1{contact}+sum:call_count_1{dropped}))*100",
+                  "(sum:call_count_1{dropped,service_name:total_monitor}/(sum:call_count_1{contact,service_name:total_monitor}+sum:call_count_1{dropped,service_name:total_monitor}))*100",
                 "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
                 "type" => nil
               }
@@ -601,7 +601,7 @@ defmodule ScreenBoard.Constructor do
                   %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
                 ],
                 "q" =>
-                  "(sum:call_count_today{dropped}/(sum:call_count_today{contact}+sum:call_count_today{dropped}))*100",
+                  "(sum:call_count_today{dropped,service_name:total_monitor}/(sum:call_count_today{contact,service_name:total_monitor}+sum:call_count_today{dropped,service_name:total_monitor}))*100",
                 "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
                 "type" => nil
               }
@@ -630,7 +630,8 @@ defmodule ScreenBoard.Constructor do
                 "conditional_formats" => [
                   %{"comparator" => ">", "palette" => "white_on_yellow", "value" => 0}
                 ],
-                "q" => "top(sum:call_count_5{dropped} by {service_name}, 5, 'last', 'desc')",
+                "q" =>
+                  "top(sum:call_count_5{dropped,service_name:total_monitor} by {service_name}, 5, 'last', 'desc')",
                 "style" => %{"palette" => "dog_classic"}
               }
             ],
