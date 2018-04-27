@@ -686,7 +686,8 @@ defmodule ScreenBoard.Constructor do
             "requests" => [
               %{
                 "conditional_formats" => [],
-                "q" => "sum:call_count_today{*} by {service_name}",
+                "q" =>
+                  "sum:call_count_today{service_name:total_monitor,total}+sum:call_count_today{service_name:total_callers,total}",
                 "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
                 "type" => "area"
               }
@@ -717,7 +718,8 @@ defmodule ScreenBoard.Constructor do
               %{
                 "aggregator" => "last",
                 "conditional_formats" => [],
-                "q" => "sum:call_count_today{*}",
+                "q" =>
+                  "sum:call_count_today{service_name:total_monitor,total}+sum:call_count_today{service_name:total_callers,total}",
                 "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
                 "type" => nil
               }
