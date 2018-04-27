@@ -1,6 +1,7 @@
 defmodule Livevox.Aggregators.AgentStatus do
   alias Phoenix.{PubSub}
   alias Livevox.{ServiceInfo, AgentInfo}
+  require Logger
   use Agent
   import ShortMaps
 
@@ -10,7 +11,13 @@ defmodule Livevox.Aggregators.AgentStatus do
     "2" => ~w(logged_on ready active)a,
     "3" => ~w(logged_on not_ready)a,
     "4" => ~w(logged_on in_call active)a,
-    "5" => ~w(logged_on wrap_up active)a
+    "5" => ~w(logged_on wrap_up active)a,
+    "6" => ~w(logged_on in_call active)a,
+    "7" => ~w(logged_on active)a,
+    "8" => ~w(logged_on active)a,
+    "9" => ~w(logged_on active)a,
+    "12" => ~w(logged_on active)a,
+    "13" => ~w(logged_on active)a
   }
 
   @initial_state %{
@@ -32,20 +39,24 @@ defmodule Livevox.Aggregators.AgentStatus do
   end
 
   def update do
-    %{body: ~m(agentDetails)} = Livevox.Api.post("realtime/service/agents/status", body: %{})
+    case Livevox.Api.post("realtime/service/agents/status", body: %{}) do
+      %{body: ~m(agentDetails)} ->
+        reducer = fn ~m(serviceId agentLoginId stateId), acc ->
+          statuses = @status_map["#{stateId}"]
 
-    reducer = fn ~m(serviceId agentLoginId stateId), acc ->
-      statuses = @status_map["#{stateId}"]
+          Enum.reduce(statuses, acc, fn status, deep_acc ->
+            put_in(deep_acc, [status, agentLoginId], serviceId)
+          end)
+        end
 
-      Enum.reduce(statuses, acc, fn status, deep_acc ->
-        put_in(deep_acc, [status, agentLoginId], serviceId)
-      end)
+        state = Enum.reduce(agentDetails, @initial_state, reducer)
+        Agent.update(__MODULE__, fn _ -> state end)
+        spawn(fn -> post_metrics(state) end)
+        :ok
+
+      resp ->
+        Logger.info("Could not update agent status: #{inspect(resp)}")
     end
-
-    state = Enum.reduce(agentDetails, @initial_state, reducer)
-    Agent.update(__MODULE__, fn _ -> state end)
-    spawn(fn -> post_metrics(state) end)
-    :ok
   end
 
   def get_breakdown(~m(service_name sid)) do
