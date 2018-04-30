@@ -8,7 +8,7 @@ defmodule ScreenBoard.Constructor do
   @y_base 18
   @y_step 36
 
-  @row_length 9
+  @row_length 10
 
   def fill do
     active_services =
