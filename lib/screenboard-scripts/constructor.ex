@@ -9,6 +9,8 @@ defmodule ScreenBoard.Constructor do
   @y_step 36
 
   @row_length 10
+  @controller_id 331_152
+  @target_id 327_102
 
   def fill do
     active_services =
@@ -21,7 +23,9 @@ defmodule ScreenBoard.Constructor do
       |> Enum.sort_by(& &1["candidate"])
 
     board =
-      base()
+      Dog.Api.get("screen/#{@controller_id}")
+      |> Map.get(:body)
+      |> Map.update!("board_title", fn _ -> "Dialer Managers Auto-Fill" end)
       |> Map.update!("widgets", fn widgets ->
         active_services
         |> Enum.with_index()
@@ -41,7 +45,7 @@ defmodule ScreenBoard.Constructor do
         end)
       end)
 
-    Dog.Api.put("screen/327102", body: board)
+    Dog.Api.put("screen/#{@target_id}", body: board)
     Logger.info("Updated dialer managers board")
   end
 
