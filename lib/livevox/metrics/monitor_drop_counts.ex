@@ -1,7 +1,5 @@
-defmodule Livevox.Metrics.CallCounts do
+defmodule Livevox.Metrics.MonitorDropCounts do
   import ShortMaps
-
-  @regexify fn str -> %{"$regex" => ".*#{str}.*", "$options" => "i"} end
 
   @intervals ["today", 240, 120, 60, 30, 5, 1]
   @queries [
@@ -12,33 +10,10 @@ defmodule Livevox.Metrics.CallCounts do
     %{"q" => %{"voter_hangup" => true}, "label" => "voter_hangup"},
     %{"q" => %{"canvass" => true}, "label" => "canvass"},
     %{"q" => %{"contact" => true}, "label" => "contact"},
-    %{"q" => %{"dnc_pass" => true}, "label" => "dnc"},
-    %{"q" => %{"van_result" => "Wrong Number"}, "label" => "van_result:wrong_number"},
-    %{
-      "q" => %{"van_result" => @regexify.("strong support")},
-      "label" => "van_result:strong_support"
-    },
-    %{"q" => %{"van_result" => @regexify.("lean support")}, "label" => "van_result:lean_support"},
-    %{"q" => %{"van_result" => @regexify.("undecided")}, "label" => "van_result:undecided"},
-    %{
-      "q" => %{"van_result" => @regexify.("lean opponent")},
-      "label" => "van_result:lean_opponent"
-    },
-    %{
-      "q" => %{"van_result" => @regexify.("strong opponent")},
-      "label" => "van_result:strong_opponent"
-    },
-    %{"q" => %{"van_result" => @regexify.("lean other")}, "label" => "van_result:lean_other"},
-    %{"q" => %{"van_result" => @regexify.("strong other")}, "label" => "van_result:strong_other"},
-    %{"q" => %{"van_result" => @regexify.("not voting")}, "label" => "van_result:not_voting"},
-    %{"q" => %{"e_day" => @regexify.("will vote")}, "label" => "e_day:will_vote"},
-    %{"q" => %{"e_day" => @regexify.("already voted")}, "label" => "e_day:already_voted"},
-    %{"q" => %{"e_day" => @regexify.("not_voting")}, "label" => "e_day:not_voting"}
+    %{"q" => %{"dnc_pass" => true}, "label" => "dnc"}
   ]
 
-  def service_match("Total Monitor"), do: %{"$regex" => ".*Monitor.*", "$options" => "i"}
-  def service_match("Total Callers"), do: %{"$regex" => ".*Callers.*", "$options" => "i"}
-  def service_match(str), do: %{"$regex" => ".*#{str} [CMQ].*", "$options" => "i"}
+  def service_match(str), do: %{"$regex" => ".*#{str} Monitor.*", "$options" => "i"}
 
   def start_link do
     GenServer.start_link(
@@ -72,7 +47,6 @@ defmodule Livevox.Metrics.CallCounts do
       |> Enum.to_list()
       |> MapSet.new()
       |> Enum.to_list()
-      |> Enum.concat(["Total Monitor", "Total Callers"])
 
     service_names
     |> Flow.from_enumerable()
@@ -134,7 +108,7 @@ defmodule Livevox.Metrics.CallCounts do
 
     metric = "call_count_#{minutes_ago}"
     points = [[DateTime.to_unix(Timex.now(), :second), count]]
-    tags = ["service_name:#{service}", label]
+    tags = ["service_name:#{service}_monitor", label]
     type = "gauge"
 
     Enum.concat(acc, [~m(metric points tags type)])

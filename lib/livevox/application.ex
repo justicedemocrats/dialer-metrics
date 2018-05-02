@@ -1,6 +1,8 @@
 defmodule Livevox.Application do
   use Application
 
+  @do_things true
+
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -30,9 +32,7 @@ defmodule Livevox.Application do
       worker(Livevox.AgentInfo, []),
       worker(Livevox.AirtableCache, []),
       worker(Livevox.MessageEngineConfig, []),
-      # worker(Livevox.CampaignControllerConfig, []),
-
-      # Feeds
+      worker(Livevox.CampaignControllerConfig, []),
       worker(Livevox.ServiceStatFeed, []),
       worker(Livevox.AgentEventFeed, []),
       worker(Livevox.CallEventFeed, []),

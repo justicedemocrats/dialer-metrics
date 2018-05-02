@@ -69,7 +69,7 @@ defmodule Livevox.EventLoggers.CallEvent do
   end
 
   # Calls from call event feed with no agent
-  def handle_info(message = %{"lvResult" => _something}, state) do
+  def handle_info(message = %{"lvResult" => something}, state) when not is_nil(something) do
     Db.insert_one("calls_raw", message)
 
     ~m(id service_name agent_name extra_attributes lv_result timestamp phone_dialed duration) =

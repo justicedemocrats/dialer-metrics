@@ -170,13 +170,13 @@ defmodule Livevox.Interactors.MessageEngine do
         body: %{"agents" => [agent]}
       )
 
-    case List.first(resp.body["agents"]) |> Map.get("status") do
+    case agent do
       # forced ready
-      "Success" ->
+      %{"status" => "Success"} ->
         GenServer.cast(__MODULE__, {:cancel, agent})
 
       # already ready
-      "Invalid Agent state" ->
+      %{"status" => "Invalid Agent state"} ->
         GenServer.cast(__MODULE__, {:cancel, agent})
 
       # failure

@@ -16,17 +16,18 @@ defmodule Livevox.AgentEventFeed do
   end
 
   def get_activity(token) do
-    resp =
-      %{body: %{"token" => new_token}} =
-      Livevox.Api.post(
-        "realtime/agentEvent/feed",
-        body: %{token: token},
-        timeout: 20_000
-      )
+    case Livevox.Api.post(
+           "realtime/agentEvent/feed",
+           body: %{token: token},
+           timeout: 20_000
+         ) do
+      resp = %{body: %{"token" => new_token}} ->
+        handle_events(resp.body["agentEvent"])
+        get_activity(new_token)
 
-    handle_events(resp.body["agentEvent"])
-
-    get_activity(new_token)
+      %HTTPotion.ErrorResponse{message: "req_timedout"} ->
+        get_activity()
+    end
   end
 
   defp handle_events(events) do
