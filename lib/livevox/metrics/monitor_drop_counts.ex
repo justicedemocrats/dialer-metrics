@@ -64,10 +64,8 @@ defmodule Livevox.Metrics.MonitorDropCounts do
   end
 
   def initial_count(service_name) do
-    time_after = Timex.shift(Timex.now(), minutes: -60 * Timex.now("America/Los_Angeles").hour)
-    timestamp = %{"$gt" => time_after}
     service_name = service_match(service_name)
-    {:ok, count} = Db.count("calls", ~m(service_name timestamp))
+    {:ok, count} = Db.count("calls", ~m(service_name))
     count
   end
 
@@ -76,17 +74,15 @@ defmodule Livevox.Metrics.MonitorDropCounts do
   end
 
   def execute_service_query(acc, prev_count, [minutes_ago | remaining], service, ~m(q label)) do
-    time_after =
+    timestamp =
       case minutes_ago do
         "today" ->
-          la_hours = Timex.now("America/Los_Angeles").hour
-          Timex.shift(Timex.now(), minutes: -60 * la_hours)
+          %{}
 
         n ->
-          Timex.shift(Timex.now(), minutes: -1 * n)
+          %{"timestamp" => %{"$gt" => Timex.shift(Timex.now(), minutes: -1 * n)}}
       end
 
-    timestamp = %{"$gt" => time_after}
     service_name = service
 
     count =
@@ -100,7 +96,9 @@ defmodule Livevox.Metrics.MonitorDropCounts do
           {:ok, count} =
             Db.count(
               "calls",
-              Map.merge(q, %{"service_name" => match, "timestamp" => timestamp})
+              q
+              |> Map.merge(timestamp)
+              |> Map.merge(%{"service_name" => match})
             )
 
           count
