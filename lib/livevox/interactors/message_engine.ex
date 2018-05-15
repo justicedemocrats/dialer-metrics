@@ -84,6 +84,23 @@ defmodule Livevox.Interactors.MessageEngine do
     {:noreply, %{queued: new_queued, to_ignore: to_ignore}}
   end
 
+  # When they log off, we don't know it's the same person who logs in next time
+  def handle_info(%{"agentId" => agentId, "eventType" => "LOGOFF"}, state) do
+    agent_name = Livevox.AgentInfo.name_of(agentId)
+
+    cancellation_results =
+      (state.queued[agent_name] || [])
+      |> Enum.map(fn timer_ref -> :timer.cancel(timer_ref) end)
+
+    Logger.info(
+      "Cancelled #{length(cancellation_results)} messages for #{agent_name} because of LOGOFF. Also clearing competencies."
+    )
+
+    new_queued = Map.drop(state.queued, [agent_name])
+    to_ignore = state.to_ignore |> MapSet.drop([agent_name])
+    {:noreply, %{queued: new_queued, to_ignore: to_ignore}}
+  end
+
   # When they do anything else, cancel all of the queues and drop them from state
   def handle_info(%{"lineNumber" => "ACD", "agentId" => agentId, "eventType" => et}, state) do
     agent_name = Livevox.AgentInfo.name_of(agentId)
