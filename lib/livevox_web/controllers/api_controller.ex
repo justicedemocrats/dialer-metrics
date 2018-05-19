@@ -47,6 +47,11 @@ defmodule LivevoxWeb.ApiController do
     |> Enum.map(&Task.await/1)
   end
 
+  def rebuild_dashboard(conn, _) do
+    ScreenBoard.Jobs.reconstruct_manager()
+    text(conn, "dashboard rebuilt.")
+  end
+
   def slugify(service_name) do
     service_name
     |> String.replace(" ", "_", global: true)

@@ -20,6 +20,7 @@ defmodule LivevoxWeb.Router do
   end
 
   scope "/api", LivevoxWeb do
-    get("agent-desktop-info", ApiController, :agent_desktop_info)
+    get("/agent-desktop-info", ApiController, :agent_desktop_info)
+    get("/rebuild-dashboard", ApiController, :rebuild_dashboard)
   end
 end
