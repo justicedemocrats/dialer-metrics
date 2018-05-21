@@ -8,7 +8,7 @@ defmodule ScreenBoard.Constructor do
   @y_base 18
   @y_step 18
 
-  @row_length 3
+  @row_length 4
   @controller_id 331_152
   @target_id 327_102
   # @target_id 343_266
