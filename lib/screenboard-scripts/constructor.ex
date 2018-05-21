@@ -10,8 +10,8 @@ defmodule ScreenBoard.Constructor do
 
   @row_length 3
   @controller_id 331_152
-  # @target_id 327_102
-  @target_id 343_266
+  @target_id 327_102
+  # @target_id 343_266
 
   def fill do
     active_services =
@@ -914,6 +914,16 @@ defmodule ScreenBoard.Constructor do
         "legend_size" => "0",
         "tile_def" => %{
           "autoscale" => true,
+          "markers" => [
+            %{
+              "dim" => "y",
+              "label" => "Legal Limit",
+              "max" => nil,
+              "min" => 3,
+              "type" => "error dashed",
+              "value" => "y > 3"
+            }
+          ],
           "requests" => [
             %{
               "aggregator" => "avg",
@@ -1173,15 +1183,16 @@ defmodule ScreenBoard.Constructor do
               "aggregator" => "last",
               "conditional_formats" => [
                 %{
-                  "comparator" => ">",
+                  "comparator" => ">=",
                   "palette" => "white_on_green",
                   "value" => "10"
                 },
                 %{
-                  "comparator" => ">",
+                  "comparator" => ">=",
                   "palette" => "white_on_yellow",
-                  "value" => "5"
-                }
+                  "value" => "1"
+                },
+                %{"comparator" => "<", "palette" => "white_on_gray", "value" => "1"}
               ],
               "q" => "sum:count_active{service:#{service_base}_callers}",
               "style" => %{
@@ -1231,12 +1242,12 @@ defmodule ScreenBoard.Constructor do
                 %{
                   "comparator" => ">=",
                   "palette" => "yellow_on_white",
-                  "value" => "60"
+                  "value" => "90"
                 },
                 %{
                   "comparator" => ">=",
                   "palette" => "green_on_white",
-                  "value" => "30"
+                  "value" => "60"
                 },
                 %{
                   "comparator" => ">=",
@@ -1279,7 +1290,13 @@ defmodule ScreenBoard.Constructor do
           "requests" => [
             %{
               "aggregator" => "last",
-              "conditional_formats" => [],
+              "conditional_formats" => [
+                %{
+                  "comparator" => "<=",
+                  "palette" => "white_on_gray",
+                  "value" => "0"
+                }
+              ],
               "q" =>
                 "sum:cip{service:#{service_base}_callers}+sum:cip{service:#{service_base}_monitor}",
               "style" => %{
@@ -1412,6 +1429,11 @@ defmodule ScreenBoard.Constructor do
               "aggregator" => "last",
               "conditional_formats" => [
                 %{
+                  "comparator" => ">",
+                  "palette" => "white_on_yellow",
+                  "value" => "5"
+                },
+                %{
                   "comparator" => "<=",
                   "palette" => "white_on_gray",
                   "value" => "0"
@@ -1453,6 +1475,11 @@ defmodule ScreenBoard.Constructor do
             %{
               "aggregator" => "last",
               "conditional_formats" => [
+                %{
+                  "comparator" => ">",
+                  "palette" => "white_on_yellow",
+                  "value" => "5"
+                },
                 %{
                   "comparator" => "<=",
                   "palette" => "white_on_gray",
