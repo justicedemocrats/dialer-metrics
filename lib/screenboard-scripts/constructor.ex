@@ -10,8 +10,8 @@ defmodule ScreenBoard.Constructor do
 
   @row_length 4
   @controller_id 331_152
-  @target_id 327_102
-  # @target_id 343_266
+  # @target_id 327_102
+  @target_id 343_266
 
   def fill do
     active_services =
@@ -996,9 +996,13 @@ defmodule ScreenBoard.Constructor do
                 }
               ],
               "q" =>
-                "(sum:call_count_today{service_name:#{service_base},dropped}/(sum:call_count_today{service_name:#{
+                "((sum:call_count_today{service_name:#{service_base},dropped}-sum:call_count_today{service_name:#{
                   service_base
-                },dropped}+sum:call_count_today{service_name:#{service_base},contact}))*100",
+                }_monitor,dropped})/((sum:call_count_today{service_name:#{service_base},dropped}-sum:call_count_today{service_name:#{
+                  service_base
+                }_monitor,dropped})+(sum:call_count_today{service_name:#{service_base},contact}-sum:call_count_today{contact,service_name:#{
+                  service_base
+                }_monitor})))*100",
               "style" => %{
                 "palette" => "dog_classic",
                 "type" => "solid",
@@ -1096,9 +1100,13 @@ defmodule ScreenBoard.Constructor do
                 }
               ],
               "q" =>
-                "(sum:call_count_5{service_name:#{service_base},dropped}/(sum:call_count_5{service_name:#{
+                "((sum:call_count_5{service_name:#{service_base},dropped}-sum:call_count_5{service_name:#{
                   service_base
-                },dropped}+sum:call_count_5{service_name:#{service_base},contact}))*100",
+                }_monitor,dropped})/((sum:call_count_5{service_name:#{service_base},dropped}-sum:call_count_5{service_name:#{
+                  service_base
+                }_monitor,dropped})+(sum:call_count_5{service_name:#{service_base},contact}-sum:call_count_5{contact,service_name:#{
+                  service_base
+                }_monitor})))*100",
               "style" => %{
                 "palette" => "dog_classic",
                 "type" => "solid",
