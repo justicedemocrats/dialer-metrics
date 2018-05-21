@@ -3,14 +3,15 @@ defmodule ScreenBoard.Constructor do
   require Logger
 
   @x_base 40
-  @x_step 27
+  @x_step 80
 
   @y_base 18
-  @y_step 36
+  @y_step 18
 
-  @row_length 10
+  @row_length 3
   @controller_id 331_152
-  @target_id 327_102
+  # @target_id 327_102
+  @target_id 343_266
 
   def fill do
     active_services =
@@ -907,44 +908,7 @@ defmodule ScreenBoard.Constructor do
   def widget_group(~m(x y service_base title)a) do
     [
       %{
-        "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
-        "isShared" => false,
-        "legend" => false,
-        "legend_size" => "0",
-        "tile_def" => %{
-          "autoscale" => true,
-          "custom_unit" => nil,
-          "requests" => [
-            %{
-              "aggregator" => "last",
-              "conditional_formats" => [
-                %{"comparator" => ">", "palette" => "white_on_red", "value" => nil},
-                %{"comparator" => ">=", "palette" => "white_on_yellow", "value" => nil},
-                %{"comparator" => "<", "palette" => "white_on_green", "value" => nil}
-              ],
-              "q" => "sum:throttle{service:#{service_base}_monitor}",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
-              "type" => nil
-            }
-          ],
-          "viz" => "query_value"
-        },
-        "timeframe" => "1h",
-        "title" => true,
-        "title_align" => "left",
-        "title_size" => 13,
-        "title_text" => "cell",
-        "type" => "query_value",
-        "width" => 8,
-        "x" => x,
-        "y" => y + 15
-      },
-      %{
-        "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
+        "height" => 12,
         "isShared" => false,
         "legend" => false,
         "legend_size" => "0",
@@ -952,136 +916,53 @@ defmodule ScreenBoard.Constructor do
           "autoscale" => true,
           "requests" => [
             %{
-              "aggregator" => "last",
-              "conditional_formats" => [
-                %{"comparator" => "<=", "palette" => "red_on_white", "value" => "1000"},
-                %{"comparator" => "<=", "palette" => "yellow_on_white", "value" => "5000"},
-                %{"comparator" => ">", "palette" => "green_on_white", "value" => "5000"}
-              ],
-              "q" => "sum:remaining{service:#{service_base}_monitor}",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
-              "type" => nil
-            }
-          ],
-          "viz" => "query_value"
-        },
-        "timeframe" => "1h",
-        "title" => true,
-        "title_align" => "left",
-        "title_size" => 13,
-        "title_text" => "",
-        "type" => "query_value",
-        "width" => 8,
-        "x" => x + 8,
-        "y" => y + 15
-      },
-      %{
-        "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
-        "isShared" => false,
-        "legend" => false,
-        "legend_size" => "0",
-        "tile_def" => %{
-          "autoscale" => true,
-          "custom_unit" => nil,
-          "requests" => [
-            %{
-              "aggregator" => "last",
+              "aggregator" => "avg",
               "conditional_formats" => [],
-              "q" => "sum:throttle{service:#{service_base}_callers}",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
-              "type" => nil
-            }
-          ],
-          "viz" => "query_value"
-        },
-        "timeframe" => "1h",
-        "title" => true,
-        "title_align" => "left",
-        "title_size" => 13,
-        "title_text" => "lands",
-        "type" => "query_value",
-        "width" => 8,
-        "x" => x,
-        "y" => y + 9
-      },
-      %{
-        "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
-        "isShared" => false,
-        "legend" => false,
-        "legend_size" => "0",
-        "tile_def" => %{
-          "autoscale" => true,
-          "requests" => [
-            %{
-              "aggregator" => "last",
-              "conditional_formats" => [
-                %{"comparator" => "<=", "palette" => "red_on_white", "value" => "1000"},
-                %{"comparator" => "<=", "palette" => "yellow_on_white", "value" => "5000"},
-                %{"comparator" => ">", "palette" => "green_on_white", "value" => "5000"}
-              ],
-              "q" => "sum:remaining{service:#{service_base}_callers}",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
-              "type" => nil
-            }
-          ],
-          "viz" => "query_value"
-        },
-        "timeframe" => "1h",
-        "title" => true,
-        "title_align" => "left",
-        "title_size" => 13,
-        "title_text" => "",
-        "type" => "query_value",
-        "width" => 8,
-        "x" => x + 8,
-        "y" => y + 9
-      },
-      %{
-        "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
-        "isShared" => false,
-        "legend" => false,
-        "legend_size" => "0",
-        "tile_def" => %{
-          "autoscale" => true,
-          "custom_unit" => "%",
-          "requests" => [
-            %{
-              "aggregator" => "last",
-              "conditional_formats" => [
-                %{"comparator" => ">", "palette" => "white_on_red", "value" => "3"},
-                %{"comparator" => ">=", "palette" => "white_on_yellow", "value" => "2"},
-                %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
-              ],
-              "q" =>
-                "(sum:call_count_5{dropped,service_name:#{service_base}_monitor}/(sum:call_count_5{dropped,service_name:#{
+              "metadata" => %{
+                "(sum:call_count_today{service_name:#{service_base},dropped}/(sum:call_count_today{service_name:#{
                   service_base
-                }_monitor}+sum:call_count_5{service_name:#{service_base}_monitor,contact}))*100",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
-              "type" => nil
+                },dropped}+sum:call_count_today{service_name:#{service_base},contact}))*100" => %{
+                  "alias" => "lands"
+                },
+                "(sum:call_count_today{service_name:#{service_base}_monitor,dropped}/(sum:call_count_today{service_name:#{
+                  service_base
+                }_monitor,dropped}+sum:call_count_today{contact,service_name:#{service_base}_monitor}))*100" =>
+                  %{
+                    "alias" => "cells"
+                  }
+              },
+              "q" =>
+                "(sum:call_count_today{service_name:#{service_base},dropped}/(sum:call_count_today{service_name:#{
+                  service_base
+                },dropped}+sum:call_count_today{service_name:#{service_base},contact}))*100, (sum:call_count_today{service_name:#{
+                  service_base
+                }_monitor,dropped}/(sum:call_count_today{service_name:#{service_base}_monitor,dropped}+sum:call_count_today{contact,service_name:#{
+                  service_base
+                }_monitor}))*100",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => "line"
             }
           ],
-          "viz" => "query_value"
+          "viz" => "timeseries"
         },
-        "timeframe" => "5m",
+        "timeframe" => "4h",
         "title" => true,
         "title_align" => "left",
         "title_size" => 13,
-        "title_text" => "5m",
-        "type" => "query_value",
-        "width" => 8,
-        "x" => x + 16,
-        "y" => y + 9
+        "title_text" => "Drop Rates (Lands and Cells)",
+        "type" => "timeseries",
+        "width" => 23,
+        "x" => x + 33,
+        "y" => y + 4
       },
       %{
         "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
+        "board_id" => 341_895,
+        "height" => 5,
         "isShared" => false,
         "legend" => false,
         "legend_size" => "0",
@@ -1093,14 +974,26 @@ defmodule ScreenBoard.Constructor do
               "aggregator" => "last",
               "conditional_formats" => [
                 %{"comparator" => ">", "palette" => "white_on_red", "value" => "3"},
-                %{"comparator" => ">=", "palette" => "white_on_yellow", "value" => "2"},
-                %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
+                %{
+                  "comparator" => ">",
+                  "palette" => "white_on_yellow",
+                  "value" => "2"
+                },
+                %{
+                  "comparator" => "<",
+                  "palette" => "white_on_green",
+                  "value" => "2"
+                }
               ],
               "q" =>
-                "(sum:call_count_today{dropped,service_name:#{service_base}_monitor}/(sum:call_count_today{contact,service_name:#{
+                "(sum:call_count_today{service_name:#{service_base},dropped}/(sum:call_count_today{service_name:#{
                   service_base
-                }_monitor}+sum:call_count_today{dropped,service_name:#{service_base}_monitor}))*100",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
+                },dropped}+sum:call_count_today{service_name:#{service_base},contact}))*100",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
               "type" => nil
             }
           ],
@@ -1110,137 +1003,192 @@ defmodule ScreenBoard.Constructor do
         "title" => true,
         "title_align" => "left",
         "title_size" => 13,
-        "title_text" => "Today",
+        "title_text" => "LANDS",
         "type" => "query_value",
         "width" => 8,
-        "x" => x + 16,
-        "y" => y + 15
+        "x" => x + 56,
+        "y" => y + 4
       },
       %{
         "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
+        "board_id" => 341_895,
+        "height" => 5,
         "isShared" => false,
         "legend" => false,
         "legend_size" => "0",
         "tile_def" => %{
-          "autoscale" => true,
-          "precision" => "0",
-          "requests" => [
-            %{
-              "aggregator" => "last",
-              "conditional_formats" => [
-                %{"comparator" => ">", "palette" => "white_on_green", "value" => "0"},
-                %{"comparator" => "<=", "palette" => "yellow_on_white", "value" => "0"}
-              ],
-              "q" => "sum:count_active{service:#{service_base}_callers}",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
-              "type" => nil
-            }
-          ],
-          "viz" => "query_value"
-        },
-        "timeframe" => "1m",
-        "title" => true,
-        "title_align" => "left",
-        "title_size" => 16,
-        "title_text" => "Active",
-        "type" => "query_value",
-        "width" => 8,
-        "x" => x,
-        "y" => y + 3
-      },
-      %{
-        "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
-        "isShared" => false,
-        "legend" => false,
-        "legend_size" => "0",
-        "tile_def" => %{
-          "autoscale" => true,
-          "precision" => "0",
-          "requests" => [
-            %{
-              "aggregator" => "avg",
-              "conditional_formats" => [
-                %{"comparator" => "<", "palette" => "green_on_white", "value" => "60"},
-                %{"comparator" => "<", "palette" => "yellow_on_white", "value" => "120"},
-                %{"comparator" => "<", "palette" => "red_on_white", "value" => "180"},
-                %{"comparator" => ">=", "palette" => "white_on_red", "value" => "180"}
-              ],
-              "q" => "avg:wait_time{service:#{service_base}_callers}",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
-              "type" => nil
-            }
-          ],
-          "viz" => "query_value"
-        },
-        "timeframe" => "1m",
-        "title" => true,
-        "title_align" => "left",
-        "title_size" => 16,
-        "title_text" => "Wait (Avg)",
-        "type" => "query_value",
-        "width" => 8,
-        "x" => x + 8,
-        "y" => y + 3
-      },
-      %{
-        "board_id" => 288_880,
-        "height" => 12,
-        "isShared" => false,
-        "legend" => false,
-        "legend_size" => "16",
-        "tile_def" => %{
-          "autoscale" => true,
-          "requests" => [
-            %{
-              "aggregator" => "avg",
-              "conditional_formats" => [],
-              "q" =>
-                "(sum:call_count_today{dropped,service_name:#{service_base}_monitor} by {service_name}/(sum:call_count_today{contact,service_name:#{
-                  service_base
-                }_monitor}+sum:call_count_today{dropped,service_name:#{service_base}_monitor} by {service_name}))*100",
-              "style" => %{"palette" => "purple", "type" => "solid", "width" => "normal"},
-              "type" => "area"
-            }
-          ],
-          "viz" => "timeseries"
-        },
-        "timeframe" => "4h",
-        "title" => true,
-        "title_align" => "left",
-        "title_size" => 20,
-        "title_text" => "Daily Drop Rate",
-        "type" => "timeseries",
-        "width" => 24,
-        "x" => x,
-        "y" => y + 21
-      },
-      %{
-        "autoscale" => true,
-        "board_id" => 260_348,
-        "height" => 4,
-        "isShared" => false,
-        "legend" => false,
-        "legend_size" => "0",
-        "tile_def" => %{
-          "autoscale" => true,
+          "autoscale" => false,
           "custom_unit" => "%",
           "requests" => [
             %{
               "aggregator" => "last",
               "conditional_formats" => [
                 %{"comparator" => ">", "palette" => "white_on_red", "value" => "3"},
-                %{"comparator" => ">=", "palette" => "white_on_yellow", "value" => "2"},
-                %{"comparator" => "<", "palette" => "white_on_green", "value" => "2"}
+                %{
+                  "comparator" => ">",
+                  "palette" => "white_on_yellow",
+                  "value" => "2"
+                },
+                %{
+                  "comparator" => "<",
+                  "palette" => "white_on_green",
+                  "value" => "2"
+                }
               ],
               "q" =>
-                "(sum:call_count_1{dropped,service_name:#{service_base}_monitor}/(sum:call_count_1{dropped,service_name:#{
+                "(sum:call_count_today{dropped,service_name:#{service_base}_monitor}/(sum:call_count_today{dropped,service_name:#{
                   service_base
-                }_monitor}+sum:call_count_1{service_name:#{service_base},contact}))*100",
-              "style" => %{"palette" => "dog_classic", "type" => "solid", "width" => "normal"},
+                }_monitor}+sum:call_count_today{contact,service_name:#{service_base}_monitor}))*100",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "1d",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "CELLS",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 56,
+        "y" => y + 11
+      },
+      %{
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 5,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => false,
+          "custom_unit" => "%",
+          "requests" => [
+            %{
+              "aggregator" => "last",
+              "conditional_formats" => [
+                %{"comparator" => ">", "palette" => "white_on_red", "value" => "3"},
+                %{
+                  "comparator" => ">",
+                  "palette" => "white_on_yellow",
+                  "value" => "2"
+                },
+                %{
+                  "comparator" => "<",
+                  "palette" => "white_on_green",
+                  "value" => "2"
+                }
+              ],
+              "q" =>
+                "(sum:call_count_5{service_name:#{service_base},dropped}/(sum:call_count_5{service_name:#{
+                  service_base
+                },dropped}+sum:call_count_5{service_name:#{service_base},contact}))*100",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "5m",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "LANDS",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 64,
+        "y" => y + 4
+      },
+      %{
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 5,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => false,
+          "custom_unit" => "%",
+          "requests" => [
+            %{
+              "aggregator" => "last",
+              "conditional_formats" => [
+                %{"comparator" => ">", "palette" => "white_on_red", "value" => "3"},
+                %{
+                  "comparator" => ">",
+                  "palette" => "white_on_yellow",
+                  "value" => "2"
+                },
+                %{
+                  "comparator" => "<",
+                  "palette" => "white_on_green",
+                  "value" => "2"
+                }
+              ],
+              "q" =>
+                "(sum:call_count_5{dropped,service_name:#{service_base}_monitor}/(sum:call_count_5{dropped,service_name:#{
+                  service_base
+                }_monitor}+sum:call_count_5{contact,service_name:#{service_base}_monitor}))*100",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "5m",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "CELLS",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 64,
+        "y" => y + 11
+      },
+      %{
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 12,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => true,
+          "requests" => [
+            %{
+              "aggregator" => "last",
+              "conditional_formats" => [
+                %{
+                  "comparator" => ">",
+                  "palette" => "white_on_green",
+                  "value" => "10"
+                },
+                %{
+                  "comparator" => ">",
+                  "palette" => "white_on_yellow",
+                  "value" => "5"
+                }
+              ],
+              "q" => "sum:count_active{service:#{service_base}_callers}",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
               "type" => nil
             }
           ],
@@ -1250,17 +1198,293 @@ defmodule ScreenBoard.Constructor do
         "title" => true,
         "title_align" => "left",
         "title_size" => 13,
-        "title_text" => "1m",
+        "title_text" => "Active",
         "type" => "query_value",
-        "width" => 8,
-        "x" => x + 16,
-        "y" => y + 3
+        "width" => 9,
+        "x" => x + 0,
+        "y" => y + 4
       },
       %{
-        "board_id" => 260_348,
-        "color" => "#000",
-        "font_size" => "24",
-        "height" => 3,
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 5,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => false,
+          "custom_unit" => "secs",
+          "requests" => [
+            %{
+              "aggregator" => "avg",
+              "conditional_formats" => [
+                %{
+                  "comparator" => ">=",
+                  "palette" => "white_on_red",
+                  "value" => "180"
+                },
+                %{
+                  "comparator" => ">=",
+                  "palette" => "red_on_white",
+                  "value" => "120"
+                },
+                %{
+                  "comparator" => ">=",
+                  "palette" => "yellow_on_white",
+                  "value" => "60"
+                },
+                %{
+                  "comparator" => ">=",
+                  "palette" => "green_on_white",
+                  "value" => "30"
+                },
+                %{
+                  "comparator" => ">=",
+                  "palette" => "white_on_green",
+                  "value" => "1"
+                }
+              ],
+              "q" => "avg:wait_time{service:#{service_base}_callers}",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "5m",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "Wait time",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 9,
+        "y" => y + 4
+      },
+      %{
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 5,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => false,
+          "custom_unit" => "cip",
+          "precision" => "0",
+          "requests" => [
+            %{
+              "aggregator" => "last",
+              "conditional_formats" => [],
+              "q" =>
+                "sum:cip{service:#{service_base}_callers}+sum:cip{service:#{service_base}_monitor}",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "5m",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "CIP",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 9,
+        "y" => y + 11
+      },
+      %{
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 5,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => true,
+          "custom_unit" => "left",
+          "precision" => "0",
+          "requests" => [
+            %{
+              "aggregator" => "last",
+              "conditional_formats" => [
+                %{
+                  "comparator" => "<",
+                  "palette" => "red_on_white",
+                  "value" => "1000"
+                },
+                %{
+                  "comparator" => "<=",
+                  "palette" => "white_on_gray",
+                  "value" => "0"
+                }
+              ],
+              "q" => "min:playing_dialable{service:#{service_base}_callers}",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "1m",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "LANDS",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 17,
+        "y" => y + 4
+      },
+      %{
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 5,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => true,
+          "custom_unit" => "left",
+          "precision" => "0",
+          "requests" => [
+            %{
+              "aggregator" => "last",
+              "conditional_formats" => [
+                %{
+                  "comparator" => "<",
+                  "palette" => "red_on_white",
+                  "value" => "1000"
+                },
+                %{
+                  "comparator" => "<=",
+                  "palette" => "white_on_gray",
+                  "value" => "0"
+                }
+              ],
+              "q" => "min:playing_dialable{service:#{service_base}_monitor}",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "1m",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "CELLS",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 17,
+        "y" => y + 11
+      },
+      %{
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 5,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => false,
+          "custom_unit" => "per",
+          "precision" => "0",
+          "requests" => [
+            %{
+              "aggregator" => "last",
+              "conditional_formats" => [
+                %{
+                  "comparator" => "<=",
+                  "palette" => "white_on_gray",
+                  "value" => "0"
+                }
+              ],
+              "q" => "sum:throttle{service:#{service_base}_callers}",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "1m",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "LANDS",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 25,
+        "y" => y + 4
+      },
+      %{
+        "autoscale" => true,
+        "board_id" => 341_895,
+        "height" => 5,
+        "isShared" => false,
+        "legend" => false,
+        "legend_size" => "0",
+        "tile_def" => %{
+          "autoscale" => false,
+          "custom_unit" => "per",
+          "precision" => "0",
+          "requests" => [
+            %{
+              "aggregator" => "last",
+              "conditional_formats" => [
+                %{
+                  "comparator" => "<=",
+                  "palette" => "white_on_gray",
+                  "value" => "0"
+                }
+              ],
+              "q" => "sum:throttle{service:#{service_base}_monitor}",
+              "style" => %{
+                "palette" => "dog_classic",
+                "type" => "solid",
+                "width" => "normal"
+              },
+              "type" => nil
+            }
+          ],
+          "viz" => "query_value"
+        },
+        "timeframe" => "1m",
+        "title" => true,
+        "title_align" => "left",
+        "title_size" => 13,
+        "title_text" => "CELLS",
+        "type" => "query_value",
+        "width" => 8,
+        "x" => x + 25,
+        "y" => y + 11
+      },
+      %{
+        "board_id" => 341_895,
+        "color" => "#4d4d4d",
+        "font_size" => "auto",
+        "height" => 4,
         "isShared" => false,
         "text" => title,
         "text_align" => "left",
@@ -1269,9 +1493,9 @@ defmodule ScreenBoard.Constructor do
         "title_size" => 16,
         "title_text" => "",
         "type" => "free_text",
-        "width" => 23,
-        "x" => x,
-        "y" => y
+        "width" => 25,
+        "x" => x + 0,
+        "y" => y + 0
       }
     ]
   end
