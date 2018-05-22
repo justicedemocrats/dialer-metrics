@@ -32,7 +32,8 @@ config :livevox, Livevox.Scheduler,
     {{:extended, "*/15"}, {Livevox.Aggregators.AgentStatus, :update, []}},
     {{:extended, "*/30"}, {Livevox.EventLoggers.CallEvent, :flush, []}},
     {{:extended, "*/30"}, {Livevox.Metrics.CallCounts, :report_over_period, []}},
-    {{:extended, "*/30"}, {Livevox.Metrics.MonitorDropCounts, :report_over_period, []}}
+    {{:extended, "*/30"}, {Livevox.Metrics.MonitorDropCounts, :report_over_period, []}},
+    {{:extended, "*/30"}, {Livevox.Metrics.LandsDropCounts, :report_over_period, []}}
   ]
 
 # Import environment specific config. This must remain at the bottom

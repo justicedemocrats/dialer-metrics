@@ -47,6 +47,7 @@ defmodule Livevox.Application do
             # # worker(Livevox.Metrics.CallerCounts, []),
             worker(Livevox.Metrics.CallCounts, []),
             worker(Livevox.Metrics.MonitorDropCounts, []),
+            worker(Livevox.Metrics.LandsDropCounts, []),
             worker(Livevox.Metrics.ServiceLevel, []),
             worker(Livevox.Metrics.WaitTime, []),
             worker(Livevox.Metrics.SessionLength, []),
