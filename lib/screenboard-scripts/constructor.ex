@@ -10,8 +10,8 @@ defmodule ScreenBoard.Constructor do
 
   @row_length 4
   @controller_id 331_152
-  # @target_id 327_102
-  @target_id 343_266
+  @target_id 327_102
+  # @target_id 343_266
 
   def fill do
     active_services =
