@@ -16,6 +16,7 @@ defmodule ScreenBoard.Constructor do
   def fill do
     active_services =
       Livevox.CampaignControllerConfig.get_all()
+      |> Enum.filter(fn ~m(active) -> active end)
       |> Enum.filter(fn ~m(start_time end_time) ->
         beginning_est_hours = (Timex.now("America/New_York") |> Timex.shift(minutes: 16)).hour
         end_est_hours = Timex.now("America/New_York").hour

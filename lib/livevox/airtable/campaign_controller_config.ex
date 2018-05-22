@@ -21,6 +21,7 @@ defmodule Livevox.CampaignControllerConfig do
     end_time = fields["End Time (EST)"]
     service_name = fields["Service Regex"]
     candidate = fields["Candidate"]
-    ~m(service_regex active_days start_time end_time candidate service_name)
+    active = fields["Active"] == true
+    ~m(service_regex active_days start_time end_time candidate service_name active)
   end
 end
